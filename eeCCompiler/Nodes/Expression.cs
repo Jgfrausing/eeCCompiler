@@ -58,4 +58,9 @@ namespace eeCCompiler.Nodes
         public Operator Operator { get; set; }
         public IExpression IExpression { get; set; }
     }
+
+    class OptExpression : AbstractSyntaxTree, IExpression
+    {
+         
+    }
 }

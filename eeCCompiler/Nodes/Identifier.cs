@@ -2,7 +2,7 @@
 
 namespace eeCCompiler.Nodes
 {
-    class Identifier : AbstractSyntaxTree, IValue
+    public class Identifier : AbstractSyntaxTree, IValue
     {
         public Identifier(string id)
         {

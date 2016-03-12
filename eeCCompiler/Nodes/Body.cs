@@ -3,7 +3,7 @@ using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    class Body : AbstractSyntaxTree
+    public class Body : AbstractSyntaxTree
     {
         public Body()
         {

@@ -10,7 +10,7 @@ namespace eeCCompiler
         {
             var parser = new MyParser();
             var result = parser.Parse(new StreamReader("HelloWorld.eec"));
-            string syntax = result ?  "The syntax is correct!" : "There is errors in the syntax";
+            string syntax = result ?  "The syntax is correct!" : "There are errors in the syntax";
             Console.WriteLine(syntax);
             Console.ReadKey();
         }
