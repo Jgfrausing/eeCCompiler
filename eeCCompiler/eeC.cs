@@ -45,10 +45,12 @@ internal class MyParser
 
         AbstractSyntaxTree currentReduction = null;
         var done = false;
+        int i = 0;
         while (!done)
         {
             var response = _parser.Parse();
 
+            i++;
             switch (response)
             {
                 case ParseMessage.Reduction:
@@ -82,11 +84,21 @@ internal class MyParser
 
                 case ParseMessage.LexicalError:
                     //Cannot recognize token
+                    Console.WriteLine("______________________________________________________");
+                    Console.WriteLine("Data: " + _parser.CurrentToken().Data.ToString());
+                    Console.WriteLine("Parent: " + _parser.CurrentToken().Parent.ToString());
+                    Console.WriteLine("Position: " + _parser.CurrentToken().Position().ToString());
+                    Console.WriteLine("Type: " + _parser.CurrentToken().Type().ToString());
                     done = true;
                     break;
 
                 case ParseMessage.SyntaxError:
                     //Expecting a different token
+                    Console.WriteLine("______________________________________________________");
+                    Console.WriteLine("Data: " + _parser.CurrentToken().Data.ToString());
+                    Console.WriteLine("Parent: " + _parser.CurrentToken().Parent.ToString());
+                    Console.WriteLine("Position: " + _parser.CurrentToken().Position().ToString());
+                    Console.WriteLine("Type: " + _parser.CurrentToken().Type().ToString());
                     done = true;
                     break;
 
@@ -203,7 +215,7 @@ internal class MyParser
 
             #endregion
 
-            #region TypeId NOT DONE
+            #region TypeId
 
             case Indexes.ProductionIndex.Typeid_list:
                 // <typeid_list> ::= <typeid> <extra_typeid>
@@ -245,11 +257,11 @@ internal class MyParser
 
             case Indexes.ProductionIndex.Var_decls2:
                 // <var_decls> ::= 
-                result = Stack.Pop();
+                result = new VarDeclerations();
                 break;
 
-            case Indexes.ProductionIndex.Var_decl_Id_Eq:
-                // <var_decl> ::= Id '=' <expr>
+            case Indexes.ProductionIndex.Var_decl_Id_Eq_Semi:
+                // <var_decl> ::= Id '=' <expr> ';'
                 expr = Stack.Pop() as IExpression;
                 id = Identifiers.Pop();
                 result = new VarDecleration(id, expr);
@@ -261,6 +273,9 @@ internal class MyParser
 
             case Indexes.ProductionIndex.Struct_decl_Id_Eq_Id_Lbrace_Rbrace_Semi:
                 // <struct_decl> ::= Id '=' Id '{' <var_decls> '}' ';'
+                varDecls = Stack.Pop() as VarDeclerations;
+                id = Identifiers.Pop();
+                result = new StructDecleration(Identifiers.Pop(), id, varDecls);
                 break;
 
             case Indexes.ProductionIndex.Struct_defs:
@@ -411,7 +426,7 @@ internal class MyParser
 
             #endregion
 
-            #region Body&Bodypart STRUCT MISSING
+            #region Body&Bodypart
 
             case Indexes.ProductionIndex.Body:
                 // <body> ::= <bodypart> <body>
@@ -430,22 +445,23 @@ internal class MyParser
                 result = new Body();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart_Semi:
+            case Indexes.ProductionIndex.Bodypart:
                 // <bodypart> ::= <var_decl> ';'
 
                 result = Stack.Pop();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart_Semi2:
+            case Indexes.ProductionIndex.Bodypart2:
                 // <bodypart> ::= <struct_decl> ';'
+                result = Stack.Pop();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart_Semi3:
+            case Indexes.ProductionIndex.Bodypart_Semi:
                 // <bodypart> ::= <func_call> ';'
                 result = Stack.Pop();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart:
+            case Indexes.ProductionIndex.Bodypart3:
                 // <bodypart> ::= <ctrl_stmt>
                 result = Stack.Pop();
                 break;
@@ -539,7 +555,7 @@ internal class MyParser
                 result = new RepeatFor(varDecl, direction, expr, body);
                 break;
 
-            case Indexes.ProductionIndex.Ctrl_stmt_Repeat:
+            case Indexes.ProductionIndex.@Ctrl_stmt_Repeat_Lbrace_Rbrace2:
                 // <ctrl_stmt> ::= repeat <expr> '{' Body '}'
                 body = Stack.Pop() as Body;
                 expr = Stack.Pop() as IExpression;

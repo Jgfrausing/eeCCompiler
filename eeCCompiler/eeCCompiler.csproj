@@ -59,6 +59,7 @@
     <Compile Include="Nodes\AbstractSyntaxTree.cs" />
     <Compile Include="Nodes\Body.cs" />
     <Compile Include="Nodes\IfStatement.cs" />
+    <Compile Include="Nodes\StructDecleration.cs" />
     <Compile Include="Nodes\Type.cs" />
     <Compile Include="Nodes\TypeId.cs" />
     <Compile Include="Nodes\Values.cs" />

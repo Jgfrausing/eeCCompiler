@@ -2,7 +2,7 @@ using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    class VarDecleration : AbstractSyntaxTree, IBodypart
+    public class VarDecleration : AbstractSyntaxTree, IBodypart
     {
         public VarDecleration(Identifier identifier, IExpression expression)
         {

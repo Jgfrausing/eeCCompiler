@@ -97,7 +97,7 @@
             @Typeid_Id = 14,                           // <typeid> ::= <type> Id
             @Var_decls = 15,                           // <var_decls> ::= <var_decl> <var_decls>
             @Var_decls2 = 16,                          // <var_decls> ::= 
-            @Var_decl_Id_Eq = 17,                      // <var_decl> ::= Id '=' <expr>
+            @Var_decl_Id_Eq_Semi = 17,                 // <var_decl> ::= Id '=' <expr> ';'
             @Struct_decl_Id_Eq_Id_Lbrace_Rbrace_Semi = 18,  // <struct_decl> ::= Id '=' Id '{' <var_decls> '}' ';'
             @Struct_defs = 19,                         // <struct_defs> ::= <struct_def> <struct_defs>
             @Struct_defs2 = 20,                        // <struct_defs> ::= 
@@ -129,10 +129,10 @@
             @Value_Id = 46,                            // <value> ::= Id
             @Body = 47,                                // <body> ::= <bodypart> <body>
             @Body2 = 48,                               // <body> ::= 
-            @Bodypart_Semi = 49,                       // <bodypart> ::= <var_decl> ';'
-            @Bodypart_Semi2 = 50,                      // <bodypart> ::= <struct_decl> ';'
-            @Bodypart_Semi3 = 51,                      // <bodypart> ::= <func_call> ';'
-            @Bodypart = 52,                            // <bodypart> ::= <ctrl_stmt>
+            @Bodypart = 49,                            // <bodypart> ::= <var_decl>
+            @Bodypart2 = 50,                           // <bodypart> ::= <struct_decl>
+            @Bodypart_Semi = 51,                       // <bodypart> ::= <func_call> ';'
+            @Bodypart3 = 52,                           // <bodypart> ::= <ctrl_stmt>
             @Expr = 53,                                // <expr> ::= <value> <operator> <expr>
             @Expr2 = 54,                               // <expr> ::= <value>
             @Expr_Lparen_Rparen = 55,                  // <expr> ::= '(' <expr> ')'
@@ -142,7 +142,7 @@
             @Ctrl_stmt_If_Lbrace_Rbrace = 59,          // <ctrl_stmt> ::= if <expr> '{' <body> '}' <if_exp>
             @Ctrl_stmt_Repeat_Lbrace_Rbrace = 60,      // <ctrl_stmt> ::= repeat <var_decl> <direction> <expr> '{' <body> '}'
             @Ctrl_stmt_Repeat_Lparen_Rparen_Lbrace_Rbrace = 61,  // <ctrl_stmt> ::= repeat '(' <var_decl> <direction> <expr> ')' '{' <body> '}'
-            @Ctrl_stmt_Repeat = 62,                    // <ctrl_stmt> ::= repeat <expr>
+            @Ctrl_stmt_Repeat_Lbrace_Rbrace2 = 62,     // <ctrl_stmt> ::= repeat <expr> '{' <body> '}'
             @Direction_Downto = 63,                    // <direction> ::= downto
             @Direction_To = 64,                        // <direction> ::= to
             @If_exp_Else_If_Lbrace_Rbrace = 65,        // <if_exp> ::= else if <expr> '{' <body> '}' <if_exp>
