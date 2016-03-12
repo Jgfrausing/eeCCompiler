@@ -48,18 +48,21 @@
   <ItemGroup>
     <Compile Include="eeC.cs" />
     <Compile Include="Indexes\Indexes.cs" />
+    <Compile Include="Interfaces\IBodypart.cs" />
     <Compile Include="Interfaces\IExpression.cs" />
+    <Compile Include="Interfaces\IStructPart.cs" />
     <Compile Include="Interfaces\IValue.cs" />
     <Compile Include="Interfaces\RepeatExpr.cs" />
     <Compile Include="Nodes\Direction.cs" />
     <Compile Include="Nodes\ElseIf.cs" />
     <Compile Include="Nodes\FunctionDeclarations.cs" />
-    <Compile Include="Nodes\IBodypart.cs" />
     <Compile Include="Nodes\Identifier.cs" />
     <Compile Include="Nodes\AbstractSyntaxTree.cs" />
     <Compile Include="Nodes\Body.cs" />
     <Compile Include="Nodes\IfStatement.cs" />
+    <Compile Include="Nodes\Return.cs" />
     <Compile Include="Nodes\StructDecleration.cs" />
+    <Compile Include="Nodes\StructDefinitions.cs" />
     <Compile Include="Nodes\Type.cs" />
     <Compile Include="Nodes\TypeId.cs" />
     <Compile Include="Nodes\Values.cs" />

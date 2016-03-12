@@ -44,38 +44,39 @@
             @Or = 37,                                  // or
             @Program = 38,                             // program
             @Repeat = 39,                              // repeat
-            @String = 40,                              // string
-            @Stringliteral = 41,                       // StringLiteral
-            @Struct = 42,                              // struct
-            @To = 43,                                  // to
-            @Void = 44,                                // void
-            @Body = 45,                                // <body>
-            @Bodypart = 46,                            // <bodypart>
-            @Const2 = 47,                              // <const>
-            @Const_part = 48,                          // <const_part>
-            @Consts = 49,                              // <consts>
-            @Ctrl_stmt = 50,                           // <ctrl_stmt>
-            @Direction = 51,                           // <direction>
-            @Expr = 52,                                // <expr>
-            @Expr_list = 53,                           // <expr_list>
-            @Extra_typeid = 54,                        // <extra_typeid>
-            @Func_call = 55,                           // <func_call>
-            @Func_decl = 56,                           // <func_decl>
-            @Func_decls = 57,                          // <Func_decls>
-            @If_exp = 58,                              // <if_exp>
-            @Operator = 59,                            // <operator>
-            @Opt_exprs = 60,                           // <opt_exprs>
-            @Program2 = 61,                            // <Program>
-            @Struct_decl = 62,                         // <struct_decl>
-            @Struct_def = 63,                          // <struct_def>
-            @Struct_defs = 64,                         // <struct_defs>
-            @Struct_parts = 65,                        // <struct_parts>
-            @Type = 66,                                // <type>
-            @Typeid = 67,                              // <typeid>
-            @Typeid_list = 68,                         // <typeid_list>
-            @Value = 69,                               // <value>
-            @Var_decl = 70,                            // <var_decl>
-            @Var_decls = 71                            // <var_decls>
+            @Return = 40,                              // return
+            @String = 41,                              // string
+            @Stringliteral = 42,                       // StringLiteral
+            @Struct = 43,                              // struct
+            @To = 44,                                  // to
+            @Void = 45,                                // void
+            @Body = 46,                                // <body>
+            @Bodypart = 47,                            // <bodypart>
+            @Const2 = 48,                              // <const>
+            @Const_part = 49,                          // <const_part>
+            @Consts = 50,                              // <consts>
+            @Ctrl_stmt = 51,                           // <ctrl_stmt>
+            @Direction = 52,                           // <direction>
+            @Expr = 53,                                // <expr>
+            @Expr_list = 54,                           // <expr_list>
+            @Extra_typeid = 55,                        // <extra_typeid>
+            @Func_call = 56,                           // <func_call>
+            @Func_decl = 57,                           // <func_decl>
+            @Func_decls = 58,                          // <Func_decls>
+            @If_exp = 59,                              // <if_exp>
+            @Operator = 60,                            // <operator>
+            @Opt_exprs = 61,                           // <opt_exprs>
+            @Program2 = 62,                            // <Program>
+            @Struct_decl = 63,                         // <struct_decl>
+            @Struct_def = 64,                          // <struct_def>
+            @Struct_defs = 65,                         // <struct_defs>
+            @Struct_parts = 66,                        // <struct_parts>
+            @Type = 67,                                // <type>
+            @Typeid = 68,                              // <typeid>
+            @Typeid_list = 69,                         // <typeid_list>
+            @Value = 70,                               // <value>
+            @Var_decl = 71,                            // <var_decl>
+            @Var_decls = 72                            // <var_decls>
         }
 
         public enum ProductionIndex
@@ -95,16 +96,16 @@
             @Extra_typeid_Comma = 12,                  // <extra_typeid> ::= ',' <typeid> <extra_typeid>
             @Extra_typeid = 13,                        // <extra_typeid> ::= 
             @Typeid_Id = 14,                           // <typeid> ::= <type> Id
-            @Var_decls = 15,                           // <var_decls> ::= <var_decl> <var_decls>
-            @Var_decls2 = 16,                          // <var_decls> ::= 
-            @Var_decl_Id_Eq_Semi = 17,                 // <var_decl> ::= Id '=' <expr> ';'
+            @Var_decls_Semi = 15,                      // <var_decls> ::= <var_decl> ';' <var_decls>
+            @Var_decls = 16,                           // <var_decls> ::= 
+            @Var_decl_Id_Eq = 17,                      // <var_decl> ::= Id '=' <expr>
             @Struct_decl_Id_Eq_Id_Lbrace_Rbrace_Semi = 18,  // <struct_decl> ::= Id '=' Id '{' <var_decls> '}' ';'
             @Struct_defs = 19,                         // <struct_defs> ::= <struct_def> <struct_defs>
             @Struct_defs2 = 20,                        // <struct_defs> ::= 
             @Struct_def_Struct_Id_Lbrace_Rbrace = 21,  // <struct_def> ::= struct Id '{' <struct_parts> '}'
-            @Struct_parts = 22,                        // <struct_parts> ::= <var_decl> <struct_parts>
-            @Struct_parts2 = 23,                       // <struct_parts> ::= <func_decl> <struct_parts>
-            @Struct_parts3 = 24,                       // <struct_parts> ::= 
+            @Struct_parts_Semi = 22,                   // <struct_parts> ::= <var_decl> ';' <struct_parts>
+            @Struct_parts = 23,                        // <struct_parts> ::= <func_decl> <struct_parts>
+            @Struct_parts2 = 24,                       // <struct_parts> ::= 
             @Operator_Lt = 25,                         // <operator> ::= '<'
             @Operator_Gt = 26,                         // <operator> ::= '>'
             @Operator_Lteq = 27,                       // <operator> ::= '<='
@@ -129,30 +130,31 @@
             @Value_Id = 46,                            // <value> ::= Id
             @Body = 47,                                // <body> ::= <bodypart> <body>
             @Body2 = 48,                               // <body> ::= 
-            @Bodypart = 49,                            // <bodypart> ::= <var_decl>
-            @Bodypart2 = 50,                           // <bodypart> ::= <struct_decl>
-            @Bodypart_Semi = 51,                       // <bodypart> ::= <func_call> ';'
-            @Bodypart3 = 52,                           // <bodypart> ::= <ctrl_stmt>
-            @Expr = 53,                                // <expr> ::= <value> <operator> <expr>
-            @Expr2 = 54,                               // <expr> ::= <value>
-            @Expr_Lparen_Rparen = 55,                  // <expr> ::= '(' <expr> ')'
-            @Expr_Minus = 56,                          // <expr> ::= '-' <value>
-            @Expr_Lparen_Rparen2 = 57,                 // <expr> ::= '(' <expr> ')' <operator> <expr>
-            @Expr_Exclam = 58,                         // <expr> ::= '!' <expr>
-            @Ctrl_stmt_If_Lbrace_Rbrace = 59,          // <ctrl_stmt> ::= if <expr> '{' <body> '}' <if_exp>
-            @Ctrl_stmt_Repeat_Lbrace_Rbrace = 60,      // <ctrl_stmt> ::= repeat <var_decl> <direction> <expr> '{' <body> '}'
-            @Ctrl_stmt_Repeat_Lparen_Rparen_Lbrace_Rbrace = 61,  // <ctrl_stmt> ::= repeat '(' <var_decl> <direction> <expr> ')' '{' <body> '}'
-            @Ctrl_stmt_Repeat_Lbrace_Rbrace2 = 62,     // <ctrl_stmt> ::= repeat <expr> '{' <body> '}'
-            @Direction_Downto = 63,                    // <direction> ::= downto
-            @Direction_To = 64,                        // <direction> ::= to
-            @If_exp_Else_If_Lbrace_Rbrace = 65,        // <if_exp> ::= else if <expr> '{' <body> '}' <if_exp>
-            @If_exp_Else_Lbrace_Rbrace = 66,           // <if_exp> ::= else '{' <body> '}'
-            @If_exp = 67,                              // <if_exp> ::= 
-            @Func_call_Id_Lparen_Rparen = 68,          // <func_call> ::= Id '(' <expr_list> ')'
-            @Expr_list = 69,                           // <expr_list> ::= <expr> <opt_exprs>
-            @Expr_list2 = 70,                          // <expr_list> ::= 
-            @Opt_exprs_Comma = 71,                     // <opt_exprs> ::= ',' <expr> <opt_exprs>
-            @Opt_exprs = 72                            // <opt_exprs> ::= 
+            @Bodypart_Semi = 49,                       // <bodypart> ::= <var_decl> ';'
+            @Bodypart = 50,                            // <bodypart> ::= <struct_decl>
+            @Bodypart_Semi2 = 51,                      // <bodypart> ::= <func_call> ';'
+            @Bodypart2 = 52,                           // <bodypart> ::= <ctrl_stmt>
+            @Bodypart_Return_Semi = 53,                // <bodypart> ::= return <expr> ';'
+            @Expr = 54,                                // <expr> ::= <value> <operator> <expr>
+            @Expr2 = 55,                               // <expr> ::= <value>
+            @Expr_Lparen_Rparen = 56,                  // <expr> ::= '(' <expr> ')'
+            @Expr_Minus = 57,                          // <expr> ::= '-' <value>
+            @Expr_Lparen_Rparen2 = 58,                 // <expr> ::= '(' <expr> ')' <operator> <expr>
+            @Expr_Exclam = 59,                         // <expr> ::= '!' <expr>
+            @Ctrl_stmt_If_Lbrace_Rbrace = 60,          // <ctrl_stmt> ::= if <expr> '{' <body> '}' <if_exp>
+            @Ctrl_stmt_Repeat_Lbrace_Rbrace = 61,      // <ctrl_stmt> ::= repeat <var_decl> <direction> <expr> '{' <body> '}'
+            @Ctrl_stmt_Repeat_Lparen_Rparen_Lbrace_Rbrace = 62,  // <ctrl_stmt> ::= repeat '(' <var_decl> <direction> <expr> ')' '{' <body> '}'
+            @Ctrl_stmt_Repeat_Lbrace_Rbrace2 = 63,     // <ctrl_stmt> ::= repeat <expr> '{' <body> '}'
+            @Direction_Downto = 64,                    // <direction> ::= downto
+            @Direction_To = 65,                        // <direction> ::= to
+            @If_exp_Else_If_Lbrace_Rbrace = 66,        // <if_exp> ::= else if <expr> '{' <body> '}' <if_exp>
+            @If_exp_Else_Lbrace_Rbrace = 67,           // <if_exp> ::= else '{' <body> '}'
+            @If_exp = 68,                              // <if_exp> ::= 
+            @Func_call_Id_Lparen_Rparen = 69,          // <func_call> ::= Id '(' <expr_list> ')'
+            @Expr_list = 70,                           // <expr_list> ::= <expr> <opt_exprs>
+            @Expr_list2 = 71,                          // <expr_list> ::= 
+            @Opt_exprs_Comma = 72,                     // <opt_exprs> ::= ',' <expr> <opt_exprs>
+            @Opt_exprs = 73                            // <opt_exprs> ::= 
         }
     }
 }

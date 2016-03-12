@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    public class FunctionDeclarationList : AbstractSyntaxTree
+    public class FunctionDeclarationList : AbstractSyntaxTree, IStructPart
     {
         public FunctionDeclarationList()
         {

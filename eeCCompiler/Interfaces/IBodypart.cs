@@ -1,4 +1,4 @@
-namespace eeCCompiler.Nodes
+namespace eeCCompiler.Interfaces
 {
     public interface IBodypart
     {

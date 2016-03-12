@@ -129,7 +129,6 @@ internal class MyParser
         AbstractSyntaxTree result = null;
         TypeIdList typeIds;
         Body body;
-        ElseStatement elseStatement;
         Operator opr;
         IExpression expr;
         ExpressionList exprs;
@@ -137,19 +136,19 @@ internal class MyParser
         FunctionDeclarationList funcDecls;
         var bodyparts = new List<IBodypart>();
         var expressionList = new List<IExpression>();
-        Constant constant;
         Constants constantList;
         var constants = new List<Constant>();
         switch ((Indexes.ProductionIndex) r.Parent.TableIndex())
         {
-            #region Program NOT DONE
+            #region Program
 
             case Indexes.ProductionIndex.Program_Program_Lbrace_Rbrace:
                 // <Program> ::= <consts> <struct_defs> program '{' <body> '}' <Func_decls>
                 funcDecls = Stack.Pop() as FunctionDeclarationList;
                 body = Stack.Pop() as Body;
+                var structDef = Stack.Pop() as StructDefinitions;
                 constantList = Stack.Pop() as Constants;
-                result = new Program(constantList.ConstantList, body, funcDecls);
+                result = new Program(constantList.ConstantList, structDef.Definitions, body, funcDecls);
                 break;
 
             #endregion
@@ -159,7 +158,7 @@ internal class MyParser
             case Indexes.ProductionIndex.Consts:
                 // <consts> ::= <const> <consts>
                 constantList = Stack.Pop() as Constants;
-                constant = Stack.Pop() as Constant;
+                var constant = Stack.Pop() as Constant;
                 constants.Add(constant);
                 constants.AddRange(constantList.ConstantList);
                 result = new Constants(constants);
@@ -246,7 +245,7 @@ internal class MyParser
 
             #region Var_decl
 
-            case Indexes.ProductionIndex.Var_decls:
+            case Indexes.ProductionIndex.Var_decls_Semi:
                 // <var_decls> ::= <var_decl> <var_decls>
                 var varDecls = Stack.Pop() as VarDeclerations;
                 var varDecl = Stack.Pop() as VarDecleration;
@@ -255,12 +254,12 @@ internal class MyParser
                 result = new VarDeclerations(varDeclList);
                 break;
 
-            case Indexes.ProductionIndex.Var_decls2:
+            case Indexes.ProductionIndex.Var_decls:
                 // <var_decls> ::= 
                 result = new VarDeclerations();
                 break;
 
-            case Indexes.ProductionIndex.Var_decl_Id_Eq_Semi:
+            case Indexes.ProductionIndex.Var_decl_Id_Eq:
                 // <var_decl> ::= Id '=' <expr> ';'
                 expr = Stack.Pop() as IExpression;
                 id = Identifiers.Pop();
@@ -269,7 +268,7 @@ internal class MyParser
 
             #endregion
 
-            #region Struct NOT DONE
+            #region Struct
 
             case Indexes.ProductionIndex.Struct_decl_Id_Eq_Id_Lbrace_Rbrace_Semi:
                 // <struct_decl> ::= Id '=' Id '{' <var_decls> '}' ';'
@@ -280,26 +279,36 @@ internal class MyParser
 
             case Indexes.ProductionIndex.Struct_defs:
                 // <struct_defs> ::= <struct_def> <struct_defs>
+                var struct_defs = Stack.Pop() as StructDefinitions;
+                struct_defs.Definitions.Insert(0, Stack.Pop() as StructDefinition);
+                result = struct_defs;
                 break;
 
             case Indexes.ProductionIndex.Struct_defs2:
                 // <struct_defs> ::= 
+                result = new StructDefinitions();
                 break;
 
             case Indexes.ProductionIndex.Struct_def_Struct_Id_Lbrace_Rbrace:
                 // <struct_def> ::= struct Id '{' <struct_parts> '}'
+                result = new StructDefinition(Identifiers.Pop(), Stack.Pop() as StructParts);
                 break;
 
-            case Indexes.ProductionIndex.Struct_parts:
+            case Indexes.ProductionIndex.Struct_parts_Semi:
                 // <struct_parts> ::= <var_decl> <struct_parts>
+                //FALLTHROUGH
+
+            case Indexes.ProductionIndex.Struct_parts:
+                // <struct_parts> ::= <func_decl> <struct_parts>
+                var structParts = Stack.Pop() as StructParts;
+                varDecl = Stack.Pop() as VarDecleration;
+                structParts.StructPartList.Insert(0, varDecl);
+                result = structParts;
                 break;
 
             case Indexes.ProductionIndex.Struct_parts2:
-                // <struct_parts> ::= <func_decl> <struct_parts>
-                break;
-
-            case Indexes.ProductionIndex.Struct_parts3:
                 // <struct_parts> ::= 
+                result = new StructParts();
                 break;
 
             #endregion
@@ -445,25 +454,30 @@ internal class MyParser
                 result = new Body();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart:
+            case Indexes.ProductionIndex.Bodypart_Semi:
                 // <bodypart> ::= <var_decl> ';'
 
                 result = Stack.Pop();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart2:
+            case Indexes.ProductionIndex.Bodypart:
                 // <bodypart> ::= <struct_decl> ';'
                 result = Stack.Pop();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart_Semi:
+            case Indexes.ProductionIndex.Bodypart_Semi2:
                 // <bodypart> ::= <func_call> ';'
                 result = Stack.Pop();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart3:
+            case Indexes.ProductionIndex.Bodypart2:
                 // <bodypart> ::= <ctrl_stmt>
                 result = Stack.Pop();
+                break;
+
+            case Indexes.ProductionIndex.Bodypart_Return_Semi:
+                // <bodypart> ::= return <expr> ';'
+                result = new Return(Stack.Pop() as IExpression);
                 break;
 
             #endregion
@@ -536,7 +550,7 @@ internal class MyParser
 
             case Indexes.ProductionIndex.If_exp_Else_If_Lbrace_Rbrace:
                 // <if_exp> ::= else if <expr> '{' <body> '}' <if_exp>
-                elseStatement = Stack.Pop() as ElseStatement;
+                var elseStatement = Stack.Pop() as ElseStatement;
                 body = Stack.Pop() as Body;
                 expr = Stack.Pop() as IExpression;
                 result = new IfStatement(expr, body, elseStatement);
