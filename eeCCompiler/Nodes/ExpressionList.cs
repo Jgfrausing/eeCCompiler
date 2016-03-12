@@ -7,13 +7,13 @@ namespace eeCCompiler.Nodes
     {
         public ExpressionList()
         {
-            IExpressions = new List<IExpression>();
+            Expressions = new List<IExpression>();
         }
 
         public ExpressionList(List<IExpression> expressions  )
         {
-            IExpressions = expressions;
+            Expressions = expressions;
         }
-        public List<IExpression> IExpressions { get; set; }
+        public List<IExpression> Expressions { get; set; }
     }
 }

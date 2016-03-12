@@ -3,16 +3,14 @@ using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    class IfStatement : AbstractSyntaxTree, IBodypart
+    class IfStatement : ElseStatement, IBodypart
     {
-        public IfStatement(IExpression expression, Body body, ElseStatement elseStatement)
+        public IfStatement(IExpression expression, Body body, ElseStatement elseStatement) : base(body)
         {
             IExpression = expression;
-            Body = body;
             ElseStatement = elseStatement;
         }
         public IExpression IExpression { get; set; }
-        public Body Body { get; set; }
         public ElseStatement ElseStatement { get; set; }
     }
 }

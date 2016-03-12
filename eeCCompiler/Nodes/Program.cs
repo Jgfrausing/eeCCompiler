@@ -2,20 +2,20 @@
 
 namespace eeCCompiler.Nodes
 {
-    class Program : AbstractSyntaxTree
+    class SourceCode : AbstractSyntaxTree
     {
-        public Program(List<Constant> constantList, List<StructDefinition> structDefinitions, Body body, FunctionDeclarationList functionDeclarationList)
+        public SourceCode(List<Constant> constantDefinitions, List<StructDefinition> structDefinitions, Body body, FunctionDeclarationList functionDeclarationList)
         {
-            ConstantList = constantList;
+            ConstantDefinitions = constantDefinitions;
             StructDefinitions = structDefinitions;
-            Body = body;
-            FunctionDeclarationList = functionDeclarationList;
+            Program = body;
+            FunctionDeclarations = functionDeclarationList.FunctionDeclaration;
         }
 
-        public List<Constant> ConstantList { get; set; }
+        public List<Constant> ConstantDefinitions { get; set; }
         public List<StructDefinition> StructDefinitions { get; set; }
-        public Body Body { get; set; }
-        public FunctionDeclarationList FunctionDeclarationList { get; set; }
+        public Body Program { get; set; }
+        public List<FunctionDeclaration> FunctionDeclarations { get; set; }
     }
 }
 
