@@ -22,4 +22,40 @@ namespace eeCCompiler.Nodes
         public Operator Operator { get; set; }
         public IExpression IExpression { get; set; }
     }
+    class ExpressionNegate : AbstractSyntaxTree, IExpression
+    {
+        public ExpressionNegate(IExpression iExpression)
+        {
+            IExpression = iExpression;
+        }
+        public IExpression IExpression { get; set; }
+    }
+    class ExpressionMinus : AbstractSyntaxTree, IExpression
+    {
+        public ExpressionMinus(IExpression iExpression)
+        {
+            IExpression = iExpression;
+        }
+        public IExpression IExpression { get; set; }
+    }
+    class ExpressionParen : AbstractSyntaxTree, IExpression
+    {
+        public ExpressionParen(IExpression iExpression)
+        {
+            IExpression = iExpression;
+        }
+        public IExpression IExpression { get; set; }
+    }
+    class ExpressionParenOpExpr : AbstractSyntaxTree, IExpression
+    {
+        public ExpressionParenOpExpr(IExpression expressionParen, Operator _operator, IExpression expression)
+        {
+            ExpressionParen = expressionParen;
+            Operator = _operator;
+            IExpression = expression;
+        }
+        public IExpression ExpressionParen { get; set; }
+        public Operator Operator { get; set; }
+        public IExpression IExpression { get; set; }
+    }
 }

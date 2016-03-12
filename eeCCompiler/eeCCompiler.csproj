@@ -49,6 +49,7 @@
     <Compile Include="eeC.cs" />
     <Compile Include="Indexes\Indexes.cs" />
     <Compile Include="Interfaces\IBodypart.cs" />
+    <Compile Include="Interfaces\IExpression.cs" />
     <Compile Include="Interfaces\IValue.cs" />
     <Compile Include="Nodes\Identifier.cs" />
     <Compile Include="Nodes\AbstractSyntaxTree.cs" />

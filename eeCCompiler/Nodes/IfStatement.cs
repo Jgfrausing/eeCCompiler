@@ -1,16 +1,15 @@
 ﻿using eeCCompiler.Interfaces;
-using Expression = System.Linq.Expressions.Expression;
 
 namespace eeCCompiler.Nodes
 {
     class IfStatement : AbstractSyntaxTree, IBodypart
     {
-        public IfStatement(Expression expression, Body body)
+        public IfStatement(IExpression expression, Body body)
         {
-            Expression = expression;
+            IExpression = expression;
             Body = body;
         }
-        public Expression Expression { get; set; }
+        public IExpression IExpression { get; set; }
         public Body Body { get; set; }
     }
 }
