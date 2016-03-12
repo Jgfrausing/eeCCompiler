@@ -1,15 +1,13 @@
-﻿namespace eeCCompiler.Nodes
+﻿using eeCCompiler.Interfaces;
+
+namespace eeCCompiler.Nodes
 {
-    class Identifier : AST
+    class Identifier : AbstractSyntaxTree, IValue
     {
         public Identifier(string id)
         {
             Id = id;
         }
         public string Id { get; set; }
-        public override string PrettyPrint()
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }

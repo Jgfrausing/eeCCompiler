@@ -1,7 +1,6 @@
 namespace eeCCompiler.Nodes
 {
-    public abstract class Bodypart : AST
+    internal interface IConstantPart
     {
-
     }
 }

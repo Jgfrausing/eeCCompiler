@@ -34,7 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="GOLD Engine">
-      <HintPath>..\..\..\..\..\..\Downloads\GOLD-Engine-DLL-5.0.0\GOLD Engine.dll</HintPath>
+      <HintPath>..\..\..\..\Desktop\Parse Tree C-Sharp\bin\Release\GOLD Engine.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -48,16 +48,19 @@
   <ItemGroup>
     <Compile Include="eeC.cs" />
     <Compile Include="Indexes\Indexes.cs" />
-    <Compile Include="Nodes\AST.cs" />
+    <Compile Include="Interfaces\IBodypart.cs" />
+    <Compile Include="Interfaces\IValue.cs" />
+    <Compile Include="Nodes\Identifier.cs" />
+    <Compile Include="Nodes\AbstractSyntaxTree.cs" />
     <Compile Include="Nodes\Body.cs" />
-    <Compile Include="Nodes\Bodypart.cs" />
+    <Compile Include="Nodes\IfStatement.cs" />
+    <Compile Include="Nodes\Values.cs" />
     <Compile Include="Nodes\Expression.cs" />
     <Compile Include="Nodes\ExpressionList.cs" />
     <Compile Include="Nodes\FuncCall.cs" />
-    <Compile Include="Nodes\Identifier.cs" />
+    <Compile Include="Interfaces\IConstantPart.cs" />
     <Compile Include="Nodes\Operator.cs" />
     <Compile Include="Nodes\Program.cs" />
-    <Compile Include="Nodes\Value.cs" />
     <Compile Include="Nodes\VarDecleration.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

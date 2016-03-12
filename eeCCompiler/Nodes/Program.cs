@@ -1,16 +1,17 @@
-﻿namespace eeCCompiler.Nodes
+﻿using System.Collections.Generic;
+
+namespace eeCCompiler.Nodes
 {
-    class Program : AST
+    class Program : AbstractSyntaxTree
     {
-        public Program(Body body)
+        public Program(List<Constant> constantList, Body body)
         {
+            ConstantList = constantList;
             Body = body;
         }
+
+        public List<Constant> ConstantList { get; set; }
         public Body Body { get; set; }
-        public override string PrettyPrint()
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }
 

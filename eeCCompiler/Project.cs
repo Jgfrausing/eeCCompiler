@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace eeCCompiler
 {
@@ -8,8 +9,9 @@ namespace eeCCompiler
         static void Main(string[] args)
         {
             var parser = new MyParser();
-            parser.Parse(new StreamReader("HelloWorld.eec"));
-
+            var result = parser.Parse(new StreamReader("HelloWorld.eec"));
+            string syntax = result ?  "The syntax is correct!" : "There is errors in the syntax";
+            Console.WriteLine(syntax);
             Console.ReadKey();
         }
     }

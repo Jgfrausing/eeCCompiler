@@ -2,13 +2,17 @@ using System.Collections.Generic;
 
 namespace eeCCompiler.Nodes
 {
-    class ExpressionList : AST
+    class IExpressionList : AbstractSyntaxTree
     {
-        public List<Expression> Expressions { get; set; }
-
-        public override string PrettyPrint()
+        public IExpressionList()
         {
-            throw new System.NotImplementedException();
+            IExpressions = new List<IExpression>();
         }
+
+        public IExpressionList(List<IExpression> expressions  )
+        {
+            IExpressions = expressions;
+        }
+        public List<IExpression> IExpressions { get; set; }
     }
 }

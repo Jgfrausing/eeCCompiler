@@ -1,20 +1,16 @@
 using System.Collections.Generic;
+using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    class FuncCall : AST
+    class FuncCall : AbstractSyntaxTree, IValue
     {
-        public FuncCall(Identifier identifier, List<Expression> expressions )
+        public FuncCall(Identifier identifier, List<IExpression> expressions )
         {
             Identifier = identifier;
-            Expressions = expressions;
+            IExpressions = expressions;
         }
         public Identifier Identifier { get; set; }
-        public List<Expression> Expressions { get; set; }
-
-        public override string PrettyPrint()
-        {
-            throw new System.NotImplementedException();
-        }
+        public List<IExpression> IExpressions { get; set; }
     }
 }

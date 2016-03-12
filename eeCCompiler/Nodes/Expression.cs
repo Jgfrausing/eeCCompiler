@@ -1,36 +1,25 @@
-﻿namespace eeCCompiler.Nodes
-{
-    public abstract class Expression : AST
-    {
+﻿using eeCCompiler.Interfaces;
 
-    }
-    class ExpressionVal : Expression
+namespace eeCCompiler.Nodes
+{
+    class ExpressionVal : AbstractSyntaxTree, IExpression
     {
-        public ExpressionVal(Value value)
+        public ExpressionVal(IValue value)
         {
             Value = value;
         }
-        public Value Value { get; set; }
-        public override string PrettyPrint()
-        {
-            throw new System.NotImplementedException();
-        }
+        public IValue Value { get; set; }
     }
-    class ExpressionValOpExpr : Expression
+    class ExpressionValOpExpr : AbstractSyntaxTree, IExpression
     {
-        public ExpressionValOpExpr(Value value, Operator _operator, Expression expression)
+        public ExpressionValOpExpr(IValue value, Operator _operator, IExpression expression)
         {
             Value = value;
             Operator = _operator;
-            Expression = expression;
+            IExpression = expression;
         }
-        public Value Value { get; set; }
+        public IValue Value { get; set; }
         public Operator Operator { get; set; }
-        public Expression Expression { get; set; }
-
-        public override string PrettyPrint()
-        {
-            throw new System.NotImplementedException();
-        }
+        public IExpression IExpression { get; set; }
     }
 }

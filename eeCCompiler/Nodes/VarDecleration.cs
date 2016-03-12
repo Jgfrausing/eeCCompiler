@@ -1,17 +1,15 @@
+using eeCCompiler.Interfaces;
+
 namespace eeCCompiler.Nodes
 {
-    class VarDecleration : Bodypart
+    class VarDecleration : AbstractSyntaxTree, IBodypart
     {
-        public VarDecleration(Identifier identifier, Expression expression)
+        public VarDecleration(Identifier identifier, IExpression expression)
         {
             Identifier = identifier;
-            Expression = expression;
+            IExpression = expression;
         }
         public Identifier Identifier { get; set; }
-        public Expression Expression { get; set; }
-        public override string PrettyPrint()
-        {
-            throw new System.NotImplementedException();
-        }
+        public IExpression IExpression { get; set; }
     }
 }

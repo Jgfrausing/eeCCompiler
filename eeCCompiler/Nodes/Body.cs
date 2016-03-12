@@ -1,17 +1,18 @@
 using System.Collections.Generic;
+using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    class Body : AST
+    class Body : AbstractSyntaxTree
     {
-        public Body(List<Bodypart> bodyparts )
+        public Body()
+        {
+            Bodyparts = new List<IBodypart>();
+        }
+        public Body(List<IBodypart> bodyparts )
         {
             Bodyparts = bodyparts;
         }
-        public List<Bodypart> Bodyparts { get; set; }
-        public override string PrettyPrint()
-        {
-            throw new System.NotImplementedException();
-        }
+        public List<IBodypart> Bodyparts { get; set; }
     }
 }
