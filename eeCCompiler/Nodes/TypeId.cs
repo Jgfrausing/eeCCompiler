@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace eeCCompiler.Nodes
 {
@@ -10,9 +9,11 @@ namespace eeCCompiler.Nodes
             ValueType = valueType;
             Identifier = identifier;
         }
+
         public Type ValueType { get; set; }
         public Identifier Identifier { get; set; }
     }
+
     public class TypeIdList : AbstractSyntaxTree
     {
         public TypeIdList()
@@ -24,6 +25,7 @@ namespace eeCCompiler.Nodes
         {
             TypeIds = typeIds;
         }
+
         public List<TypeId> TypeIds { get; set; }
     }
 }

@@ -9,6 +9,7 @@ namespace eeCCompiler.Nodes
             Identifier = identifier;
             Expression = expression;
         }
+
         public Identifier Identifier { get; set; }
         public IExpression Expression { get; set; }
     }

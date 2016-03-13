@@ -6,6 +6,7 @@
         {
             Incrementing = incrementing;
         }
-        public bool Incrementing { get; set; } 
+
+        public bool Incrementing { get; set; }
     }
 }

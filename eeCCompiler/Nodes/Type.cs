@@ -6,6 +6,7 @@
         {
             ValueType = type;
         }
+
         public string ValueType { get; set; }
     }
 }

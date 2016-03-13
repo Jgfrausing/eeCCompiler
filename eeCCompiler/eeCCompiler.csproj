@@ -71,10 +71,10 @@
     <Compile Include="Nodes\FuncCall.cs" />
     <Compile Include="Interfaces\IConstantPart.cs" />
     <Compile Include="Nodes\Operator.cs" />
-    <Compile Include="Nodes\Program.cs" />
+    <Compile Include="Nodes\Root.cs" />
     <Compile Include="Nodes\VarDecleration.cs" />
     <Compile Include="Nodes\VarDeclerations.cs" />
-    <Compile Include="Project.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

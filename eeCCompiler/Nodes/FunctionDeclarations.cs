@@ -9,10 +9,12 @@ namespace eeCCompiler.Nodes
         {
             FunctionDeclaration = new List<FunctionDeclaration>();
         }
+
         public FunctionDeclarationList(List<FunctionDeclaration> functionDeclaration)
         {
             FunctionDeclaration = functionDeclaration;
         }
+
         public List<FunctionDeclaration> FunctionDeclaration { get; set; }
     }
 
@@ -24,6 +26,7 @@ namespace eeCCompiler.Nodes
             Parameters = parameters;
             Body = body;
         }
+
         public TypeId TypeId { get; set; }
         public TypeIdList Parameters { get; set; }
         public Body Body { get; set; }

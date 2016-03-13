@@ -1,32 +1,34 @@
-﻿using System;
-using eeCCompiler.Interfaces;
+﻿using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    class BoolValue : AbstractSyntaxTree, IValue, IConstantPart
+    internal class BoolValue : AbstractSyntaxTree, IValue, IConstantPart
     {
-        public BoolValue(Boolean value)
+        public BoolValue(bool value)
         {
             Value = value;
         }
-        public Boolean Value { get; set; }
+
+        public bool Value { get; set; }
     }
 
-    class StringValue : AbstractSyntaxTree, IValue, IConstantPart
+    internal class StringValue : AbstractSyntaxTree, IValue, IConstantPart
     {
-        public StringValue(String value)
+        public StringValue(string value)
         {
             Value = value;
         }
-        public String Value { get; set; }
+
+        public string Value { get; set; }
     }
 
-    class NumValue : AbstractSyntaxTree, IValue, IConstantPart
+    internal class NumValue : AbstractSyntaxTree, IValue, IConstantPart
     {
-        public NumValue(Double value)
+        public NumValue(double value)
         {
             Value = value;
         }
-        public Double Value { get; set; }
+
+        public double Value { get; set; }
     }
 }

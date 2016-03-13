@@ -10,12 +10,14 @@ namespace eeCCompiler.Nodes
             Definitions = new List<StructDefinition>();
         }
 
-        public StructDefinitions(List<StructDefinition> structDefinitions )
+        public StructDefinitions(List<StructDefinition> structDefinitions)
         {
             Definitions = structDefinitions;
         }
+
         public List<StructDefinition> Definitions { get; set; }
     }
+
     public class StructDefinition : AbstractSyntaxTree
     {
         public StructDefinition(Identifier identifier, StructParts structParts)
@@ -23,9 +25,9 @@ namespace eeCCompiler.Nodes
             Identifier = identifier;
             StructParts = structParts;
         }
+
         public Identifier Identifier { get; set; }
         public StructParts StructParts { get; set; }
-
     }
 
     public class StructParts : AbstractSyntaxTree
@@ -35,10 +37,11 @@ namespace eeCCompiler.Nodes
             StructPartList = new List<IStructPart>();
         }
 
-        public StructParts(List<IStructPart> structPartList )
+        public StructParts(List<IStructPart> structPartList)
         {
             StructPartList = structPartList;
         }
+
         public List<IStructPart> StructPartList { get; set; }
     }
 }

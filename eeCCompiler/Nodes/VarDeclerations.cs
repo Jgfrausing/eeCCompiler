@@ -9,6 +9,7 @@ namespace eeCCompiler.Nodes
         {
             VarDeclerationList = new List<VarDecleration>();
         }
+
         public VarDeclerations(List<VarDecleration> varDeclerationList)
         {
             VarDeclerationList = varDeclerationList;

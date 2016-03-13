@@ -8,6 +8,7 @@ namespace eeCCompiler.Nodes
         {
             Expression = expression;
         }
-        public IExpression Expression { get; set; } 
+
+        public IExpression Expression { get; set; }
     }
 }

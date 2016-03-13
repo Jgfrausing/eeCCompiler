@@ -2,9 +2,10 @@
 
 namespace eeCCompiler.Nodes
 {
-    class SourceCode : AbstractSyntaxTree
+    internal class Root : AbstractSyntaxTree
     {
-        public SourceCode(List<Constant> constantDefinitions, List<StructDefinition> structDefinitions, Body body, FunctionDeclarationList functionDeclarationList)
+        public Root(List<Constant> constantDefinitions, List<StructDefinition> structDefinitions, Body body,
+            FunctionDeclarationList functionDeclarationList)
         {
             ConstantDefinitions = constantDefinitions;
             StructDefinitions = structDefinitions;
@@ -18,4 +19,3 @@ namespace eeCCompiler.Nodes
         public List<FunctionDeclaration> FunctionDeclarations { get; set; }
     }
 }
-

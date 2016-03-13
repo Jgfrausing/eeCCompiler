@@ -8,6 +8,7 @@ namespace eeCCompiler.Nodes
         {
             Id = id;
         }
+
         public string Id { get; set; }
     }
 }

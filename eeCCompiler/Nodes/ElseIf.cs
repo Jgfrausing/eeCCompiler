@@ -8,6 +8,7 @@ namespace eeCCompiler.Nodes
         {
             Body = body;
         }
+
         public Body Body { get; set; }
     }
 }

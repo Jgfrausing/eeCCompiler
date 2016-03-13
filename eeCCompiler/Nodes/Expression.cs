@@ -2,15 +2,17 @@
 
 namespace eeCCompiler.Nodes
 {
-    class ExpressionVal : AbstractSyntaxTree, IExpression
+    internal class ExpressionVal : AbstractSyntaxTree, IExpression
     {
         public ExpressionVal(IValue value)
         {
             Value = value;
         }
+
         public IValue Value { get; set; }
     }
-    class ExpressionValOpExpr : AbstractSyntaxTree, IExpression
+
+    internal class ExpressionValOpExpr : AbstractSyntaxTree, IExpression
     {
         public ExpressionValOpExpr(IValue value, Operator _operator, IExpression expression)
         {
@@ -18,35 +20,43 @@ namespace eeCCompiler.Nodes
             Operator = _operator;
             IExpression = expression;
         }
+
         public IValue Value { get; set; }
         public Operator Operator { get; set; }
         public IExpression IExpression { get; set; }
     }
-    class ExpressionNegate : AbstractSyntaxTree, IExpression
+
+    internal class ExpressionNegate : AbstractSyntaxTree, IExpression
     {
         public ExpressionNegate(IExpression iExpression)
         {
             IExpression = iExpression;
         }
+
         public IExpression IExpression { get; set; }
     }
-    class ExpressionMinus : AbstractSyntaxTree, IExpression
+
+    internal class ExpressionMinus : AbstractSyntaxTree, IExpression
     {
         public ExpressionMinus(IExpression iExpression)
         {
             IExpression = iExpression;
         }
+
         public IExpression IExpression { get; set; }
     }
-    class ExpressionParen : AbstractSyntaxTree, IExpression
+
+    internal class ExpressionParen : AbstractSyntaxTree, IExpression
     {
         public ExpressionParen(IExpression iExpression)
         {
             IExpression = iExpression;
         }
+
         public IExpression IExpression { get; set; }
     }
-    class ExpressionParenOpExpr : AbstractSyntaxTree, IExpression
+
+    internal class ExpressionParenOpExpr : AbstractSyntaxTree, IExpression
     {
         public ExpressionParenOpExpr(IExpression expressionParen, Operator _operator, IExpression expression)
         {
@@ -54,13 +64,13 @@ namespace eeCCompiler.Nodes
             Operator = _operator;
             IExpression = expression;
         }
+
         public IExpression ExpressionParen { get; set; }
         public Operator Operator { get; set; }
         public IExpression IExpression { get; set; }
     }
 
-    class OptExpression : AbstractSyntaxTree, IExpression
+    internal class OptExpression : AbstractSyntaxTree, IExpression
     {
-         
     }
 }

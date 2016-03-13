@@ -9,10 +9,12 @@ namespace eeCCompiler.Nodes
         {
             Bodyparts = new List<IBodypart>();
         }
-        public Body(List<IBodypart> bodyparts )
+
+        public Body(List<IBodypart> bodyparts)
         {
             Bodyparts = bodyparts;
         }
+
         public List<IBodypart> Bodyparts { get; set; }
     }
 }

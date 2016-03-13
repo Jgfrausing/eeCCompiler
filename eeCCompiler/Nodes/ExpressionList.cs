@@ -3,17 +3,18 @@ using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    class ExpressionList : AbstractSyntaxTree
+    internal class ExpressionList : AbstractSyntaxTree
     {
         public ExpressionList()
         {
             Expressions = new List<IExpression>();
         }
 
-        public ExpressionList(List<IExpression> expressions  )
+        public ExpressionList(List<IExpression> expressions)
         {
             Expressions = expressions;
         }
+
         public List<IExpression> Expressions { get; set; }
     }
 }
