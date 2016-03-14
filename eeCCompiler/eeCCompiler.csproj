@@ -53,6 +53,8 @@
     <Compile Include="Interfaces\IStructPart.cs" />
     <Compile Include="Interfaces\IValue.cs" />
     <Compile Include="Interfaces\RepeatExpr.cs" />
+    <Compile Include="Nodes\Constant.cs" />
+    <Compile Include="Nodes\Constants.cs" />
     <Compile Include="Nodes\Direction.cs" />
     <Compile Include="Nodes\ElseIf.cs" />
     <Compile Include="Nodes\FunctionDeclarations.cs" />
