@@ -36,17 +36,14 @@ internal class MyParser
         _parser.TrimReductions = false; //Please read about this feature before enabling  
 
         var done = false;
-        var i = 0;
         while (!done)
         {
             var response = _parser.Parse();
 
-            i++;
             switch (response)
             {
                 case ParseMessage.Reduction:
                     //Create a customized object to store the reduction
-
                     var currentReduction = CreateNewObject(_parser.CurrentReduction as Reduction);
                     if (currentReduction != null)
                         Stack.Push(currentReduction);
