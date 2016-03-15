@@ -1,3 +1,4 @@
+using System;
 using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
@@ -12,6 +13,13 @@ namespace eeCCompiler.Nodes
 
         public IExpression Expression { get; set; }
         public Body Body { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            Expression.Accept(visitor);
+            Body.Accept(visitor);
+            visitor.Visit(this);
+        }
     }
 
     internal class RepeatFor : RepeatExpr
@@ -25,5 +33,14 @@ namespace eeCCompiler.Nodes
 
         public VarDecleration VarDecleration { get; set; }
         public Direction Direction { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            Expression.Accept(visitor);
+            Body.Accept(visitor);
+            VarDecleration.Accept(visitor);
+            Direction.Accept(visitor);
+            visitor.Visit(this);
+        }
     }
 }

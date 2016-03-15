@@ -1,4 +1,5 @@
-﻿using eeCCompiler.Interfaces;
+﻿using System;
+using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
@@ -10,5 +11,10 @@ namespace eeCCompiler.Nodes
         }
 
         public IExpression Expression { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            Expression.Accept(visitor);
+        }
     }
 }

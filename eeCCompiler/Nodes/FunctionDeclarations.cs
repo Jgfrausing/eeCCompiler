@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
@@ -16,6 +17,15 @@ namespace eeCCompiler.Nodes
         }
 
         public List<FunctionDeclaration> FunctionDeclaration { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            foreach (var funcdecl in FunctionDeclaration)
+            {
+                funcdecl.Accept(visitor);
+            }
+            visitor.Visit(this);
+        }
     }
 
     public class FunctionDeclaration : AbstractSyntaxTree
@@ -30,5 +40,13 @@ namespace eeCCompiler.Nodes
         public TypeId TypeId { get; set; }
         public TypeIdList Parameters { get; set; }
         public Body Body { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            TypeId.Accept(visitor);
+            Parameters.Accept(visitor);
+            Body.Accept(visitor);
+            visitor.Visit(this);
+        }
     }
 }

@@ -12,5 +12,14 @@ namespace eeCCompiler.Nodes
 
         public IExpression Expression { get; set; }
         public ElseStatement ElseStatement { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            Body.Accept(visitor);
+            Expression.Accept(visitor);
+            ElseStatement.Accept(visitor);
+            visitor.Visit(this);
+        }
     }
+
 }
