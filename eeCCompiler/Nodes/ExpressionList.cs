@@ -22,8 +22,8 @@ namespace eeCCompiler.Nodes
             foreach (var expression in Expressions)
             {
                 expression.Accept(visitor);
-
             }
+            visitor.Visit(this);
         }
     }
 }

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace eeCCompiler.Nodes
 {
-    internal class ConstantDefinitions : AbstractSyntaxTree
+    public class ConstantDefinitions : AbstractSyntaxTree
     {
         public ConstantDefinitions()
         {

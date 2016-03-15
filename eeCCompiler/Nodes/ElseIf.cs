@@ -10,5 +10,10 @@ namespace eeCCompiler.Nodes
         }
 
         public Body Body { get; set; }
+        public override void Accept(IEecVisitor visitor)
+        {
+            Body.Accept(visitor);
+            visitor.Visit(this);
+        }
     }
 }

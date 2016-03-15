@@ -10,6 +10,12 @@ namespace eeCCompiler.Nodes
         }
 
         public IValue Value { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            Value.Accept(this);
+            visitor.Visit(this);
+        }
     }
 
     internal class ExpressionValOpExpr : AbstractSyntaxTree, IExpression
@@ -18,42 +24,64 @@ namespace eeCCompiler.Nodes
         {
             Value = value;
             Operator = _operator;
-            IExpression = expression;
+            Expression = expression;
         }
 
         public IValue Value { get; set; }
         public Operator Operator { get; set; }
-        public IExpression IExpression { get; set; }
+        public IExpression Expression { get; set; }
+        public override void Accept(IEecVisitor visitor)
+        {
+            Value.Accept(visitor);
+            Operator.Accept(visitor);
+            Expression.Accept(visitor);
+            visitor.Visit(this);
+        }
     }
 
     internal class ExpressionNegate : AbstractSyntaxTree, IExpression
     {
-        public ExpressionNegate(IExpression iExpression)
+        public ExpressionNegate(IExpression expression)
         {
-            IExpression = iExpression;
+            Expression = expression;
         }
 
-        public IExpression IExpression { get; set; }
+        public IExpression Expression { get; set; }
+        public override void Accept(IEecVisitor visitor)
+        {
+            Expression.Accept(visitor);
+            visitor.Visit(this);
+        }
     }
 
     internal class ExpressionMinus : AbstractSyntaxTree, IExpression
     {
         public ExpressionMinus(IExpression iExpression)
         {
-            IExpression = iExpression;
+            Expression = iExpression;
         }
 
-        public IExpression IExpression { get; set; }
+        public IExpression Expression { get; set; }
+        public override void Accept(IEecVisitor visitor)
+        {
+            Expression.Accept(visitor);
+            visitor.Visit(this);
+        }
     }
 
     internal class ExpressionParen : AbstractSyntaxTree, IExpression
     {
         public ExpressionParen(IExpression iExpression)
         {
-            IExpression = iExpression;
+            Expression = iExpression;
         }
 
-        public IExpression IExpression { get; set; }
+        public IExpression Expression { get; set; }
+        public override void Accept(IEecVisitor visitor)
+        {
+            Expression.Accept(visitor);
+            visitor.Visit(this);
+        }
     }
 
     internal class ExpressionParenOpExpr : AbstractSyntaxTree, IExpression
@@ -62,15 +90,26 @@ namespace eeCCompiler.Nodes
         {
             ExpressionParen = expressionParen;
             Operator = _operator;
-            IExpression = expression;
+            Expression = expression;
         }
 
         public IExpression ExpressionParen { get; set; }
         public Operator Operator { get; set; }
-        public IExpression IExpression { get; set; }
+        public IExpression Expression { get; set; }
+        public override void Accept(IEecVisitor visitor)
+        {
+            ExpressionParen.Accept(visitor);
+            Operator.Accept(visitor);
+            Expression.Accept(visitor);
+            visitor.Visit(this);
+        }
     }
 
     internal class OptExpression : AbstractSyntaxTree, IExpression
     {
+        public override void Accept(IEecVisitor visitor)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
