@@ -47,9 +47,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="eeC.cs" />
+    <Compile Include="IEecVisitor.cs" />
     <Compile Include="Indexes\Indexes.cs" />
     <Compile Include="Interfaces\IBodypart.cs" />
     <Compile Include="Interfaces\IExpression.cs" />
+    <Compile Include="Interfaces\INodeElement.cs" />
     <Compile Include="Interfaces\IStructPart.cs" />
     <Compile Include="Interfaces\IValue.cs" />
     <Compile Include="Interfaces\RepeatExpr.cs" />
