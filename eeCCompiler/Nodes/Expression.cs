@@ -104,12 +104,4 @@ namespace eeCCompiler.Nodes
             visitor.Visit(this);
         }
     }
-
-    internal class OptExpression : AbstractSyntaxTree, IExpression
-    {
-        public override void Accept(IEecVisitor visitor)
-        {
-            throw new System.NotImplementedException();
-        }
-    }
 }

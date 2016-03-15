@@ -9,7 +9,7 @@ namespace eeCCompiler.Visitors
     {
         public void Visit(Root root)
         {
-            Console.WriteLine(" Batman");
+            Console.WriteLine("Batman");
         }
 
         public void Visit(Body body)
@@ -129,7 +129,7 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Return expression)
         {
-            Console.WriteLine("lol");
+            Console.WriteLine("!lol");
         }
     }
 }
