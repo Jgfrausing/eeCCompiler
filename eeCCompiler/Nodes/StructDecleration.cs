@@ -1,4 +1,5 @@
-﻿using eeCCompiler.Interfaces;
+﻿using System;
+using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
@@ -14,5 +15,13 @@ namespace eeCCompiler.Nodes
         public Identifier Identifier { get; set; }
         public Identifier StructIdentifier { get; set; }
         public VarDeclerations VarDeclerations { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            Identifier.Accept(visitor);
+            StructIdentifier.Accept(visitor);
+            VarDeclerations.Accept(visitor);
+            visitor.Visit(this);
+        }
     }
 }
