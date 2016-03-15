@@ -1,4 +1,5 @@
 ﻿using System;
+using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
 using Type = eeCCompiler.Nodes.Type;
 
