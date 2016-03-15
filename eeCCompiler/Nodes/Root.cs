@@ -2,7 +2,7 @@
 
 namespace eeCCompiler.Nodes
 {
-    internal class Root : AbstractSyntaxTree
+    public class Root : AbstractSyntaxTree
     {
         public Root(List<Constant> constantDefinitions, List<StructDefinition> structDefinitions, Body body,
             FunctionDeclarationList functionDeclarationList)

@@ -1,6 +1,6 @@
 namespace eeCCompiler.Nodes
 {
-    internal class Constant : AbstractSyntaxTree
+    public class Constant : AbstractSyntaxTree
     {
         public Constant(Identifier identifier, IConstantPart constantPart)
         {

@@ -1,6 +1,6 @@
 namespace eeCCompiler.Nodes
 {
-    internal interface IConstantPart
+    public interface IConstantPart
     {
     }
 }
