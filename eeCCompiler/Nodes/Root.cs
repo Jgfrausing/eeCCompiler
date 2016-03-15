@@ -5,7 +5,7 @@ namespace eeCCompiler.Nodes
 {
     public class Root : AbstractSyntaxTree
     {
-        public Root(List<Constant> constantDefinitions, List<StructDefinition> structDefinitions, Body body,
+        public Root(ConstantDefinitions constantDefinitions, StructDefinitions structDefinitions, Body body,
             FunctionDeclarations functionDeclarations)
         {
             ConstantDefinitions = constantDefinitions;
@@ -14,24 +14,17 @@ namespace eeCCompiler.Nodes
             FunctionDeclarations = functionDeclarations;
         }
 
-        public List<Constant> ConstantDefinitions { get; set; }
-        public List<StructDefinition> StructDefinitions { get; set; }
+        public ConstantDefinitions ConstantDefinitions { get; set; }
+        public StructDefinitions StructDefinitions { get; set; }
         public Body Program { get; set; }
         public FunctionDeclarations FunctionDeclarations { get; set; }
 
         public override void Accept(IEecVisitor visitor)
         {
-            foreach (var cont in ConstantDefinitions)
-            {
-                cont.Accept(visitor);
-            }
-            foreach (var structdef in StructDefinitions)
-            {
-                structdef.Accept(visitor);
-            }
+            ConstantDefinitions.Accept(visitor);
+            StructDefinitions.Accept(visitor);
             Program.Accept(visitor);
             FunctionDeclarations.Accept(visitor);
-
             visitor.Visit(this);
         }
     }

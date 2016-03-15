@@ -2,18 +2,26 @@ using System.Collections.Generic;
 
 namespace eeCCompiler.Nodes
 {
-    internal class Constants : AbstractSyntaxTree
+    internal class ConstantDefinitions : AbstractSyntaxTree
     {
-        public Constants()
+        public ConstantDefinitions()
         {
             ConstantList = new List<Constant>();
         }
 
-        public Constants(List<Constant> constants)
+        public ConstantDefinitions(List<Constant> constantDefinitions)
         {
-            ConstantList = constants;
+            ConstantList = constantDefinitions;
         }
 
         public List<Constant> ConstantList { get; set; }
+        public override void Accept(IEecVisitor visitor)
+        {
+            foreach (var cont in ConstantList)
+            {
+                cont.Accept(visitor);
+            }
+            visitor.Visit(this);
+        }
     }
 }

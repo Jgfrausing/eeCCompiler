@@ -151,7 +151,7 @@ internal class MyParser
 
             case Indexes.ProductionIndex.Consts2:
                 // <consts> ::= 
-                result = new Constants();
+                result = new ConstantDefinitions();
                 break;
 
             case Indexes.ProductionIndex.Const_Const_Id_Semi:
@@ -631,14 +631,14 @@ internal class MyParser
         var funcDecls = Stack.Pop() as FunctionDeclarations;
         var body = Stack.Pop() as Body;
         var structDef = Stack.Pop() as StructDefinitions;
-        var constantList = Stack.Pop() as Constants;
+        var constantList = Stack.Pop() as ConstantDefinitions;
 
-        return new Root(constantList.ConstantList, structDef.Definitions, body, funcDecls);
+        return new Root(constantList, structDef, body, funcDecls);
     }
 
     private AbstractSyntaxTree CreateConstants(AbstractSyntaxTree result)
     {
-        var constants = Stack.Pop() as Constants;
+        var constants = Stack.Pop() as ConstantDefinitions;
         constants.ConstantList.Insert(0, Stack.Pop() as Constant);
         return constants;
     }
