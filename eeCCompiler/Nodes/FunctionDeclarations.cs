@@ -3,14 +3,14 @@ using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    public class FunctionDeclarationList : AbstractSyntaxTree, IStructPart
+    public class FunctionDeclarations : AbstractSyntaxTree, IStructPart
     {
-        public FunctionDeclarationList()
+        public FunctionDeclarations()
         {
             FunctionDeclaration = new List<FunctionDeclaration>();
         }
 
-        public FunctionDeclarationList(List<FunctionDeclaration> functionDeclaration)
+        public FunctionDeclarations(List<FunctionDeclaration> functionDeclaration)
         {
             FunctionDeclaration = functionDeclaration;
         }

@@ -1,21 +1,38 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace eeCCompiler.Nodes
 {
     public class Root : AbstractSyntaxTree
     {
         public Root(List<Constant> constantDefinitions, List<StructDefinition> structDefinitions, Body body,
-            FunctionDeclarationList functionDeclarationList)
+            FunctionDeclarations functionDeclarations)
         {
             ConstantDefinitions = constantDefinitions;
             StructDefinitions = structDefinitions;
             Program = body;
-            FunctionDeclarations = functionDeclarationList.FunctionDeclaration;
+            FunctionDeclarations = functionDeclarations;
         }
 
         public List<Constant> ConstantDefinitions { get; set; }
         public List<StructDefinition> StructDefinitions { get; set; }
         public Body Program { get; set; }
-        public List<FunctionDeclaration> FunctionDeclarations { get; set; }
+        public FunctionDeclarations FunctionDeclarations { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            foreach (var cont in ConstantDefinitions)
+            {
+                cont.Accept(visitor);
+            }
+            foreach (var structdef in StructDefinitions)
+            {
+                structdef.Accept(visitor);
+            }
+            Program.Accept(visitor);
+            FunctionDeclarations.Accept(visitor);
+
+            visitor.Visit(this);
+        }
     }
 }

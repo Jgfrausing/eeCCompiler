@@ -170,7 +170,7 @@ internal class MyParser
 
             case Indexes.ProductionIndex.Func_decls2:
                 // <Func_decls> ::= 
-                result = new FunctionDeclarationList();
+                result = new FunctionDeclarations();
                 break;
 
             case Indexes.ProductionIndex.Func_decl_Lparen_Rparen_Lbrace_Rbrace:
@@ -557,7 +557,7 @@ internal class MyParser
 
     private AbstractSyntaxTree CreateFunctionDeclarationList(AbstractSyntaxTree result)
     {
-        var funcDecls = Stack.Pop() as FunctionDeclarationList;
+        var funcDecls = Stack.Pop() as FunctionDeclarations;
         funcDecls.FunctionDeclaration.Insert(0, Stack.Pop() as FunctionDeclaration);
         result = funcDecls;
         return result;
@@ -628,7 +628,7 @@ internal class MyParser
 
     private AbstractSyntaxTree CreateProgram(AbstractSyntaxTree result)
     {
-        var funcDecls = Stack.Pop() as FunctionDeclarationList;
+        var funcDecls = Stack.Pop() as FunctionDeclarations;
         var body = Stack.Pop() as Body;
         var structDef = Stack.Pop() as StructDefinitions;
         var constantList = Stack.Pop() as Constants;
