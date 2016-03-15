@@ -1,6 +1,7 @@
 ﻿namespace eeCCompiler.Interfaces
 {
-    public interface IExpression
+    public interface IExpression : INodeElement
     {
+
     }
 }

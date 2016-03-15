@@ -13,5 +13,9 @@ namespace eeCCompiler.Nodes
 
         public Identifier Identifier { get; set; }
         public List<IExpression> IExpressions { get; set; }
+        public override void Accept(IEecVisitor visitor)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -1,6 +1,6 @@
 namespace eeCCompiler.Interfaces
 {
-    public interface IBodypart
+    public interface IBodypart : INodeElement
     {
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace eeCCompiler.Interfaces
 {
-    public interface IStructPart
+    public interface IStructPart : INodeElement
     {
     }
 }
