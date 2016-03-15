@@ -1,4 +1,6 @@
-﻿namespace eeCCompiler.Nodes
+﻿using eeCCompiler.Interfaces;
+
+namespace eeCCompiler.Nodes
 {
     public class Direction : AbstractSyntaxTree
     {

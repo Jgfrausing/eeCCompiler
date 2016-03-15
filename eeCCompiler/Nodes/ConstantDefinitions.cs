@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {

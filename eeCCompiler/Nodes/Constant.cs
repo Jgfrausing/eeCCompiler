@@ -1,3 +1,5 @@
+using eeCCompiler.Interfaces;
+
 namespace eeCCompiler.Nodes
 {
     public class Constant : AbstractSyntaxTree

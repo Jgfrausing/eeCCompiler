@@ -3,7 +3,7 @@ using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    internal class ExpressionList : AbstractSyntaxTree
+    public class ExpressionList : AbstractSyntaxTree
     {
         public ExpressionList()
         {

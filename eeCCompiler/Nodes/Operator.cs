@@ -1,8 +1,9 @@
 ﻿using System;
+using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    internal class Operator : AbstractSyntaxTree
+    public class Operator : AbstractSyntaxTree
     {
         public Operator(Indexes.Indexes.SymbolIndex symbol)
         {

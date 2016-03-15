@@ -1,4 +1,5 @@
 ﻿using System;
+using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {

@@ -2,7 +2,7 @@
 
 namespace eeCCompiler.Nodes
 {
-    internal class ExpressionVal : AbstractSyntaxTree, IExpression
+    public class ExpressionVal : AbstractSyntaxTree, IExpression
     {
         public ExpressionVal(IValue value)
         {
@@ -13,12 +13,12 @@ namespace eeCCompiler.Nodes
 
         public override void Accept(IEecVisitor visitor)
         {
-            Value.Accept(this);
+            Value.Accept(visitor);
             visitor.Visit(this);
         }
     }
 
-    internal class ExpressionValOpExpr : AbstractSyntaxTree, IExpression
+    public class ExpressionValOpExpr : AbstractSyntaxTree, IExpression
     {
         public ExpressionValOpExpr(IValue value, Operator _operator, IExpression expression)
         {
@@ -39,7 +39,7 @@ namespace eeCCompiler.Nodes
         }
     }
 
-    internal class ExpressionNegate : AbstractSyntaxTree, IExpression
+    public class ExpressionNegate : AbstractSyntaxTree, IExpression
     {
         public ExpressionNegate(IExpression expression)
         {
@@ -54,7 +54,7 @@ namespace eeCCompiler.Nodes
         }
     }
 
-    internal class ExpressionMinus : AbstractSyntaxTree, IExpression
+    public class ExpressionMinus : AbstractSyntaxTree, IExpression
     {
         public ExpressionMinus(IExpression iExpression)
         {
@@ -69,7 +69,7 @@ namespace eeCCompiler.Nodes
         }
     }
 
-    internal class ExpressionParen : AbstractSyntaxTree, IExpression
+    public class ExpressionParen : AbstractSyntaxTree, IExpression
     {
         public ExpressionParen(IExpression iExpression)
         {
@@ -84,7 +84,7 @@ namespace eeCCompiler.Nodes
         }
     }
 
-    internal class ExpressionParenOpExpr : AbstractSyntaxTree, IExpression
+    public class ExpressionParenOpExpr : AbstractSyntaxTree, IExpression
     {
         public ExpressionParenOpExpr(IExpression expressionParen, Operator _operator, IExpression expression)
         {

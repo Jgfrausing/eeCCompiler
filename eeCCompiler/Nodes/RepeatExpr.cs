@@ -3,7 +3,7 @@ using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    internal class RepeatExpr : AbstractSyntaxTree, IBodypart
+    public class RepeatExpr : AbstractSyntaxTree, IBodypart
     {
         public RepeatExpr(IExpression expression, Body body)
         {

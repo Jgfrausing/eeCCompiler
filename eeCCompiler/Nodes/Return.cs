@@ -3,7 +3,7 @@ using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    public class Return : AbstractSyntaxTree
+    public class Return : AbstractSyntaxTree, IBodypart
     {
         public Return(IExpression expression)
         {
@@ -15,6 +15,7 @@ namespace eeCCompiler.Nodes
         public override void Accept(IEecVisitor visitor)
         {
             Expression.Accept(visitor);
+            visitor.Visit(this);
         }
     }
 }

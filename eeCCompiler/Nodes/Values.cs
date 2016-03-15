@@ -3,7 +3,7 @@ using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    internal class BoolValue : AbstractSyntaxTree, IValue, IConstantPart
+    public class BoolValue : AbstractSyntaxTree, IValue, IConstantPart
     {
         public BoolValue(bool value)
         {
@@ -18,7 +18,7 @@ namespace eeCCompiler.Nodes
         }
     }
 
-    internal class StringValue : AbstractSyntaxTree, IValue, IConstantPart
+    public class StringValue : AbstractSyntaxTree, IValue, IConstantPart
     {
         public StringValue(string value)
         {
@@ -33,7 +33,7 @@ namespace eeCCompiler.Nodes
         }
     }
 
-    internal class NumValue : AbstractSyntaxTree, IValue, IConstantPart
+    public class NumValue : AbstractSyntaxTree, IValue, IConstantPart
     {
         public NumValue(double value)
         {

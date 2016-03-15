@@ -1,6 +1,6 @@
 namespace eeCCompiler.Interfaces
 {
-    internal interface IValue : INodeElement
+    public interface IValue : INodeElement
     {
     }
 }
