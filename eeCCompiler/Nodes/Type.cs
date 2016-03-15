@@ -1,4 +1,6 @@
-﻿namespace eeCCompiler.Nodes
+﻿using System;
+
+namespace eeCCompiler.Nodes
 {
     public class Type : AbstractSyntaxTree
     {
@@ -8,5 +10,10 @@
         }
 
         public string ValueType { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
     }
 }

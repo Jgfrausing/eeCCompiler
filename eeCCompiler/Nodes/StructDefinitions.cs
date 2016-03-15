@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
@@ -16,6 +17,14 @@ namespace eeCCompiler.Nodes
         }
 
         public List<StructDefinition> Definitions { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            foreach (var structdefi in Definitions)
+            {
+                structdefi.Accept(visitor);
+            }
+        }
     }
 
     public class StructDefinition : AbstractSyntaxTree
@@ -28,6 +37,12 @@ namespace eeCCompiler.Nodes
 
         public Identifier Identifier { get; set; }
         public StructParts StructParts { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            Identifier.Accept(visitor);
+            StructParts.Accept(visitor);
+        }
     }
 
     public class StructParts : AbstractSyntaxTree
@@ -43,5 +58,13 @@ namespace eeCCompiler.Nodes
         }
 
         public List<IStructPart> StructPartList { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            foreach (var structpart in StructPartList)
+            {
+                structpart.Accept(visitor);
+            }
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace eeCCompiler.Nodes
         public override void Accept(IEecVisitor visitor)
         {
             Identifier.Accept(visitor);
-            //Expression.
+            Expression.Accept(visitor);
         }
 
 

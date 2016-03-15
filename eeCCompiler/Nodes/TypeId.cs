@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace eeCCompiler.Nodes
 {
@@ -12,6 +13,12 @@ namespace eeCCompiler.Nodes
 
         public Type ValueType { get; set; }
         public Identifier Identifier { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            ValueType.Accept(visitor);
+            Identifier.Accept(visitor);
+        }
     }
 
     public class TypeIdList : AbstractSyntaxTree
@@ -27,5 +34,13 @@ namespace eeCCompiler.Nodes
         }
 
         public List<TypeId> TypeIds { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            foreach (var Typeids in TypeIds)
+            {
+                Typeids.Accept(visitor);
+            }
+        }
     }
 }

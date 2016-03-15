@@ -1,4 +1,5 @@
-﻿using eeCCompiler.Interfaces;
+﻿using System;
+using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
@@ -10,6 +11,11 @@ namespace eeCCompiler.Nodes
         }
 
         public bool Value { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
     }
 
     internal class StringValue : AbstractSyntaxTree, IValue, IConstantPart
@@ -20,6 +26,11 @@ namespace eeCCompiler.Nodes
         }
 
         public string Value { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
     }
 
     internal class NumValue : AbstractSyntaxTree, IValue, IConstantPart
@@ -30,5 +41,10 @@ namespace eeCCompiler.Nodes
         }
 
         public double Value { get; set; }
-    }
-}
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }  
+}   
