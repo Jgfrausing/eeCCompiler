@@ -12,5 +12,14 @@ namespace eeCCompiler.Nodes
 
         public Identifier Identifier { get; set; }
         public IExpression Expression { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            Identifier.Accept(visitor);
+            //Expression.
+        }
+
+
+
     }
 }

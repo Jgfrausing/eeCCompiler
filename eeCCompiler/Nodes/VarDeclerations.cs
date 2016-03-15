@@ -16,5 +16,15 @@ namespace eeCCompiler.Nodes
         }
 
         public List<VarDecleration> VarDeclerationList { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            foreach (var Vardec in VarDeclerationList)
+            {
+                Vardec.Accept(visitor);
+            }
+        }
+
+
     }
 }

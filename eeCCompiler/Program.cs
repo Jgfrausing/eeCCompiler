@@ -12,6 +12,7 @@ namespace eeCCompiler
             var syntax = result ? "The syntax is correct!" : "There are errors in the syntax";
             Console.WriteLine(syntax);
             Console.ReadKey();
+            
         }
     }
 }
