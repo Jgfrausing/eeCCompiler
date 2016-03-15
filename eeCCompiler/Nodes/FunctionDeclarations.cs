@@ -20,10 +20,6 @@ namespace eeCCompiler.Nodes
 
         public override void Accept(IEecVisitor visitor)
         {
-            foreach (var funcdecl in FunctionDeclaration)
-            {
-                funcdecl.Accept(visitor);
-            }
             visitor.Visit(this);
         }
     }
@@ -43,9 +39,6 @@ namespace eeCCompiler.Nodes
 
         public override void Accept(IEecVisitor visitor)
         {
-            TypeId.Accept(visitor);
-            Parameters.Accept(visitor);
-            Body.Accept(visitor);
             visitor.Visit(this);
         }
     }

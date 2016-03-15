@@ -15,11 +15,6 @@ namespace eeCCompiler.Nodes
         public List<IExpression> Expressions { get; set; }
         public override void Accept(IEecVisitor visitor)
         {
-            Identifier.Accept(visitor);
-            foreach (var expression in Expressions)
-            {
-                expression.Accept(visitor);
-            }
             visitor.Visit(this);
         }
     }

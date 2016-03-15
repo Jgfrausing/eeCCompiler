@@ -18,10 +18,6 @@ namespace eeCCompiler.Nodes
         public List<IBodypart> Bodyparts { get; set; }
         public override void Accept(IEecVisitor visitor)
         {
-            foreach (var bodypart in Bodyparts)
-            {
-                bodypart.Accept(visitor);
-            }
             visitor.Visit(this);
         }
     }

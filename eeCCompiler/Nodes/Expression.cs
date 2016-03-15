@@ -13,7 +13,6 @@ namespace eeCCompiler.Nodes
 
         public override void Accept(IEecVisitor visitor)
         {
-            Value.Accept(visitor);
             visitor.Visit(this);
         }
     }
@@ -32,9 +31,6 @@ namespace eeCCompiler.Nodes
         public IExpression Expression { get; set; }
         public override void Accept(IEecVisitor visitor)
         {
-            Value.Accept(visitor);
-            Operator.Accept(visitor);
-            Expression.Accept(visitor);
             visitor.Visit(this);
         }
     }
@@ -49,7 +45,6 @@ namespace eeCCompiler.Nodes
         public IExpression Expression { get; set; }
         public override void Accept(IEecVisitor visitor)
         {
-            Expression.Accept(visitor);
             visitor.Visit(this);
         }
     }
@@ -64,7 +59,6 @@ namespace eeCCompiler.Nodes
         public IExpression Expression { get; set; }
         public override void Accept(IEecVisitor visitor)
         {
-            Expression.Accept(visitor);
             visitor.Visit(this);
         }
     }
@@ -79,7 +73,6 @@ namespace eeCCompiler.Nodes
         public IExpression Expression { get; set; }
         public override void Accept(IEecVisitor visitor)
         {
-            Expression.Accept(visitor);
             visitor.Visit(this);
         }
     }
@@ -98,9 +91,6 @@ namespace eeCCompiler.Nodes
         public IExpression Expression { get; set; }
         public override void Accept(IEecVisitor visitor)
         {
-            ExpressionParen.Accept(visitor);
-            Operator.Accept(visitor);
-            Expression.Accept(visitor);
             visitor.Visit(this);
         }
     }

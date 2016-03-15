@@ -18,10 +18,6 @@ namespace eeCCompiler.Nodes
         public List<Constant> ConstantList { get; set; }
         public override void Accept(IEecVisitor visitor)
         {
-            foreach (var cont in ConstantList)
-            {
-                cont.Accept(visitor);
-            }
             visitor.Visit(this);
         }
     }

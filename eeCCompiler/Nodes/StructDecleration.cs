@@ -18,9 +18,6 @@ namespace eeCCompiler.Nodes
 
         public override void Accept(IEecVisitor visitor)
         {
-            Identifier.Accept(visitor);
-            StructIdentifier.Accept(visitor);
-            VarDeclerations.Accept(visitor);
             visitor.Visit(this);
         }
     }

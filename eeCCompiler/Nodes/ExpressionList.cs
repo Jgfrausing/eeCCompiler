@@ -19,10 +19,6 @@ namespace eeCCompiler.Nodes
 
         public override void Accept(IEecVisitor visitor)
         {
-            foreach (var expression in Expressions)
-            {
-                expression.Accept(visitor);
-            }
             visitor.Visit(this);
         }
     }

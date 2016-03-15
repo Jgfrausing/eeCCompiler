@@ -14,8 +14,6 @@ namespace eeCCompiler.Nodes
         public IConstantPart ConstantPart { get; set; }
         public override void Accept(IEecVisitor visitor)
         {
-            Identifier.Accept(visitor);
-            ConstantPart.Accept(visitor);
             visitor.Visit(this);
         }
     }

@@ -22,10 +22,6 @@ namespace eeCCompiler.Nodes
 
         public override void Accept(IEecVisitor visitor)
         {
-            ConstantDefinitions.Accept(visitor);
-            StructDefinitions.Accept(visitor);
-            Program.Accept(visitor);
-            FunctionDeclarations.Accept(visitor);
             visitor.Visit(this);
         }
     }
