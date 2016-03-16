@@ -3,7 +3,7 @@ using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    public class Identifier : AbstractSyntaxTree, IValue
+    public class Identifier : AbstractSyntaxTree, IValue, IStructRefrence
     {
         public Identifier(string id)
         {

@@ -10,35 +10,35 @@ namespace eeCCompiler.Visitors
 {
     public abstract class Visitor : IEecVisitor
     {
-        public void Visit(Constant constant)
+        public virtual void Visit(Constant constant)
         {
             constant.Identifier.Accept(this);
             constant.ConstantPart.Accept(this);
         }
 
-        public void Visit(ElseStatement elseStatement)
+        public virtual void Visit(ElseStatement elseStatement)
         {
             elseStatement.Body.Accept(this);
         }
 
-        public void Visit(ExpressionVal expressionVal)
+        public virtual void Visit(ExpressionVal expressionVal)
         {
             expressionVal.Value.Accept(this);
         }
 
-        public void Visit(ExpressionParenOpExpr expressionParenOpExpr)
+        public virtual void Visit(ExpressionParenOpExpr expressionParenOpExpr)
         {
             expressionParenOpExpr.ExpressionParen.Accept(this);
             expressionParenOpExpr.Operator.Accept(this);
             expressionParenOpExpr.Expression.Accept(this);
         }
 
-        public void Visit(ExpressionParen expressionParen)
+        public virtual void Visit(ExpressionParen expressionParen)
         {
             expressionParen.Expression.Accept(this);
         }
 
-        public void Visit(ExpressionList expressionList)
+        public virtual void Visit(ExpressionList expressionList)
         {
             foreach (var expression in expressionList.Expressions)
             {
@@ -46,25 +46,25 @@ namespace eeCCompiler.Visitors
             }
         }
 
-        public void Visit(RepeatExpr repeatExpr)
+        public virtual void Visit(RepeatExpr repeatExpr)
         {
             repeatExpr.Expression.Accept(this);
             repeatExpr.Body.Accept(this);
         }
 
-        public void Visit(StringValue stringValue)
+        public virtual void Visit(StringValue stringValue)
         {
         }
 
-        public void Visit(Identifier identifier)
+        public virtual void Visit(Identifier identifier)
         {
         }
 
-        public void Visit(NumValue numValue)
+        public virtual void Visit(NumValue numValue)
         {
         }
 
-        public void Visit(FunctionDeclarations functionDeclarations)
+        public virtual void Visit(FunctionDeclarations functionDeclarations)
         {
             foreach (var funcdecl in functionDeclarations.FunctionDeclaration)
             {
@@ -72,19 +72,24 @@ namespace eeCCompiler.Visitors
             }
         }
 
-        public void Visit(Return expressionParenOpExpr)
+        public virtual void Visit(Return expressionParenOpExpr)
         {
             expressionParenOpExpr.Expression.Accept(this);
         }
 
-        public void Visit(FunctionDeclaration functionDeclaration)
+        public virtual void Visit(Refrence expressionParenOpExpr)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void Visit(FunctionDeclaration functionDeclaration)
         {
             functionDeclaration.TypeId.Accept(this);
             functionDeclaration.Parameters.Accept(this);
             functionDeclaration.Body.Accept(this);
         }
 
-        public void Visit(FuncCall funcCall)
+        public virtual void Visit(FuncCall funcCall)
         {
             funcCall.Identifier.Accept(this);
             foreach (var expression in funcCall.Expressions)
@@ -93,47 +98,47 @@ namespace eeCCompiler.Visitors
             }
         }
 
-        public void Visit(BoolValue boolValue)
+        public virtual void Visit(BoolValue boolValue)
         {
         }
 
-        public void Visit(Operator operate)
+        public virtual void Visit(Operator operate)
         {
         }
 
-        public void Visit(Nodes.Type type)
+        public virtual void Visit(Nodes.Type type)
         {
         }
 
-        public void Visit(StructDecleration structDecleration)
+        public virtual void Visit(StructDecleration structDecleration)
         {
             structDecleration.Identifier.Accept(this);
             structDecleration.StructIdentifier.Accept(this);
             structDecleration.VarDeclerations.Accept(this);
         }
 
-        public void Visit(ExpressionMinus expressionMinus)
+        public virtual void Visit(ExpressionMinus expressionMinus)
         {
             expressionMinus.Expression.Accept(this);
         }
 
-        public void Visit(ExpressionValOpExpr rooteValOpExpr)
+        public virtual void Visit(ExpressionValOpExpr rooteValOpExpr)
         {
             rooteValOpExpr.Value.Accept(this);
             rooteValOpExpr.Operator.Accept(this);
             rooteValOpExpr.Expression.Accept(this);
         }
 
-        public void Visit(Direction direction)
+        public virtual void Visit(Direction direction)
         {
         }
 
-        public void Visit(ExpressionNegate expressionNegate)
+        public virtual void Visit(ExpressionNegate expressionNegate)
         {
             expressionNegate.Expression.Accept(this);
         }
 
-        public void Visit(ConstantDefinitions constantDefinitions)
+        public virtual void Visit(ConstantDefinitions constantDefinitions)
         {
             foreach (var cont in constantDefinitions.ConstantList)
             {
@@ -141,7 +146,7 @@ namespace eeCCompiler.Visitors
             }
         }
 
-        public void Visit(Body body)
+        public virtual void Visit(Body body)
         {
             foreach (var bodypart in body.Bodyparts)
             {
@@ -149,7 +154,7 @@ namespace eeCCompiler.Visitors
             }
         }
 
-        public void Visit(Root root)
+        public virtual void Visit(Root root)
         {
             root.ConstantDefinitions.Accept(this);
             root.StructDefinitions.Accept(this);

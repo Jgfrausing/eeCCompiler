@@ -386,13 +386,23 @@ internal class MyParser
                 break;
 
             case Indexes.ProductionIndex.Value:
-                // <value> ::= <func_call>
+                // <value> ::= <refrence>
                 result = Stack.Pop();
                 break;
 
-            case Indexes.ProductionIndex.Value_Id:
-                // <value> ::= Id
-                result = Identifiers.Pop();
+            case Indexes.ProductionIndex.Refrence:
+                // <refrence> ::= <func_call>
+                result = new Refrence(Stack.Pop() as IStructRefrence);
+                break;
+
+            case Indexes.ProductionIndex.Refrence_Id:
+                // <refrence> ::= Id
+                result = new Refrence(Identifiers.Pop());
+                break;
+
+            case Indexes.ProductionIndex.Refrence_Id_Dot:
+                // <refrence> ::= Id '.' <refrence>
+                result = new Refrence(Identifiers.Pop(), (Stack.Pop() as Refrence));
                 break;
 
                 #endregion

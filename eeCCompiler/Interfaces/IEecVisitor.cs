@@ -29,5 +29,6 @@ namespace eeCCompiler.Interfaces
         void Visit(FunctionDeclarations functionDeclarations);
         void Visit(FunctionDeclaration functionDeclaration);
         void Visit(Return expressionParenOpExpr);
+        void Visit(Refrence expressionParenOpExpr);
     }
 }

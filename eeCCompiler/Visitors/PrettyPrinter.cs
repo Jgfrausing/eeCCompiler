@@ -5,129 +5,150 @@ using Type = eeCCompiler.Nodes.Type;
 
 namespace eeCCompiler.Visitors
 {
-    public class PrettyPrinter : IEecVisitor
+    public class PrettyPrinter : Visitor
     {
-        public void Visit(Root root)
+        private string _sourceCode = "";
+
+        public override void Visit(Root root)
         {
-            Console.WriteLine("Batman");
+            root.ConstantDefinitions.Accept(this);
+            root.StructDefinitions.Accept(this);
+            _sourceCode += "program";
+            root.Program.Accept(this);
+            root.FunctionDeclarations.Accept(this);
         }
 
-        public void Visit(Body body)
+        public override void Visit(Body body)
         {
-            Console.WriteLine("NaN");
+            _sourceCode += "{\n";
+            base.Visit(body);
+            _sourceCode += "}\n";
         }
 
-        public void Visit(Constant constant)
+        public override void Visit(Constant constant)
         {
-            Console.WriteLine("NaN");
+            _sourceCode += "const ";
+            Visit(constant);
+            _sourceCode += "\n";
         }
 
-        public void Visit(ConstantDefinitions constantDefinitions)
+        public override void Visit(ConstantDefinitions constantDefinitions)
         {
-            Console.WriteLine("NaN");
+            
         }
 
-        public void Visit(ElseStatement elseStatement)
+        public override void Visit(ElseStatement elseStatement)
         {
-            Console.WriteLine("NaN");
+            _sourceCode += "else \n";
+            Visit(elseStatement);
         }
 
-        public void Visit(ExpressionNegate expressionNegate)
+        public override void Visit(ExpressionNegate expressionNegate)
         {
-            Console.WriteLine("NaN");
+            _sourceCode += "1";
+            Visit(expressionNegate);
         }
 
-        public void Visit(ExpressionVal expressionVal)
+        public override void Visit(ExpressionVal expressionVal)
         {
-            Console.WriteLine("NaN");
+            Visit(expressionVal);
         }
 
-        public void Visit(Direction direction)
+        public override void Visit(Direction direction)
         {
-            Console.WriteLine("NaN");
+            _sourceCode += direction.Incrementing ? " to " : " downto ";
         }
 
-        public void Visit(ExpressionParenOpExpr expressionParenOpExpr)
+        public override void Visit(ExpressionParenOpExpr expressionParenOpExpr)
         {
-            Console.WriteLine("NaN");
+            Visit(expressionParenOpExpr.ExpressionParen as ExpressionParen);
+            Visit(expressionParenOpExpr.Operator);
+            Visit(expressionParenOpExpr.Expression);
         }
 
-        public void Visit(ExpressionValOpExpr rooteValOpExpr)
+        private void Visit(IExpression expression)
         {
-            Console.WriteLine("NaN");
+            _sourceCode += expression.ToString();
         }
 
-        public void Visit(ExpressionParen expressionParen)
-        {
-            Console.WriteLine("NaN");
-        }
-
-        public void Visit(ExpressionMinus expressionMinus)
-        {
-            Console.WriteLine("NaN");
-        }
-
-        public void Visit(ExpressionList expressionList)
-        {
-            Console.WriteLine("NaN");
-        }
-
-        public void Visit(StructDecleration structDecleration)
-        {
-            Console.WriteLine("NaN");
-        }
-
-        public void Visit(RepeatExpr repeatExpr)
+        public override void Visit(ExpressionValOpExpr rooteValOpExpr)
         {
             Console.WriteLine("NaN");
         }
 
-        public void Visit(Type type)
+        public override void Visit(ExpressionParen expressionParen)
+        {
+            _sourceCode += "(";
+            Visit(expressionParen.Expression);
+            _sourceCode += ")";
+        }
+
+        public override void Visit(ExpressionMinus expressionMinus)
         {
             Console.WriteLine("NaN");
         }
 
-        public void Visit(StringValue stringValue)
+        public override void Visit(ExpressionList expressionList)
         {
             Console.WriteLine("NaN");
         }
 
-        public void Visit(Operator operate)
+        public override void Visit(StructDecleration structDecleration)
         {
             Console.WriteLine("NaN");
         }
 
-        public void Visit(Identifier identifier)
+        public override void Visit(RepeatExpr repeatExpr)
         {
             Console.WriteLine("NaN");
         }
 
-        public void Visit(BoolValue boolValue)
+        public override void Visit(Type type)
         {
             Console.WriteLine("NaN");
         }
 
-        public void Visit(NumValue numValue)
+        public override void Visit(StringValue stringValue)
         {
             Console.WriteLine("NaN");
         }
 
-        public void Visit(FuncCall funcCall)
+        public override void Visit(Operator operate)
         {
             Console.WriteLine("NaN");
         }
 
-        public void Visit(FunctionDeclarations functionDeclarations)
+        public override void Visit(Identifier identifier)
         {
             Console.WriteLine("NaN");
         }
 
-        public void Visit(FunctionDeclaration functionDeclaration)
+        public override void Visit(BoolValue boolValue)
         {
             Console.WriteLine("NaN");
         }
 
-        public void Visit(Return expression)
+        public override void Visit(NumValue numValue)
+        {
+            Console.WriteLine("NaN");
+        }
+
+        public override void Visit(FuncCall funcCall)
+        {
+            Console.WriteLine("NaN");
+        }
+
+        public override void Visit(FunctionDeclarations functionDeclarations)
+        {
+            Console.WriteLine("NaN");
+        }
+
+        public override void Visit(FunctionDeclaration functionDeclaration)
+        {
+            Console.WriteLine("NaN");
+        }
+
+        public override void Visit(Return expression)
         {
             Console.WriteLine("!lol");
         }
