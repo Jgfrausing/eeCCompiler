@@ -16,12 +16,20 @@ namespace eeCCompiler.Visitors
             _sourceCode += "program";
             root.Program.Accept(this);
             root.FunctionDeclarations.Accept(this);
+            Console.WriteLine(_sourceCode);
         }
 
         public override void Visit(Body body)
         {
             _sourceCode += "{\n";
-            base.Visit(body);
+            foreach (var bodypart in body.Bodyparts)
+            {
+                bodypart.Accept(this);
+                
+                if (bodypart is VarDecleration || bodypart is FuncCall || bodypart is Return)
+                    _sourceCode += ";";
+                _sourceCode += "\n";
+            }
             _sourceCode += "}\n";
         }
 
@@ -36,22 +44,27 @@ namespace eeCCompiler.Visitors
         {
             
         }
+        public override void Visit(IfStatement ifStatement)
+        {
+            _sourceCode += "if ";
+            base.Visit(ifStatement);
+        }
 
         public override void Visit(ElseStatement elseStatement)
         {
-            _sourceCode += "else \n";
-            Visit(elseStatement);
+            _sourceCode += "else\n";
+            base.Visit(elseStatement);
         }
 
         public override void Visit(ExpressionNegate expressionNegate)
         {
             _sourceCode += "1";
-            Visit(expressionNegate);
+            base.Visit(expressionNegate);
         }
 
         public override void Visit(ExpressionVal expressionVal)
         {
-            Visit(expressionVal);
+            base.Visit(expressionVal);
         }
 
         public override void Visit(Direction direction)
@@ -61,6 +74,7 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(ExpressionParenOpExpr expressionParenOpExpr)
         {
+            _sourceCode += expressionParenOpExpr.ToString();
             Visit(expressionParenOpExpr.ExpressionParen as ExpressionParen);
             Visit(expressionParenOpExpr.Operator);
             Visit(expressionParenOpExpr.Expression);
@@ -73,7 +87,7 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(ExpressionValOpExpr rooteValOpExpr)
         {
-            Console.WriteLine("NaN");
+            Console.WriteLine("rooteValOpExpr");
         }
 
         public override void Visit(ExpressionParen expressionParen)
@@ -85,72 +99,88 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(ExpressionMinus expressionMinus)
         {
-            Console.WriteLine("NaN");
+            Console.WriteLine("expressionMinus");
         }
 
         public override void Visit(ExpressionList expressionList)
         {
-            Console.WriteLine("NaN");
+            Console.WriteLine("expressionList");
         }
 
         public override void Visit(StructDecleration structDecleration)
         {
-            Console.WriteLine("NaN");
+            Console.WriteLine("structDecleration");
+            
         }
 
         public override void Visit(RepeatExpr repeatExpr)
         {
-            Console.WriteLine("NaN");
+            Console.WriteLine("repeatExpr");
         }
 
         public override void Visit(Type type)
         {
-            Console.WriteLine("NaN");
+            Console.WriteLine("type");
         }
 
         public override void Visit(StringValue stringValue)
         {
-            Console.WriteLine("NaN");
+            Console.WriteLine("stringValue");
         }
 
         public override void Visit(Operator operate)
         {
-            Console.WriteLine("NaN");
+            _sourceCode += operate.ToString();
         }
 
         public override void Visit(Identifier identifier)
         {
-            Console.WriteLine("NaN");
+            _sourceCode += identifier.ToString();
         }
 
         public override void Visit(BoolValue boolValue)
         {
-            Console.WriteLine("NaN");
+            Console.WriteLine("boolValue");
         }
 
         public override void Visit(NumValue numValue)
         {
-            Console.WriteLine("NaN");
+            Console.WriteLine("numValue");
         }
 
         public override void Visit(FuncCall funcCall)
         {
-            Console.WriteLine("NaN");
+            Console.WriteLine("funcCall");
         }
 
         public override void Visit(FunctionDeclarations functionDeclarations)
         {
-            Console.WriteLine("NaN");
+            Console.WriteLine("functionDeclarations");
         }
 
         public override void Visit(FunctionDeclaration functionDeclaration)
         {
-            Console.WriteLine("NaN");
+            Console.WriteLine("functionDeclaration");
         }
 
-        public override void Visit(Return expression)
+        public override void Visit(Return _return)
         {
-            Console.WriteLine("!lol");
+            Console.WriteLine("return");
+        }
+
+        public override void Visit(VarDecleration varDecleration)
+        {
+            Visit(varDecleration.Identifier);
+            _sourceCode += "=";
+            Visit(varDecleration.Expression);
+        }
+        public override void Visit(VarDeclerations varDeclerations)
+        {
+            foreach (var vardecl in varDeclerations.VarDeclerationList)
+            {
+                Visit(vardecl);
+                _sourceCode += ";\n";
+            }
         }
     }
 }

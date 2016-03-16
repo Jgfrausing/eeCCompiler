@@ -2,7 +2,7 @@
 
 namespace eeCCompiler.Nodes
 {
-    internal class IfStatement : ElseStatement, IBodypart
+    public class IfStatement : ElseStatement, IBodypart
     {
         public IfStatement(IExpression expression, Body body, ElseStatement elseStatement) : base(body)
         {
@@ -15,9 +15,6 @@ namespace eeCCompiler.Nodes
 
         public override void Accept(IEecVisitor visitor)
         {
-            Body.Accept(visitor);
-            Expression.Accept(visitor);
-            ElseStatement.Accept(visitor);
             visitor.Visit(this);
         }
     }

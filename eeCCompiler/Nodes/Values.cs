@@ -16,6 +16,11 @@ namespace eeCCompiler.Nodes
         {
             visitor.Visit(this);
         }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 
     public class StringValue : AbstractSyntaxTree, IValue, IConstantPart
@@ -31,6 +36,10 @@ namespace eeCCompiler.Nodes
         {
             visitor.Visit(this);
         }
+        public override string ToString()
+        {
+            return Value;
+        }
     }
 
     public class NumValue : AbstractSyntaxTree, IValue, IConstantPart
@@ -45,6 +54,10 @@ namespace eeCCompiler.Nodes
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);
+        }
+        public override string ToString()
+        {
+            return Value.ToString();
         }
     }  
 }   

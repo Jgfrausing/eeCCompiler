@@ -17,5 +17,15 @@ namespace eeCCompiler.Nodes
         {
             visitor.Visit(this);
         }
+
+        public override string ToString()
+        {
+            string s = "";
+            foreach (var expression in Expressions)
+            {
+                s += expression.ToString();
+            }
+            return $"{Identifier}({s})";
+        }
     }
 }

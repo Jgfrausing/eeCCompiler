@@ -21,6 +21,13 @@ namespace eeCCompiler.Visitors
             elseStatement.Body.Accept(this);
         }
 
+        public virtual void Visit(IfStatement ifStatement)
+        {
+            ifStatement.Expression.Accept(this);
+            ifStatement.Body.Accept(this);
+            ifStatement.ElseStatement.Accept(this);
+        }
+
         public virtual void Visit(ExpressionVal expressionVal)
         {
             expressionVal.Value.Accept(this);
@@ -77,9 +84,23 @@ namespace eeCCompiler.Visitors
             expressionParenOpExpr.Expression.Accept(this);
         }
 
-        public virtual void Visit(Refrence expressionParenOpExpr)
+        public virtual void Visit(Refrence reference)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("reference");
+        }
+
+        public virtual void Visit(VarDeclerations varDecls)
+        {
+            foreach (var varDecl in varDecls.VarDeclerationList)
+            {
+                varDecl.Accept(this);
+            }
+        }
+
+        public virtual void Visit(VarDecleration varDecleration)
+        {
+            varDecleration.Identifier.Accept(this);
+            varDecleration.Expression.Accept(this);
         }
 
         public virtual void Visit(FunctionDeclaration functionDeclaration)
@@ -140,9 +161,9 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(ConstantDefinitions constantDefinitions)
         {
-            foreach (var cont in constantDefinitions.ConstantList)
+            foreach (var constDef in constantDefinitions.ConstantList)
             {
-                cont.Accept(this);
+                constDef.Accept(this);
             }
         }
 

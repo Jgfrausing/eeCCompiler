@@ -9,6 +9,7 @@ namespace eeCCompiler.Interfaces
         void Visit(Constant constant);
         void Visit(ConstantDefinitions constantDefinitions);
         void Visit(ElseStatement elseStatement);
+        void Visit(IfStatement ifStatement);
         void Visit(ExpressionNegate expressionNegate);
         void Visit(ExpressionVal expressionVal);
         void Visit(Direction direction);
@@ -30,5 +31,7 @@ namespace eeCCompiler.Interfaces
         void Visit(FunctionDeclaration functionDeclaration);
         void Visit(Return expressionParenOpExpr);
         void Visit(Refrence expressionParenOpExpr);
+        void Visit(VarDeclerations expressionParenOpExpr);
+        void Visit(VarDecleration expressionParenOpExpr);
     }
 }

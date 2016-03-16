@@ -63,6 +63,8 @@
     <Compile Include="Nodes\AbstractSyntaxTree.cs" />
     <Compile Include="Nodes\Body.cs" />
     <Compile Include="Nodes\IfStatement.cs" />
+    <Compile Include="Nodes\IStructRefrence.cs" />
+    <Compile Include="Nodes\Refrence.cs" />
     <Compile Include="Nodes\RepeatExpr.cs" />
     <Compile Include="Nodes\Return.cs" />
     <Compile Include="Nodes\StructDecleration.cs" />

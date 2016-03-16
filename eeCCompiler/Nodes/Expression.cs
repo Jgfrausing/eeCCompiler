@@ -15,6 +15,11 @@ namespace eeCCompiler.Nodes
         {
             visitor.Visit(this);
         }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 
     public class ExpressionValOpExpr : AbstractSyntaxTree, IExpression
@@ -33,6 +38,10 @@ namespace eeCCompiler.Nodes
         {
             visitor.Visit(this);
         }
+        public override string ToString()
+        {
+            return $"{Value} {Operator} {Expression}";
+        }
     }
 
     public class ExpressionNegate : AbstractSyntaxTree, IExpression
@@ -47,33 +56,45 @@ namespace eeCCompiler.Nodes
         {
             visitor.Visit(this);
         }
+        public override string ToString()
+        {
+            return $"{Expression}";
+        }
     }
 
     public class ExpressionMinus : AbstractSyntaxTree, IExpression
     {
-        public ExpressionMinus(IExpression iExpression)
+        public ExpressionMinus(IExpression expression)
         {
-            Expression = iExpression;
+            Expression = expression;
         }
 
         public IExpression Expression { get; set; }
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);
+        }
+        public override string ToString()
+        {
+            return $"{Expression}";
         }
     }
 
     public class ExpressionParen : AbstractSyntaxTree, IExpression
     {
-        public ExpressionParen(IExpression iExpression)
+        public ExpressionParen(IExpression expression)
         {
-            Expression = iExpression;
+            Expression = expression;
         }
 
         public IExpression Expression { get; set; }
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);
+        }
+        public override string ToString()
+        {
+            return "(" + Expression + ")";
         }
     }
 
@@ -92,6 +113,10 @@ namespace eeCCompiler.Nodes
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);
+        }
+        public override string ToString()
+        {
+            return $"{ExpressionParen} {Operator} {Expression}";
         }
     }
 }

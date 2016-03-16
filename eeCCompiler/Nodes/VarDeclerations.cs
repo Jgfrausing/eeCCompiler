@@ -19,10 +19,7 @@ namespace eeCCompiler.Nodes
 
         public override void Accept(IEecVisitor visitor)
         {
-            foreach (var varDec in VarDeclerationList)
-            {
-                varDec.Accept(visitor);
-            }
+            visitor.Visit(this);
         }
 
 
