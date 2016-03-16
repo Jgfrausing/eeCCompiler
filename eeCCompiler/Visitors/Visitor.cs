@@ -86,7 +86,6 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(Refrence reference)
         {
-            Console.WriteLine("reference");
         }
 
         public virtual void Visit(VarDeclerations varDecls)
