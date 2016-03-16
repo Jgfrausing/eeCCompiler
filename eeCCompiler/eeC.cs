@@ -228,7 +228,7 @@ internal class MyParser
 
                 #region Struct
 
-            case Indexes.ProductionIndex.Struct_decl_Id_Eq_Id_Lbrace_Rbrace_Semi:
+            case Indexes.ProductionIndex.Struct_decl_Id_Eq_Id_Lbrace_Rbrace:
                 // <struct_decl> ::= Id '=' Id '{' <var_decls> '}' ';'
                 result = CreateStructDeclerations(result);
                 break;
@@ -426,17 +426,17 @@ internal class MyParser
                 result = Stack.Pop();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart:
+            case Indexes.ProductionIndex.Bodypart_Semi2:
                 // <bodypart> ::= <struct_decl> ';'
                 result = Stack.Pop();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart_Semi2:
+            case Indexes.ProductionIndex.Bodypart_Semi3:
                 // <bodypart> ::= <func_call> ';'
                 result = Stack.Pop();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart2:
+            case Indexes.ProductionIndex.Bodypart:
                 // <bodypart> ::= <ctrl_stmt>
                 result = Stack.Pop();
                 break;

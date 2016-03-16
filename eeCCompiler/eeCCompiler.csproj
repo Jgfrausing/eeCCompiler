@@ -68,7 +68,9 @@
     <Compile Include="Nodes\RepeatExpr.cs" />
     <Compile Include="Nodes\Return.cs" />
     <Compile Include="Nodes\StructDecleration.cs" />
+    <Compile Include="Nodes\StructDefinition.cs" />
     <Compile Include="Nodes\StructDefinitions.cs" />
+    <Compile Include="Nodes\StructParts.cs" />
     <Compile Include="Nodes\Type.cs" />
     <Compile Include="Nodes\TypeId.cs" />
     <Compile Include="Nodes\Values.cs" />

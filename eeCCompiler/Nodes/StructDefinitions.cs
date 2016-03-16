@@ -20,51 +20,7 @@ namespace eeCCompiler.Nodes
 
         public override void Accept(IEecVisitor visitor)
         {
-            foreach (var structdefi in Definitions)
-            {
-                structdefi.Accept(visitor);
-            }
-        }
-    }
-
-    public class StructDefinition : AbstractSyntaxTree
-    {
-        public StructDefinition(Identifier identifier, StructParts structParts)
-        {
-            Identifier = identifier;
-            StructParts = structParts;
-        }
-
-        public Identifier Identifier { get; set; }
-        public StructParts StructParts { get; set; }
-
-        public override void Accept(IEecVisitor visitor)
-        {
-            Identifier.Accept(visitor);
-            StructParts.Accept(visitor);
-        }
-    }
-
-    public class StructParts : AbstractSyntaxTree
-    {
-        public StructParts()
-        {
-            StructPartList = new List<IStructPart>();
-        }
-
-        public StructParts(List<IStructPart> structPartList)
-        {
-            StructPartList = structPartList;
-        }
-
-        public List<IStructPart> StructPartList { get; set; }
-
-        public override void Accept(IEecVisitor visitor)
-        {
-            foreach (var structpart in StructPartList)
-            {
-                structpart.Accept(visitor);
-            }
+            visitor.Visit(this);
         }
     }
 }

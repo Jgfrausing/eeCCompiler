@@ -1,6 +1,8 @@
+using eeCCompiler.Interfaces;
+
 namespace eeCCompiler.Nodes
 {
-    public interface IStructRefrence
+    public interface IStructRefrence : INodeElement
     {
     }
 }

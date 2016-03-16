@@ -33,5 +33,8 @@ namespace eeCCompiler.Interfaces
         void Visit(Refrence expressionParenOpExpr);
         void Visit(VarDeclerations expressionParenOpExpr);
         void Visit(VarDecleration expressionParenOpExpr);
+        void Visit(StructDefinition expressionParenOpExpr);
+        void Visit(StructParts expressionParenOpExpr);
+        void Visit(StructDefinitions structDefi);
     }
 }

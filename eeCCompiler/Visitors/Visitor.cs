@@ -58,6 +58,13 @@ namespace eeCCompiler.Visitors
             repeatExpr.Expression.Accept(this);
             repeatExpr.Body.Accept(this);
         }
+        public virtual void Visit(RepeatFor repeatFor)
+        {
+            repeatFor.VarDecleration.Accept(this);
+            repeatFor.Direction.Accept(this);
+            repeatFor.Expression.Accept(this);
+            repeatFor.Body.Accept(this);
+        }
 
         public virtual void Visit(StringValue stringValue)
         {
@@ -86,7 +93,11 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(Refrence reference)
         {
-            Console.WriteLine("reference");
+            foreach (var id in reference.Identifiers)
+            {
+                id.Accept(this);
+            }
+            reference.StructRefrence.Accept(this);
         }
 
         public virtual void Visit(VarDeclerations varDecls)
@@ -101,6 +112,28 @@ namespace eeCCompiler.Visitors
         {
             varDecleration.Identifier.Accept(this);
             varDecleration.Expression.Accept(this);
+        }
+
+        public virtual void Visit(StructDefinition structDefinition)
+        {
+            structDefinition.Identifier.Accept(this);
+            structDefinition.StructParts.Accept(this);
+        }
+
+        public virtual void Visit(StructParts structParts)
+        {
+            foreach (var structpart in structParts.StructPartList)
+            {
+                structpart.Accept(this);
+            }
+        }
+
+        public virtual void Visit(StructDefinitions structDefi)
+        {
+            foreach (var structdefi in structDefi.Definitions)
+            {
+                structdefi.Accept(this);
+            }
         }
 
         public virtual void Visit(FunctionDeclaration functionDeclaration)

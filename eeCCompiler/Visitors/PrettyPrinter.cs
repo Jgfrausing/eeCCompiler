@@ -18,7 +18,14 @@ namespace eeCCompiler.Visitors
             root.FunctionDeclarations.Accept(this);
             Console.WriteLine(_sourceCode);
         }
-
+        public override void Visit(StructDefinition structDefinition)
+        {
+            _sourceCode += "struct ";
+            structDefinition.Identifier.Accept(this);
+            _sourceCode += "{\n";
+            structDefinition.StructParts.Accept(this);
+            _sourceCode += "\n}\n";
+        }
         public override void Visit(Body body)
         {
             _sourceCode += "{\n";
@@ -36,14 +43,17 @@ namespace eeCCompiler.Visitors
         public override void Visit(Constant constant)
         {
             _sourceCode += "const ";
-            Visit(constant);
-            _sourceCode += "\n";
+            constant.Identifier.Accept(this);
+            _sourceCode += " ";
+            constant.ConstantPart.Accept(this);
+            _sourceCode += ";\n";
         }
 
         public override void Visit(ConstantDefinitions constantDefinitions)
         {
-            
+            base.Visit(constantDefinitions);
         }
+
         public override void Visit(IfStatement ifStatement)
         {
             _sourceCode += "if ";
@@ -69,15 +79,16 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(Direction direction)
         {
-            _sourceCode += direction.Incrementing ? " to " : " downto ";
+            _sourceCode += direction.ToString();
         }
 
         public override void Visit(ExpressionParenOpExpr expressionParenOpExpr)
         {
             _sourceCode += expressionParenOpExpr.ToString();
-            Visit(expressionParenOpExpr.ExpressionParen as ExpressionParen);
-            Visit(expressionParenOpExpr.Operator);
-            Visit(expressionParenOpExpr.Expression);
+            
+            expressionParenOpExpr.ExpressionParen.Accept(this);
+            expressionParenOpExpr.Operator.Accept(this);
+            expressionParenOpExpr.Expression.Accept(this);
         }
 
         private void Visit(IExpression expression)
@@ -85,47 +96,65 @@ namespace eeCCompiler.Visitors
             _sourceCode += expression.ToString();
         }
 
-        public override void Visit(ExpressionValOpExpr rooteValOpExpr)
+        public override void Visit(ExpressionValOpExpr exprValOpExpr)
         {
-            Console.WriteLine("rooteValOpExpr");
+            base.Visit(exprValOpExpr);
         }
 
         public override void Visit(ExpressionParen expressionParen)
         {
             _sourceCode += "(";
-            Visit(expressionParen.Expression);
+            expressionParen.Expression.Accept(this);
             _sourceCode += ")";
         }
 
         public override void Visit(ExpressionMinus expressionMinus)
         {
-            Console.WriteLine("expressionMinus");
+            base.Visit(expressionMinus);
         }
 
         public override void Visit(ExpressionList expressionList)
         {
-            Console.WriteLine("expressionList");
+            foreach (var expression in expressionList.Expressions)
+            {
+                expression.Accept(this);
+                _sourceCode += ", ";
+            }
         }
 
         public override void Visit(StructDecleration structDecleration)
         {
-            Console.WriteLine("structDecleration");
-            
+            structDecleration.Identifier.Accept(this);
+            _sourceCode += " = ";
+            structDecleration.StructIdentifier.Accept(this); 
+            _sourceCode += "{";
+            structDecleration.VarDeclerations.Accept(this);
+            _sourceCode += "};";
         }
 
         public override void Visit(RepeatExpr repeatExpr)
         {
-            Console.WriteLine("repeatExpr");
+            _sourceCode += "repeat ";
+            base.Visit(repeatExpr);
+        }
+        public override void Visit(RepeatFor repeatFor)
+        {
+            
+            repeatFor.VarDecleration.Accept(this);
+            repeatFor.Direction.Accept(this);
+            repeatFor.Expression.Accept(this);
+            repeatFor.Body.Accept(this);
+            
         }
 
         public override void Visit(Type type)
         {
-            Console.WriteLine("type");
+            _sourceCode += type + " ";
         }
 
         public override void Visit(StringValue stringValue)
         {
-            Console.WriteLine("stringValue");
+            _sourceCode += stringValue.ToString();
         }
 
         public override void Visit(Operator operate)
@@ -140,46 +169,62 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(BoolValue boolValue)
         {
-            Console.WriteLine("boolValue");
+            _sourceCode += boolValue.ToString();
         }
 
         public override void Visit(NumValue numValue)
         {
-            Console.WriteLine("numValue");
+            _sourceCode += numValue.ToString();
         }
 
         public override void Visit(FuncCall funcCall)
         {
-            Console.WriteLine("funcCall");
+            funcCall.Identifier.Accept(this);
+            _sourceCode += "(";
+
+            if(funcCall.Expressions.Count>0)
+                funcCall.Expressions[0].Accept(this);
+
+            for (int i = 1; i < funcCall.Expressions.Count; i++)
+            {
+                _sourceCode += ", ";
+                funcCall.Expressions[i].Accept(this);
+            }
+            _sourceCode += ")";
         }
 
         public override void Visit(FunctionDeclarations functionDeclarations)
         {
-            Console.WriteLine("functionDeclarations");
+            base.Visit(functionDeclarations);
         }
 
         public override void Visit(FunctionDeclaration functionDeclaration)
         {
-            Console.WriteLine("functionDeclaration");
+            base.Visit(functionDeclaration);
         }
 
         public override void Visit(Return _return)
         {
-            Console.WriteLine("return");
+            _sourceCode += "return ";
+            base.Visit(_return);
         }
-
+        public override void Visit(Refrence reference)
+        {
+            base.Visit(reference);
+        }
         public override void Visit(VarDecleration varDecleration)
         {
             Visit(varDecleration.Identifier);
-            _sourceCode += "=";
+            _sourceCode += " = ";
             Visit(varDecleration.Expression);
         }
         public override void Visit(VarDeclerations varDeclerations)
         {
+            _sourceCode += " ";
             foreach (var vardecl in varDeclerations.VarDeclerationList)
             {
                 Visit(vardecl);
-                _sourceCode += ";\n";
+                _sourceCode += "; ";
             }
         }
     }

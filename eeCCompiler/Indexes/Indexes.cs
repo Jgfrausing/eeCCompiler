@@ -22,7 +22,7 @@
             @Var_decls_Semi = 15,                      // <var_decls> ::= <var_decl> ';' <var_decls>
             @Var_decls = 16,                           // <var_decls> ::= 
             @Var_decl_Id_Eq = 17,                      // <var_decl> ::= Id '=' <expr>
-            @Struct_decl_Id_Eq_Id_Lbrace_Rbrace_Semi = 18,  // <struct_decl> ::= Id '=' Id '{' <var_decls> '}' ';'
+            @Struct_decl_Id_Eq_Id_Lbrace_Rbrace = 18,  // <struct_decl> ::= Id '=' Id '{' <var_decls> '}'
             @Struct_defs = 19,                         // <struct_defs> ::= <struct_def> <struct_defs>
             @Struct_defs2 = 20,                        // <struct_defs> ::= 
             @Struct_def_Struct_Id_Lbrace_Rbrace = 21,  // <struct_def> ::= struct Id '{' <struct_parts> '}'
@@ -58,9 +58,9 @@
             @Body = 51,                                // <body> ::= <bodypart> <body>
             @Body2 = 52,                               // <body> ::= 
             @Bodypart_Semi = 53,                       // <bodypart> ::= <var_decl> ';'
-            @Bodypart = 54,                            // <bodypart> ::= <struct_decl>
-            @Bodypart_Semi2 = 55,                      // <bodypart> ::= <func_call> ';'
-            @Bodypart2 = 56,                           // <bodypart> ::= <ctrl_stmt>
+            @Bodypart_Semi2 = 54,                      // <bodypart> ::= <struct_decl> ';'
+            @Bodypart_Semi3 = 55,                      // <bodypart> ::= <func_call> ';'
+            @Bodypart = 56,                            // <bodypart> ::= <ctrl_stmt>
             @Bodypart_Return_Semi = 57,                // <bodypart> ::= return <expr> ';'
             @Expr = 58,                                // <expr> ::= <value> <operator> <expr>
             @Expr2 = 59,                               // <expr> ::= <value>

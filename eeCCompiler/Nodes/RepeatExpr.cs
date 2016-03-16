@@ -20,7 +20,7 @@ namespace eeCCompiler.Nodes
         }
     }
 
-    internal class RepeatFor : RepeatExpr
+    public class RepeatFor : RepeatExpr
     {
         public RepeatFor(VarDecleration varDecleration, Direction direction, IExpression expression, Body body)
             : base(expression, body)
@@ -34,11 +34,8 @@ namespace eeCCompiler.Nodes
 
         public override void Accept(IEecVisitor visitor)
         {
-            Expression.Accept(visitor);
-            Body.Accept(visitor);
-            VarDecleration.Accept(visitor);
-            Direction.Accept(visitor);
             visitor.Visit(this);
         }
+
     }
 }
