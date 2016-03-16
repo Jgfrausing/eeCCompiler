@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
 using Type = eeCCompiler.Nodes.Type;
@@ -11,6 +12,7 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(Root root)
         {
+            root.Includes.Accept(this);
             root.ConstantDefinitions.Accept(this);
             root.StructDefinitions.Accept(this);
             _sourceCode += "program";
@@ -96,9 +98,9 @@ namespace eeCCompiler.Visitors
             _sourceCode += expression.ToString();
         }
 
-        public override void Visit(ExpressionValOpExpr exprValOpExpr)
+        public override void Visit(ExpressionValOpExpr expressionValOpExpr)
         {
-            base.Visit(exprValOpExpr);
+            base.Visit(expressionValOpExpr);
         }
 
         public override void Visit(ExpressionParen expressionParen)
@@ -111,6 +113,23 @@ namespace eeCCompiler.Visitors
         public override void Visit(ExpressionMinus expressionMinus)
         {
             base.Visit(expressionMinus);
+        }
+        public override void Visit(Include include)
+        {
+            _sourceCode += "include ";
+            if (include.Identifiers.Any())
+                include.Identifiers[0].Accept(this);
+            for (int i = 1; i < include.Identifiers.Count; i++)
+            {
+                _sourceCode += ".";
+                include.Identifiers[i].Accept(this);
+            }
+            _sourceCode += "\n";
+        }
+
+        public override void Visit(Includes includes)
+        {
+            base.Visit(includes);
         }
 
         public override void Visit(ExpressionList expressionList)
@@ -125,7 +144,7 @@ namespace eeCCompiler.Visitors
         public override void Visit(StructDecleration structDecleration)
         {
             structDecleration.Identifier.Accept(this);
-            _sourceCode += " = ";
+            structDecleration.AssignmentOperator.Accept(this);
             structDecleration.StructIdentifier.Accept(this); 
             _sourceCode += "{";
             structDecleration.VarDeclerations.Accept(this);
@@ -214,9 +233,7 @@ namespace eeCCompiler.Visitors
         }
         public override void Visit(VarDecleration varDecleration)
         {
-            Visit(varDecleration.Identifier);
-            _sourceCode += " = ";
-            Visit(varDecleration.Expression);
+            base.Visit(varDecleration);
         }
         public override void Visit(VarDeclerations varDeclerations)
         {
@@ -226,6 +243,11 @@ namespace eeCCompiler.Visitors
                 Visit(vardecl);
                 _sourceCode += "; ";
             }
+        }
+
+        public override void Visit(AssignmentOperator assignmentOperator)
+        {
+            Visit(assignmentOperator);
         }
     }
 }

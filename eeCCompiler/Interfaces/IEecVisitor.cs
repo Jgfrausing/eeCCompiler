@@ -14,7 +14,7 @@ namespace eeCCompiler.Interfaces
         void Visit(ExpressionVal expressionVal);
         void Visit(Direction direction);
         void Visit(ExpressionParenOpExpr expressionParenOpExpr);
-        void Visit(ExpressionValOpExpr rooteValOpExpr);
+        void Visit(ExpressionValOpExpr expressionValOpExpr);
         void Visit(ExpressionParen expressionParen);
         void Visit(ExpressionMinus expressionMinus);
         void Visit(ExpressionList expressionList);
@@ -36,5 +36,8 @@ namespace eeCCompiler.Interfaces
         void Visit(StructDefinition expressionParenOpExpr);
         void Visit(StructParts expressionParenOpExpr);
         void Visit(StructDefinitions structDefi);
+        void Visit(AssignmentOperator expressionParenOpExpr);
+        void Visit(Include expressionParenOpExpr);
+        void Visit(Includes includes);
     }
 }

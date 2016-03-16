@@ -7,6 +7,7 @@ using eeCCompiler.Indexes;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
 using GOLD;
+using static eeCCompiler.Indexes.Indexes.ProductionIndex;
 
 internal class MyParser
 {
@@ -22,7 +23,7 @@ internal class MyParser
     public MyParser()
     {
         //Loads the tables created by GOLD parser
-        _parser.LoadTables("eec.egt");
+        _parser.LoadTables(@"..\..\eec.egt");
     }
 
     public bool Parse(TextReader reader)
@@ -133,28 +134,55 @@ internal class MyParser
         //Returnvalue   OBS! Is sometimes used as placeholder, when multiple objects needs popped from the stack.
         switch ((Indexes.ProductionIndex) r.Parent.TableIndex())
         {
-                #region Program
+            #region Program
 
-            case Indexes.ProductionIndex.Program_Program_Lbrace_Rbrace:
+            case Program_Program_Lbrace_Rbrace:
                 // <Program> ::= <consts> <struct_defs> program '{' <body> '}' <Func_decls>
                 result = CreateProgram(result);
                 break;
 
-                #endregion
+            #endregion
 
-                #region Const
+            #region Include
+            case Includes_Include:
+                // <includes> ::= include <include> <includes>
+                var includes = Stack.Pop() as Includes;
+                includes.IncludeList.Insert(0, Stack.Pop() as Include);
+                result = includes;
+                break;
 
-            case Indexes.ProductionIndex.Consts:
+            case Indexes.ProductionIndex.Includes:
+                // <includes> ::= 
+                result = new Includes();
+                break;
+
+            case Include_Id_Dot:
+                // <include> ::= Id '.' <include>
+                var include = Stack.Pop() as Include;
+                include.Identifiers.Insert(0, Identifiers.Pop());
+                result = include;
+                break;
+
+            case Include_Id:
+                // <include> ::= Id 
+                result = new Include(Identifiers.Pop());
+                break;
+
+            #endregion
+
+            #region Const
+
+            case Consts:
                 // <consts> ::= <const> <consts>
                 result = CreateConstants(result);
                 break;
 
-            case Indexes.ProductionIndex.Consts2:
+            case Consts2:
                 // <consts> ::= 
                 result = new ConstantDefinitions();
                 break;
 
-            case Indexes.ProductionIndex.Const_Const_Id_Semi:
+            case Const_Const_Id_Semi:
                 // <const> ::= const Id <const_part> ';'
                 result = new Constant(Identifiers.Pop(), Stack.Pop() as IConstantPart);
                 break;
@@ -163,17 +191,17 @@ internal class MyParser
 
                 #region Func_decl
 
-            case Indexes.ProductionIndex.Func_decls:
+            case Func_decls:
                 // <Func_decls> ::= <func_decl> <Func_decls>
                 result = CreateFunctionDeclarationList(result);
                 break;
 
-            case Indexes.ProductionIndex.Func_decls2:
+            case Func_decls2:
                 // <Func_decls> ::= 
                 result = new FunctionDeclarations();
                 break;
 
-            case Indexes.ProductionIndex.Func_decl_Lparen_Rparen_Lbrace_Rbrace:
+            case Func_decl_Lparen_Rparen_Lbrace_Rbrace:
                 // <func_decl> ::= <typeid> '(' <typeid_list> ')' '{' <body> '}'
                 result = CreateFunctionDeclaration(result);
                 break;
@@ -182,24 +210,24 @@ internal class MyParser
 
                 #region TypeId
 
-            case Indexes.ProductionIndex.Typeid_list:
+            case Typeid_list:
             // <typeid_list> ::= <typeid> <extra_typeid>
             //FALLTHROUGH
 
-            case Indexes.ProductionIndex.Extra_typeid_Comma:
+            case Extra_typeid_Comma:
                 result = CreateTypeIdList(result);
                 break;
 
-            case Indexes.ProductionIndex.Typeid_list2:
+            case Typeid_list2:
             // <typeid_list> ::= 
             //FALLTHROUGH
 
-            case Indexes.ProductionIndex.Extra_typeid:
+            case Extra_typeid:
                 // <extra_typeid> ::= 
                 result = new TypeIdList();
                 break;
 
-            case Indexes.ProductionIndex.Typeid_Id:
+            case Typeid_Id:
                 // <typeid> ::= <type> Id
                 result = new TypeId(Stack.Pop() as Type, Identifiers.Pop());
                 break;
@@ -208,56 +236,55 @@ internal class MyParser
 
                 #region Var_decl
 
-            case Indexes.ProductionIndex.Var_decls_Semi:
+            case Var_decls_Semi:
                 // <var_decls> ::= <var_decl> <var_decls>
                 result = CreateVarDeclerations(result);
                 break;
 
-            case Indexes.ProductionIndex.Var_decls:
+            case Var_decls:
                 // <var_decls> ::= 
                 result = new VarDeclerations();
                 break;
 
-            case Indexes.ProductionIndex.Var_decl_Id_Eq:
-                // <var_decl> ::= Id '=' <expr> ';'
-                result = Stack.Pop();
-                result = new VarDecleration(Identifiers.Pop(), result as IExpression);
+            case @Var_decl_Id:
+                // <var_decl> ::= Id <assign_opr> <expr>
+                result = CreateVarDecleration(result);
                 break;
 
                 #endregion
 
                 #region Struct
 
-            case Indexes.ProductionIndex.Struct_decl_Id_Eq_Id_Lbrace_Rbrace:
-                // <struct_decl> ::= Id '=' Id '{' <var_decls> '}' ';'
-                result = CreateStructDeclerations(result);
+            case Struct_decl_Id_Id_Lbrace_Rbrace:
+                // <struct_decl> ::= Id <assign_opr> Id '{' <var_decls> '}'
+                result = CreateStructDecleration(result);
                 break;
 
-            case Indexes.ProductionIndex.Struct_defs:
+            case Struct_defs:
                 // <struct_defs> ::= <struct_def> <struct_defs>
                 result = CreateStructDefinitions(result);
                 break;
 
-            case Indexes.ProductionIndex.Struct_defs2:
+            case Struct_defs2:
                 // <struct_defs> ::= 
                 result = new StructDefinitions();
                 break;
 
-            case Indexes.ProductionIndex.Struct_def_Struct_Id_Lbrace_Rbrace:
+            case Struct_def_Struct_Id_Lbrace_Rbrace:
                 // <struct_def> ::= struct Id '{' <struct_parts> '}'
                 result = new StructDefinition(Identifiers.Pop(), Stack.Pop() as StructParts);
                 break;
 
-            case Indexes.ProductionIndex.Struct_parts_Semi:
+            case Struct_parts_Semi:
             // <struct_parts> ::= <var_decl> <struct_parts>
             //FALLTHROUGH
 
-            case Indexes.ProductionIndex.Struct_parts:
+            case Struct_parts:
                 // <struct_parts> ::= <func_decl> <struct_parts>
                 result = CreateStructParts(result);
                 break;
 
-            case Indexes.ProductionIndex.Struct_parts2:
+            case Struct_parts2:
                 // <struct_parts> ::= 
                 result = new StructParts();
                 break;
@@ -266,91 +293,106 @@ internal class MyParser
 
                 #region Operators
 
-            case Indexes.ProductionIndex.Operator_Lt:
+            case Operator_Lt:
                 // <operator> ::= '<'
                 result = new Operator(Indexes.SymbolIndex.Lt);
                 break;
 
-            case Indexes.ProductionIndex.Operator_Gt:
+            case Operator_Gt:
                 // <operator> ::= '>'
                 result = new Operator(Indexes.SymbolIndex.Gt);
                 break;
 
-            case Indexes.ProductionIndex.Operator_Lteq:
+            case Operator_Lteq:
                 // <operator> ::= '<='
                 result = new Operator(Indexes.SymbolIndex.Lteq);
                 break;
 
-            case Indexes.ProductionIndex.Operator_Gteq:
+            case Operator_Gteq:
                 // <operator> ::= '>='
                 result = new Operator(Indexes.SymbolIndex.Gteq);
                 break;
 
-            case Indexes.ProductionIndex.Operator_And:
+            case Operator_And:
                 // <operator> ::= and
                 result = new Operator(Indexes.SymbolIndex.And);
                 break;
 
-            case Indexes.ProductionIndex.Operator_Or:
+            case Operator_Or:
                 // <operator> ::= or
                 result = new Operator(Indexes.SymbolIndex.Or);
                 break;
 
-            case Indexes.ProductionIndex.Operator_Eqeq:
+            case Operator_Eqeq:
                 // <operator> ::= '=='
                 result = new Operator(Indexes.SymbolIndex.Eqeq);
                 break;
 
-            case Indexes.ProductionIndex.Operator_Exclameq:
+            case Operator_Exclameq:
                 // <operator> ::= '!='
                 result = new Operator(Indexes.SymbolIndex.Exclameq);
                 break;
 
-            case Indexes.ProductionIndex.Operator_Times:
+            case Operator_Times:
                 // <operator> ::= '*'
                 result = new Operator(Indexes.SymbolIndex.Times);
                 break;
 
-            case Indexes.ProductionIndex.Operator_Div:
+            case Operator_Div:
                 // <operator> ::= '/'
                 result = new Operator(Indexes.SymbolIndex.Div);
                 break;
 
-            case Indexes.ProductionIndex.Operator_Mod:
+            case Operator_Mod:
                 // <operator> ::= mod
                 result = new Operator(Indexes.SymbolIndex.Mod);
                 break;
 
-            case Indexes.ProductionIndex.Operator_Plus:
+            case Operator_Plus:
                 // <operator> ::= '+'
                 result = new Operator(Indexes.SymbolIndex.Plus);
                 break;
 
-            case Indexes.ProductionIndex.Operator_Minus:
+            case Operator_Minus:
                 // <operator> ::= '-'
                 result = new Operator(Indexes.SymbolIndex.Minus);
                 break;
 
-                #endregion
+            case Assign_opr_Eq:
+                // <assign_opr> ::= '='
+                result = new AssignmentOperator(Indexes.SymbolIndex.Eq);
+                break;
 
-                #region Types
+            case Assign_opr_Pluseq:
+                // <assign_opr> ::= '+='
+                result = new AssignmentOperator(Indexes.SymbolIndex.Pluseq);
+                break;
 
-            case Indexes.ProductionIndex.Type_Void:
+            case Assign_opr_Minuseq:
+                // <assign_opr> ::= '-='
+                result = new AssignmentOperator(Indexes.SymbolIndex.Minuseq);
+                break;
+
+            #endregion
+
+            #region Types
+
+            case Type_Void:
                 // <type> ::= void
                 result = new Type("void");
                 break;
 
-            case Indexes.ProductionIndex.Type_String:
+            case Type_String:
                 // <type> ::= string
                 result = new Type("string");
                 break;
 
-            case Indexes.ProductionIndex.Type_Num:
+            case Type_Num:
                 // <type> ::= num
                 result = new Type("num");
                 break;
 
-            case Indexes.ProductionIndex.Type_Bool:
+            case Type_Bool:
                 // <type> ::= bool
                 result = new Type("bool");
                 break;
@@ -359,33 +401,33 @@ internal class MyParser
 
                 #region Values
 
-            case Indexes.ProductionIndex.Value_Floatliteral:
+            case Value_Floatliteral:
             // <value> ::= FloatLiteral
             //FALLTHROUGH
 
-            case Indexes.ProductionIndex.Const_part_Floatliteral:
+            case Const_part_Floatliteral:
                 // <const_part> ::= FloatLiteral
                 result = new NumValue(double.Parse(Values.Pop()));
                 break;
 
-            case Indexes.ProductionIndex.Value_Stringliteral:
+            case Value_Stringliteral:
             // <value> ::= StringLiteral
             //FALLTHROUGH
 
-            case Indexes.ProductionIndex.Const_part_Stringliteral:
+            case Const_part_Stringliteral:
                 // <const_part> ::= StringLiteral
                 result = new StringValue(Values.Pop());
                 break;
 
-            case Indexes.ProductionIndex.Value_Booleanliteral:
+            case Value_Booleanliteral:
             // <value> ::= BooleanLiteral
             //FALLTHROUGH
-            case Indexes.ProductionIndex.Const_part_Booleanliteral:
+            case Const_part_Booleanliteral:
                 // <const_part> ::= BooleanLiteral'
                 result = new BoolValue(bool.Parse(Values.Pop()));
                 break;
 
-            case Indexes.ProductionIndex.Value:
+            case Value:
                 // <value> ::= <refrence>
                 result = Stack.Pop();
                 break;
@@ -395,12 +437,12 @@ internal class MyParser
                 result = new Refrence(Stack.Pop() as IStructRefrence);
                 break;
 
-            case Indexes.ProductionIndex.Refrence_Id:
+            case Refrence_Id:
                 // <refrence> ::= Id
                 result = new Refrence(Identifiers.Pop());
                 break;
 
-            case Indexes.ProductionIndex.Refrence_Id_Dot:
+            case Refrence_Id_Dot:
                 // <refrence> ::= Id '.' <refrence>
                 result = new Refrence(Identifiers.Pop(), (Stack.Pop() as Refrence));
                 break;
@@ -415,33 +457,33 @@ internal class MyParser
                 result = CreateBody(result);
                 break;
 
-            case Indexes.ProductionIndex.Body2:
+            case Body2:
                 // <body> ::= 
                 result = new Body();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart_Semi:
+            case Bodypart_Semi:
                 // <bodypart> ::= <var_decl> ';'
 
                 result = Stack.Pop();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart_Semi2:
+            case Bodypart_Semi2:
                 // <bodypart> ::= <struct_decl> ';'
                 result = Stack.Pop();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart_Semi3:
+            case Bodypart_Semi3:
                 // <bodypart> ::= <func_call> ';'
                 result = Stack.Pop();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart:
+            case Bodypart:
                 // <bodypart> ::= <ctrl_stmt>
                 result = Stack.Pop();
                 break;
 
-            case Indexes.ProductionIndex.Bodypart_Return_Semi:
+            case Bodypart_Return_Semi:
                 // <bodypart> ::= return <expr> ';'
                 result = new Return(Stack.Pop() as IExpression);
                 break;
@@ -450,50 +492,50 @@ internal class MyParser
 
                 #region Expressions
 
-            case Indexes.ProductionIndex.Expr:
+            case Expr:
                 // <expr> ::= <value> <operator> <expr>
                 result = CreateExpressionValOpExpr(result);
                 break;
 
-            case Indexes.ProductionIndex.Expr2:
+            case Expr2:
                 // <expr> ::= <value>
                 result = new ExpressionVal(Stack.Pop() as IValue);
                 break;
 
-            case Indexes.ProductionIndex.Expr_Lparen_Rparen:
+            case Expr_Lparen_Rparen:
                 // <expr> ::= '(' <expr> ')'
                 result = new ExpressionParen(Stack.Pop() as IExpression);
                 break;
 
-            case Indexes.ProductionIndex.Expr_Minus:
-                // <expr> ::= '-' <value>
+            case Expr_Minus:
+                // <expr> ::= '-' <expr>
                 result = new ExpressionMinus(Stack.Pop() as IExpression);
                 break;
 
-            case Indexes.ProductionIndex.Expr_Lparen_Rparen2:
+            case Expr_Lparen_Rparen2:
                 // <expr> ::= '(' <expr> ')' <operator> <expr>
                 result = CreateExprParenOpExpr(result);
                 break;
 
-            case Indexes.ProductionIndex.Expr_Exclam:
+            case Expr_Exclam:
                 // <expr> ::= '!' <expr>
                 result = new ExpressionNegate(Stack.Pop() as IExpression);
                 break;
 
-            case Indexes.ProductionIndex.Expr_list:
+            case Expr_list:
             // <expr_list> ::= <expr> <opt_exprs>
             //Fallthrough
 
-            case Indexes.ProductionIndex.Opt_exprs_Comma:
+            case Opt_exprs_Comma:
                 // <opt_exprs> ::= ',' <expr> <opt_exprs>
                 result = CreateExpressionList(result);
                 break;
 
-            case Indexes.ProductionIndex.Expr_list2:
+            case Expr_list2:
             // <expr_list> ::= 
             //FallThrough
 
-            case Indexes.ProductionIndex.Opt_exprs:
+            case Opt_exprs:
                 // <opt_exprs> ::= 
                 result = new ExpressionList();
                 break;
@@ -502,36 +544,36 @@ internal class MyParser
 
                 #region ControlStatements
 
-            case Indexes.ProductionIndex.Ctrl_stmt_If_Lbrace_Rbrace:
+            case Ctrl_stmt_If_Lbrace_Rbrace:
             // <ctrl_stmt> ::= if <expr> '{' <body> '}' <if_exp>
             //FALLTHROUGH
 
-            case Indexes.ProductionIndex.If_exp_Else_If_Lbrace_Rbrace:
+            case If_exp_Else_If_Lbrace_Rbrace:
                 // <if_exp> ::= else if <expr> '{' <body> '}' <if_exp>
                 result = CreateIfStatement(result);
                 break;
 
-            case Indexes.ProductionIndex.Ctrl_stmt_Repeat_Lbrace_Rbrace:
+            case Ctrl_stmt_Repeat_Lbrace_Rbrace:
             // <ctrl_stmt> ::= repeat <var_decl> <direction> <expr> '{' <body> '}'
             //FALLTHROUGH
 
-            case Indexes.ProductionIndex.Ctrl_stmt_Repeat_Lparen_Rparen_Lbrace_Rbrace:
+            case Ctrl_stmt_Repeat_Lparen_Rparen_Lbrace_Rbrace:
                 // <ctrl_stmt> ::= repeat '(' <var_decl> <direction> <expr> ')' '{' <body> '}'
                 result = CreateRepeatFor(result);
                 break;
 
-            case Indexes.ProductionIndex.@Ctrl_stmt_Repeat_Lbrace_Rbrace2:
+            case @Ctrl_stmt_Repeat_Lbrace_Rbrace2:
                 // <ctrl_stmt> ::= repeat <expr> '{' Body '}'
                 result = Stack.Pop();
                 result = new RepeatExpr(Stack.Pop() as IExpression, result as Body);
                 break;
 
-            case Indexes.ProductionIndex.If_exp_Else_Lbrace_Rbrace:
+            case If_exp_Else_Lbrace_Rbrace:
                 // <if_exp> ::= else '{' <body> '}'
                 result = new ElseStatement(Stack.Pop() as Body);
                 break;
 
-            case Indexes.ProductionIndex.If_exp:
+            case If_exp:
                 // <if_exp> ::= 
                 result = new ElseStatement(new Body());
                 break;
@@ -540,12 +582,12 @@ internal class MyParser
 
                 #region Direction
 
-            case Indexes.ProductionIndex.Direction_Downto:
+            case Direction_Downto:
                 // <direction> ::= downto
                 result = new Direction(false);
                 break;
 
-            case Indexes.ProductionIndex.Direction_To:
+            case Direction_To:
                 // <direction> ::= to
                 result = new Direction(true);
                 break;
@@ -554,7 +596,7 @@ internal class MyParser
 
                 #region FunctionCall
 
-            case Indexes.ProductionIndex.Func_call_Id_Lparen_Rparen:
+            case Func_call_Id_Lparen_Rparen:
                 // <func_call> ::= Id '(' <expr_list> ')'
                 result = new FuncCall(Identifiers.Pop(), (Stack.Pop() as ExpressionList).Expressions);
                 break;
@@ -562,6 +604,13 @@ internal class MyParser
                 #endregion
         } //switch
 
+        return result;
+    }
+
+    private AbstractSyntaxTree CreateVarDecleration(AbstractSyntaxTree result)
+    {
+        result = Stack.Pop();
+        result = new VarDecleration(Identifiers.Pop(), Stack.Pop() as AssignmentOperator, result as IExpression);
         return result;
     }
 
@@ -596,11 +645,11 @@ internal class MyParser
         return varDecls;
     }
 
-    private AbstractSyntaxTree CreateStructDeclerations(AbstractSyntaxTree result)
+    private AbstractSyntaxTree CreateStructDecleration(AbstractSyntaxTree result)
     {
         var varDecls = Stack.Pop() as VarDeclerations;
         var id = Identifiers.Pop();
-        result = new StructDecleration(Identifiers.Pop(), id, varDecls);
+        result = new StructDecleration(Identifiers.Pop(), Stack.Pop() as AssignmentOperator , id, varDecls);
         return result;
     }
 
@@ -643,7 +692,7 @@ internal class MyParser
         var structDef = Stack.Pop() as StructDefinitions;
         var constantList = Stack.Pop() as ConstantDefinitions;
 
-        return new Root(constantList, structDef, body, funcDecls);
+        return new Root(Stack.Pop() as Includes, constantList, structDef, body, funcDecls);
     }
 
     private AbstractSyntaxTree CreateConstants(AbstractSyntaxTree result)

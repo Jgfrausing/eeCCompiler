@@ -6,15 +6,17 @@ namespace eeCCompiler.Nodes
 {
     public class Root : AbstractSyntaxTree
     {
-        public Root(ConstantDefinitions constantDefinitions, StructDefinitions structDefinitions, Body body,
+        public Root(Includes includes, ConstantDefinitions constantDefinitions, StructDefinitions structDefinitions, Body body,
             FunctionDeclarations functionDeclarations)
         {
+            Includes = includes;
             ConstantDefinitions = constantDefinitions;
             StructDefinitions = structDefinitions;
             Program = body;
             FunctionDeclarations = functionDeclarations;
         }
 
+        public Includes Includes { get; set; }
         public ConstantDefinitions ConstantDefinitions { get; set; }
         public StructDefinitions StructDefinitions { get; set; }
         public Body Program { get; set; }

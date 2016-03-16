@@ -111,6 +111,7 @@ namespace eeCCompiler.Visitors
         public virtual void Visit(VarDecleration varDecleration)
         {
             varDecleration.Identifier.Accept(this);
+            varDecleration.AssignmentOperator.Accept(this);
             varDecleration.Expression.Accept(this);
         }
 
@@ -133,6 +134,24 @@ namespace eeCCompiler.Visitors
             foreach (var structdefi in structDefi.Definitions)
             {
                 structdefi.Accept(this);
+            }
+        }
+
+        public virtual void Visit(AssignmentOperator assignmentOperator)
+        {
+            
+        }
+
+        public virtual void Visit(Include include)
+        {
+            
+        }
+
+        public virtual void Visit(Includes includes)
+        {
+            foreach (var include in includes.IncludeList)
+            {
+                include.Accept(this);
             }
         }
 
@@ -167,6 +186,7 @@ namespace eeCCompiler.Visitors
         public virtual void Visit(StructDecleration structDecleration)
         {
             structDecleration.Identifier.Accept(this);
+            structDecleration.AssignmentOperator.Accept(this);
             structDecleration.StructIdentifier.Accept(this);
             structDecleration.VarDeclerations.Accept(this);
         }
@@ -176,11 +196,11 @@ namespace eeCCompiler.Visitors
             expressionMinus.Expression.Accept(this);
         }
 
-        public virtual void Visit(ExpressionValOpExpr rooteValOpExpr)
+        public virtual void Visit(ExpressionValOpExpr expressionValOpExpr)
         {
-            rooteValOpExpr.Value.Accept(this);
-            rooteValOpExpr.Operator.Accept(this);
-            rooteValOpExpr.Expression.Accept(this);
+            expressionValOpExpr.Value.Accept(this);
+            expressionValOpExpr.Operator.Accept(this);
+            expressionValOpExpr.Expression.Accept(this);
         }
 
         public virtual void Visit(Direction direction)
@@ -210,6 +230,7 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(Root root)
         {
+            root.Includes.Accept(this);
             root.ConstantDefinitions.Accept(this);
             root.StructDefinitions.Accept(this);
             root.Program.Accept(this);
