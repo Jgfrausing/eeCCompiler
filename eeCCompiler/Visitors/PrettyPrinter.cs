@@ -70,7 +70,7 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(ExpressionNegate expressionNegate)
         {
-            _sourceCode += "1";
+            _sourceCode += "!";
             base.Visit(expressionNegate);
         }
 
@@ -112,6 +112,7 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(ExpressionMinus expressionMinus)
         {
+            _sourceCode += "-";
             base.Visit(expressionMinus);
         }
         public override void Visit(Include include)
