@@ -84,9 +84,26 @@ namespace eeCCompiler.Visitors
         {
             varDecleration.Identifier.Accept(this);
             varDecleration.AssignmentOperator.Accept(this);
+            IValue value = checkExpression(varDecleration.Expression);
 
             if (Identifiers[varDecleration.Identifier.Id] is Identifier)
-                Identifiers[varDecleration.Identifier.Id] = checkExpression(varDecleration.Expression);
+                Identifiers[varDecleration.Identifier.Id] = value;
+            else if (Identifiers[varDecleration.Identifier.Id].GetType().Name == value.GetType().Name)
+                Identifiers[varDecleration.Identifier.Id] = value;
+            else
+                Errors.Add("Identifier " + Identifiers[varDecleration.Identifier.Id].ToString() + " is of type " + Identifiers[varDecleration.Identifier.Id].GetType().Name + " but a "
+                    + value.GetType().Name + " was tried to be assigned to this identifier");
+
+        }
+        public override void Visit(Body body)
+        {
+            Dictionary<string, IValue> preBodyIdentifiers = new Dictionary<string, IValue>();
+            foreach (var val in Identifiers)
+            {
+                preBodyIdentifiers.Add(val.Key, val.Value);
+            }
+            base.Visit(body);
+            Identifiers = preBodyIdentifiers;
         }
         #endregion
 
@@ -163,6 +180,8 @@ namespace eeCCompiler.Visitors
                 return new NumValue(2.0); //Burde vi aldrig nå tror jeg
             }
         }
+
+        #region Private checker metoder
         private bool NumChecker(IValue value, Operator opr)
         {
             return (value is NumValue &&
@@ -206,5 +225,6 @@ namespace eeCCompiler.Visitors
                 Errors.Add(expressionType.Name + " wrong operator tried " + value1.GetType().Name + " " + opr.Symbol + " " + value2.GetType().Name);
             return value1;
         }
+        #endregion
     }
 }
