@@ -1,49 +1,49 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using eeCCompiler.Nodes;
+using Type = eeCCompiler.Nodes.Type;
 
 namespace eeCCompiler.Visitors
 {
-    class Treeprint:Visitor
+    internal class Treeprint : Visitor
     {
-        private int count = 0;
+        private int _count;
+        private const string Indenter = "  ";
+
         public override void Visit(Root root)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "root");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "Root");
+            _count++;
             base.Visit(root);
         }
 
         public override void Visit(ConstantDefinitions constantDefinitions)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "constantdefinitions");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "Constantdefinitions");
+            _count++;
             base.Visit(constantDefinitions);
-            count--;
+            _count--;
         }
 
         public override void Visit(StructDefinitions structDefinitions)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "StructDefinitions");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "StructDefinitions");
+            _count++;
             base.Visit(structDefinitions);
-            count--;
+            _count--;
         }
 
         public override void Visit(StructDefinition structDefinition)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "StructDefinition");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "StructDefinition");
+            _count++;
             base.Visit(structDefinition);
-            count--;
+            _count--;
         }
 
         //public override void Visit(Program program)
         //{
-        //  Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "program");
+        //  Console.WriteLine(String.Concat(Enumerable.Repeat(indenter, count)) + "program");
         //  count++;
         //  base.Visit(program);
         //  count--;
@@ -51,207 +51,225 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(FunctionDeclarations functionDeclarations)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "functionDeclarations");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "FunctionDeclarations");
+            _count++;
             base.Visit(functionDeclarations);
-            count--;
+            _count--;
         }
 
         public override void Visit(Body body)
         {
-            
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "Body");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "Body");
+            _count++;
             base.Visit(body);
-            count--;
+            _count--;
         }
 
         public override void Visit(ExpressionNegate expressionNegate)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "expressionNegate");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "ExpressionNegate");
+            _count++;
             base.Visit(expressionNegate);
-            count--;
+            _count--;
         }
+
         public override void Visit(Direction direction)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "direction");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "Direction");
+            _count++;
             base.Visit(direction);
-            count--;
+            _count--;
         }
 
         public override void Visit(ExpressionValOpExpr rooteValOpExpr)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "rooteValOpExpr");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "RooteValOpExpr");
+            _count++;
             base.Visit(rooteValOpExpr);
-            count--;
+            _count--;
         }
 
         public override void Visit(ExpressionMinus expressionMinus)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "expressionMinus");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "ExpressionMinus");
+            _count++;
             base.Visit(expressionMinus);
-            count--;
+            _count--;
         }
 
         public override void Visit(StructDecleration structDecleration)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "structDecleration");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "StructDecleration");
+            _count++;
             base.Visit(structDecleration);
-            count--;
+            _count--;
         }
 
-        public override void Visit(Nodes.Type type)
+        public override void Visit(Type type)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "type");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "Type");
+            _count++;
             base.Visit(type);
-            count--;
+            _count--;
         }
 
         public override void Visit(Operator operate)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "operate");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "Operate");
+            _count++;
             base.Visit(operate);
-            count--;
+            _count--;
         }
+
         public override void Visit(BoolValue boolValue)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "boolValue");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "BoolValue");
+            _count++;
             base.Visit(boolValue);
-            count--;
+            _count--;
         }
+
         public override void Visit(FuncCall funcCall)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "funcCall");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "FuncCall");
+            _count++;
             base.Visit(funcCall);
-            count--;
+            _count--;
         }
+
         public override void Visit(FunctionDeclaration functionDeclaration)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "functionDeclaration");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "FunctionDeclaration");
+            _count++;
             base.Visit(functionDeclaration);
-            count--;
+            _count--;
         }
+
         public override void Visit(VarDecleration varDecleration)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "varDecleration");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "VarDecleration");
+            _count++;
             base.Visit(varDecleration);
-            count--;
+            _count--;
         }
+
         public override void Visit(VarDeclerations varDecls)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "varDecls");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "VarDecls");
+            _count++;
             base.Visit(varDecls);
-            count--;
+            _count--;
         }
+
         public override void Visit(Refrence reference)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "reference");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "Reference");
+            _count++;
             base.Visit(reference);
-            count--;
+            _count--;
         }
+
         public override void Visit(Return expressionParenOpExpr)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "expressionParenOpExpr");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "ExpressionParenOpExpr");
+            _count++;
             base.Visit(expressionParenOpExpr);
-            count--;
+            _count--;
         }
+
         //public override void Visit(FunctionDeclarations functionDeclarations)
         //{
-        //    Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "functionDeclarations");
+        //    Console.WriteLine(String.Concat(Enumerable.Repeat(indenter, count)) + "functionDeclarations");
         //    count++;
         //    base.Visit(functionDeclarations);
         //count--;
         //}
         public override void Visit(NumValue numValue)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "numValue");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "NumValue");
+            _count++;
             base.Visit(numValue);
-            count--;
+            _count--;
         }
+
         public override void Visit(Identifier identifier)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "identifier");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "Identifier");
+            _count++;
             base.Visit(identifier);
-            count--;
+            _count--;
         }
+
         public override void Visit(StringValue stringValue)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "stringValue");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "StringValue");
+            _count++;
             base.Visit(stringValue);
-            count--;
+            _count--;
         }
+
         public override void Visit(RepeatExpr repeatExpr)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "repeatExpr");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "RepeatExpr");
+            _count++;
             base.Visit(repeatExpr);
-            count--;
+            _count--;
         }
+
         public override void Visit(ExpressionList expressionList)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "expressionList");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "ExpressionList");
+            _count++;
             base.Visit(expressionList);
-            count--;
+            _count--;
         }
+
         public override void Visit(ExpressionParen expressionParen)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "expressionParen");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "ExpressionParen");
+            _count++;
             base.Visit(expressionParen);
-            count--;
+            _count--;
         }
+
         public override void Visit(ExpressionParenOpExpr expressionParenOpExpr)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "expressionParenOpExpr");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "ExpressionParenOpExpr");
+            _count++;
             base.Visit(expressionParenOpExpr);
-            count--;
+            _count--;
         }
+
         public override void Visit(ExpressionVal expressionVal)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "expressionVal");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "ExpressionVal");
+            _count++;
             base.Visit(expressionVal);
-            count--;
+            _count--;
         }
+
         public override void Visit(IfStatement ifStatement)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "ifStatement");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "IfStatement");
+            _count++;
             base.Visit(ifStatement);
-            count--;
+            _count--;
         }
+
         public override void Visit(ElseStatement elseStatement)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "elseStatement");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "ElseStatement");
+            _count++;
             base.Visit(elseStatement);
-            count--;
+            _count--;
         }
+
         public override void Visit(Constant constant)
         {
-            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "constant");
-            count++;
+            Console.WriteLine(string.Concat(Enumerable.Repeat(Indenter, _count)) + "Constant");
+            _count++;
             base.Visit(constant);
-            count--;
+            _count--;
         }
     }
 }

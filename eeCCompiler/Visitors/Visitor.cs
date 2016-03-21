@@ -1,9 +1,4 @@
 ﻿using eeCCompiler.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using eeCCompiler.Nodes;
 
 namespace eeCCompiler.Visitors
@@ -57,13 +52,6 @@ namespace eeCCompiler.Visitors
         {
             repeatExpr.Expression.Accept(this);
             repeatExpr.Body.Accept(this);
-        }
-        public virtual void Visit(RepeatFor repeatFor)
-        {
-            repeatFor.VarDecleration.Accept(this);
-            repeatFor.Direction.Accept(this);
-            repeatFor.Expression.Accept(this);
-            repeatFor.Body.Accept(this);
         }
 
         public virtual void Visit(StringValue stringValue)
@@ -139,12 +127,10 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(AssignmentOperator assignmentOperator)
         {
-            
         }
 
         public virtual void Visit(Include include)
         {
-            
         }
 
         public virtual void Visit(Includes includes)
@@ -179,7 +165,7 @@ namespace eeCCompiler.Visitors
         {
         }
 
-        public virtual void Visit(Nodes.Type type)
+        public virtual void Visit(Type type)
         {
         }
 
@@ -235,6 +221,14 @@ namespace eeCCompiler.Visitors
             root.StructDefinitions.Accept(this);
             root.Program.Accept(this);
             root.FunctionDeclarations.Accept(this);
+        }
+
+        public virtual void Visit(RepeatFor repeatFor)
+        {
+            repeatFor.VarDecleration.Accept(this);
+            repeatFor.Direction.Accept(this);
+            repeatFor.Expression.Accept(this);
+            repeatFor.Body.Accept(this);
         }
     }
 }
