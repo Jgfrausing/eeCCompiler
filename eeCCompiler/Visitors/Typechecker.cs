@@ -30,7 +30,10 @@ namespace eeCCompiler.Visitors
                     if (Identifiers.ContainsKey(id))
                         value = Identifiers[id];
                     else
+                    {
+                        value = new NumValue(2.0); // Værdi ligegyldig men forventer at den ikke instansieret variable bliver en num 
                         Errors.Add(id + " Reference was not initialised before use");
+                    }
                 }
                 else
                     value = exp.Value;
@@ -64,7 +67,10 @@ namespace eeCCompiler.Visitors
                     if (Identifiers.ContainsKey(id))
                         value1 = Identifiers[id];
                     else
+                    {
+                        value1 = new NumValue(2.0); 
                         Errors.Add(id + " Reference was not initialised before use");
+                    }
                 }
                 else
                     value1 = expressionValOpExpr.Value;
