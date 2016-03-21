@@ -16,7 +16,11 @@ namespace eeCCompiler
             Console.WriteLine(syntax);
             List<string> errors = new List<string>();
             Dictionary<string, IValue> Identifiers = new Dictionary<string,IValue>();
-            parser.Root.Accept(new Typechecker(errors, Identifiers));
+            parser.Root.Accept(new PrettyPrinter());
+            Console.WriteLine("::::::::::::::::::");
+            parser.Root.Accept(new Treeprint());
+            Console.WriteLine("::::::::::::::::::");
+            //parser.Root.Accept(new Typechecker(errors, Identifiers));
             errors.ForEach(x => Console.WriteLine(x));
             Console.ReadKey();
             

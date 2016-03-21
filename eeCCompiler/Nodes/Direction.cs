@@ -10,6 +10,7 @@ namespace eeCCompiler.Nodes
         }
 
         public bool Incrementing { get; set; }
+
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);

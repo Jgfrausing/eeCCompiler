@@ -34,10 +34,12 @@ namespace eeCCompiler.Nodes
         public IValue Value { get; set; }
         public Operator Operator { get; set; }
         public IExpression Expression { get; set; }
+
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);
         }
+
         public override string ToString()
         {
             return $"{Value} {Operator} {Expression}";
@@ -52,10 +54,12 @@ namespace eeCCompiler.Nodes
         }
 
         public IExpression Expression { get; set; }
+
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);
         }
+
         public override string ToString()
         {
             return $"{Expression}";
@@ -70,10 +74,12 @@ namespace eeCCompiler.Nodes
         }
 
         public IExpression Expression { get; set; }
+
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);
         }
+
         public override string ToString()
         {
             return $"{Expression}";
@@ -88,10 +94,12 @@ namespace eeCCompiler.Nodes
         }
 
         public IExpression Expression { get; set; }
+
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);
         }
+
         public override string ToString()
         {
             return "(" + Expression + ")";
@@ -110,10 +118,12 @@ namespace eeCCompiler.Nodes
         public IExpression ExpressionParen { get; set; }
         public Operator Operator { get; set; }
         public IExpression Expression { get; set; }
+
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);
         }
+
         public override string ToString()
         {
             return $"{ExpressionParen} {Operator} {Expression}";

@@ -35,7 +35,7 @@ namespace eeCCompiler.Interfaces
         void Visit(VarDecleration expressionParenOpExpr);
         void Visit(StructDefinition expressionParenOpExpr);
         void Visit(StructParts expressionParenOpExpr);
-        void Visit(StructDefinitions structDefi);
+        void Visit(StructDefinitions structDefinitions);
         void Visit(AssignmentOperator expressionParenOpExpr);
         void Visit(Include expressionParenOpExpr);
         void Visit(Includes includes);

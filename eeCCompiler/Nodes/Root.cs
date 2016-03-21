@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using eeCCompiler.Interfaces;
+﻿using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
     public class Root : AbstractSyntaxTree
     {
-        public Root(Includes includes, ConstantDefinitions constantDefinitions, StructDefinitions structDefinitions, Body body,
+        public Root(Includes includes, ConstantDefinitions constantDefinitions, StructDefinitions structDefinitions,
+            Body body,
             FunctionDeclarations functionDeclarations)
         {
             Includes = includes;

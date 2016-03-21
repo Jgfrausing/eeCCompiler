@@ -1,5 +1,3 @@
-using eeCCompiler.Interfaces;
-
 namespace eeCCompiler.Nodes
 {
     public class AssignmentOperator : Operator

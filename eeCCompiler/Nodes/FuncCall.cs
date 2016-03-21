@@ -13,6 +13,7 @@ namespace eeCCompiler.Nodes
 
         public Identifier Identifier { get; set; }
         public List<IExpression> Expressions { get; set; }
+
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);
@@ -20,7 +21,7 @@ namespace eeCCompiler.Nodes
 
         public override string ToString()
         {
-            string s = "";
+            var s = "";
             foreach (var expression in Expressions)
             {
                 s += expression.ToString();

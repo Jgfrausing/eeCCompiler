@@ -1,5 +1,4 @@
-﻿using System;
-using eeCCompiler.Interfaces;
+﻿using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
@@ -36,6 +35,7 @@ namespace eeCCompiler.Nodes
         {
             visitor.Visit(this);
         }
+
         public override string ToString()
         {
             return Value;
@@ -55,9 +55,10 @@ namespace eeCCompiler.Nodes
         {
             visitor.Visit(this);
         }
+
         public override string ToString()
         {
             return Value.ToString();
         }
-    }  
-}   
+    }
+}

@@ -134,16 +134,17 @@ internal class MyParser
         //Returnvalue   OBS! Is sometimes used as placeholder, when multiple objects needs popped from the stack.
         switch ((Indexes.ProductionIndex) r.Parent.TableIndex())
         {
-            #region Program
+                #region Program
 
             case Program_Program_Lbrace_Rbrace:
                 // <Program> ::= <consts> <struct_defs> program '{' <body> '}' <Func_decls>
                 result = CreateProgram(result);
                 break;
 
-            #endregion
+                #endregion
 
-            #region Include
+                #region Include
+
             case Includes_Include:
                 // <includes> ::= include <include> <includes>
                 var includes = Stack.Pop() as Includes;
@@ -168,9 +169,9 @@ internal class MyParser
                 result = new Include(Identifiers.Pop());
                 break;
 
-            #endregion
+                #endregion
 
-            #region Const
+                #region Const
 
             case Consts:
                 // <consts> ::= <const> <consts>
@@ -373,9 +374,9 @@ internal class MyParser
                 result = new AssignmentOperator(Indexes.SymbolIndex.Minuseq);
                 break;
 
-            #endregion
+                #endregion
 
-            #region Types
+                #region Types
 
             case Type_Void:
                 // <type> ::= void
@@ -444,7 +445,7 @@ internal class MyParser
 
             case Refrence_Id_Dot:
                 // <refrence> ::= Id '.' <refrence>
-                result = new Refrence(Identifiers.Pop(), (Stack.Pop() as Refrence));
+                result = new Refrence(Identifiers.Pop(), Stack.Pop() as Refrence);
                 break;
 
                 #endregion
@@ -649,7 +650,7 @@ internal class MyParser
     {
         var varDecls = Stack.Pop() as VarDeclerations;
         var id = Identifiers.Pop();
-        result = new StructDecleration(Identifiers.Pop(), Stack.Pop() as AssignmentOperator , id, varDecls);
+        result = new StructDecleration(Identifiers.Pop(), Stack.Pop() as AssignmentOperator, id, varDecls);
         return result;
     }
 

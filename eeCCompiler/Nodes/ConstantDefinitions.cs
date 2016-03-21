@@ -16,6 +16,7 @@ namespace eeCCompiler.Nodes
         }
 
         public List<Constant> ConstantList { get; set; }
+
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);

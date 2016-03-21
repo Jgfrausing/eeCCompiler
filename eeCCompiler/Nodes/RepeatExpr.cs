@@ -1,4 +1,3 @@
-using System;
 using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
@@ -36,6 +35,5 @@ namespace eeCCompiler.Nodes
         {
             visitor.Visit(this);
         }
-
     }
 }

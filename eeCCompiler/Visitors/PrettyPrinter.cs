@@ -20,6 +20,7 @@ namespace eeCCompiler.Visitors
             root.FunctionDeclarations.Accept(this);
             Console.WriteLine(_sourceCode);
         }
+
         public override void Visit(StructDefinition structDefinition)
         {
             _sourceCode += "struct ";
@@ -28,13 +29,14 @@ namespace eeCCompiler.Visitors
             structDefinition.StructParts.Accept(this);
             _sourceCode += "\n}\n";
         }
+
         public override void Visit(Body body)
         {
             _sourceCode += "{\n";
             foreach (var bodypart in body.Bodyparts)
             {
                 bodypart.Accept(this);
-                
+
                 if (bodypart is VarDecleration || bodypart is FuncCall || bodypart is Return)
                     _sourceCode += ";";
                 _sourceCode += "\n";
@@ -87,7 +89,7 @@ namespace eeCCompiler.Visitors
         public override void Visit(ExpressionParenOpExpr expressionParenOpExpr)
         {
             _sourceCode += expressionParenOpExpr.ToString();
-            
+
             expressionParenOpExpr.ExpressionParen.Accept(this);
             expressionParenOpExpr.Operator.Accept(this);
             expressionParenOpExpr.Expression.Accept(this);
@@ -115,12 +117,13 @@ namespace eeCCompiler.Visitors
             _sourceCode += "-";
             base.Visit(expressionMinus);
         }
+
         public override void Visit(Include include)
         {
             _sourceCode += "include ";
             if (include.Identifiers.Any())
                 include.Identifiers[0].Accept(this);
-            for (int i = 1; i < include.Identifiers.Count; i++)
+            for (var i = 1; i < include.Identifiers.Count; i++)
             {
                 _sourceCode += ".";
                 include.Identifiers[i].Accept(this);
@@ -146,7 +149,7 @@ namespace eeCCompiler.Visitors
         {
             structDecleration.Identifier.Accept(this);
             structDecleration.AssignmentOperator.Accept(this);
-            structDecleration.StructIdentifier.Accept(this); 
+            structDecleration.StructIdentifier.Accept(this);
             _sourceCode += "{";
             structDecleration.VarDeclerations.Accept(this);
             _sourceCode += "};";
@@ -157,14 +160,13 @@ namespace eeCCompiler.Visitors
             _sourceCode += "repeat ";
             base.Visit(repeatExpr);
         }
+
         public override void Visit(RepeatFor repeatFor)
         {
-            
             repeatFor.VarDecleration.Accept(this);
             repeatFor.Direction.Accept(this);
             repeatFor.Expression.Accept(this);
             repeatFor.Body.Accept(this);
-            
         }
 
         public override void Visit(Type type)
@@ -202,10 +204,10 @@ namespace eeCCompiler.Visitors
             funcCall.Identifier.Accept(this);
             _sourceCode += "(";
 
-            if(funcCall.Expressions.Count>0)
+            if (funcCall.Expressions.Count > 0)
                 funcCall.Expressions[0].Accept(this);
 
-            for (int i = 1; i < funcCall.Expressions.Count; i++)
+            for (var i = 1; i < funcCall.Expressions.Count; i++)
             {
                 _sourceCode += ", ";
                 funcCall.Expressions[i].Accept(this);
@@ -228,14 +230,17 @@ namespace eeCCompiler.Visitors
             _sourceCode += "return ";
             base.Visit(_return);
         }
+
         public override void Visit(Refrence reference)
         {
             base.Visit(reference);
         }
+
         public override void Visit(VarDecleration varDecleration)
         {
             base.Visit(varDecleration);
         }
+
         public override void Visit(VarDeclerations varDeclerations)
         {
             _sourceCode += " ";

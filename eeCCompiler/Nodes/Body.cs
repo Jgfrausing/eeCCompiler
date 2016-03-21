@@ -16,6 +16,7 @@ namespace eeCCompiler.Nodes
         }
 
         public List<IBodypart> Bodyparts { get; set; }
+
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);

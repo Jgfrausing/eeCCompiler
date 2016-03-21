@@ -129,9 +129,9 @@ namespace eeCCompiler.Visitors
             }
         }
 
-        public virtual void Visit(StructDefinitions structDefi)
+        public virtual void Visit(StructDefinitions structDefinitions)
         {
-            foreach (var structdefi in structDefi.Definitions)
+            foreach (var structdefi in structDefinitions.Definitions)
             {
                 structdefi.Accept(this);
             }

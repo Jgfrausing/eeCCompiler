@@ -1,11 +1,11 @@
-﻿using System;
-using eeCCompiler.Interfaces;
+﻿using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
     public class StructDecleration : AbstractSyntaxTree, IBodypart
     {
-        public StructDecleration(Identifier identifier, AssignmentOperator assignmentOperator, Identifier structIdentifier, VarDeclerations varDeclerations)
+        public StructDecleration(Identifier identifier, AssignmentOperator assignmentOperator,
+            Identifier structIdentifier, VarDeclerations varDeclerations)
         {
             Identifier = identifier;
             AssignmentOperator = assignmentOperator;

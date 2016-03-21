@@ -25,13 +25,21 @@ namespace eeCCompiler.Visitors
             count--;
         }
 
-        //public override void Visit(StructDefinitions StructDefinitions)
-        //{
-        //  Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "StructDefinitions");
-        //  count++;
-        //  base.Visit(StructDefinitions);
-        //  count--;
-        //}
+        public override void Visit(StructDefinitions structDefinitions)
+        {
+            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "StructDefinitions");
+            count++;
+            base.Visit(structDefinitions);
+            count--;
+        }
+
+        public override void Visit(StructDefinition structDefinition)
+        {
+            Console.WriteLine(String.Concat(Enumerable.Repeat("  ", count)) + "StructDefinition");
+            count++;
+            base.Visit(structDefinition);
+            count--;
+        }
 
         //public override void Visit(Program program)
         //{
