@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
 using Type = System.Type;
@@ -31,7 +32,7 @@ namespace eeCCompiler.Visitors
                         value = Identifiers[id];
                     else
                     {
-                        value = new NumValue(2.0); // Værdi ligegyldig men forventer at den ikke instansieret variable bliver en num 
+                        value = new UnInitialisedVariable(); // Værdi ligegyldig men forventer at den ikke instansieret variable bliver en num 
                         Errors.Add(id + " Reference was not initialised before use");
                     }
                 }
@@ -46,14 +47,14 @@ namespace eeCCompiler.Visitors
             if (expression is ExpressionNegate)
             {
                 var value = CheckExpression((expression as ExpressionNegate).Expression);
-                if (!(value is BoolValue))
+                if (!(value is BoolValue) && !(value is UnInitialisedVariable))
                     Errors.Add(expressionType.Name + " tried with " + value.GetType().Name);
                 return value;
             }
             if (expression is ExpressionMinus)
             {
                 var value = CheckExpression((expression as ExpressionMinus).Expression);
-                if (!(value is NumValue))
+                if (!(value is NumValue) && !(value is UnInitialisedVariable))
                     Errors.Add(expressionType.Name + " with " + value.GetType().Name);
                 return value;
             }
@@ -68,7 +69,7 @@ namespace eeCCompiler.Visitors
                         value1 = Identifiers[id];
                     else
                     {
-                        value1 = new NumValue(2.0); 
+                        value1 = new UnInitialisedVariable(); 
                         Errors.Add(id + " Reference was not initialised before use");
                     }
                 }
@@ -217,11 +218,11 @@ namespace eeCCompiler.Visitors
 
         private IValue OprChecker(IValue value1, IValue value2, Operator opr, Type expressionType)
         {
-            if (value1 == null || value2 == null)
+            if (value1 == null || value2 == null || value1.GetType().Name == "UnInitialisedVariable" || value2.GetType().Name == "UnInitialisedVariable")
             {
             } // Ignoreres bare, sker hvis variablen ikke blev instansieret før brug
 
-            else if (value2.GetType().Name != value1.GetType().Name)
+            else if ((value2.GetType().Name != value1.GetType().Name))
                 //Hvis begge værdier ikke er ens accepteres det ikke i vores grammatik
                 Errors.Add(expressionType.Name + " with " + value1.GetType().Name + " and " + value2.GetType().Name);
 
@@ -249,5 +250,12 @@ namespace eeCCompiler.Visitors
         }
 
         #endregion
+    }
+    public class UnInitialisedVariable : IValue
+    {
+        public void Accept(IEecVisitor visitor)
+        {
+            //Skal aldrig accepteres så bliver aldrig kaldt (y)
+        }
     }
 }
