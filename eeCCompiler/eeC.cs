@@ -398,9 +398,14 @@ internal class MyParser
                 result = new Type("bool");
                 break;
 
-                #endregion
+            case Type_Id:
+                // <type> ::= Id
+                result = Identifiers.Pop();
+                break;
 
-                #region Values
+            #endregion
+
+            #region Values
 
             case Value_Floatliteral:
             // <value> ::= FloatLiteral
