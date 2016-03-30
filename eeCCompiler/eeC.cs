@@ -670,7 +670,15 @@ internal class MyParser
     private AbstractSyntaxTree CreateStructParts(AbstractSyntaxTree result)
     {
         var structParts = Stack.Pop() as StructParts;
-        structParts.StructPartList.Insert(0, Stack.Pop() as VarDecleration);
+        IStructPart structPart = Stack.Pop() as IStructPart;
+        if (structPart is VarDecleration)
+        { 
+            structParts.StructPartList.Insert(0, structPart as VarDecleration);
+        }
+        else
+        {
+            structParts.StructPartList.Insert(0, structPart as FunctionDeclaration);
+        }
         return structParts;
     }
 

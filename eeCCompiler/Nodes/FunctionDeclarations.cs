@@ -3,7 +3,7 @@ using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    public class FunctionDeclarations : AbstractSyntaxTree, IStructPart
+    public class FunctionDeclarations : AbstractSyntaxTree
     {
         public FunctionDeclarations()
         {
@@ -23,7 +23,7 @@ namespace eeCCompiler.Nodes
         }
     }
 
-    public class FunctionDeclaration : AbstractSyntaxTree
+    public class FunctionDeclaration : AbstractSyntaxTree, IStructPart
     {
         public FunctionDeclaration(TypeId typeId, TypeIdList parameters, Body body)
         {
