@@ -12,10 +12,14 @@ namespace eeCCompiler.Visitors
         {
             Errors = errors;
             Identifiers = identifiers;
+            Funcs = new Dictionary<string, FunctionDeclaration>();
+            Structs = new Dictionary<string, StructDefinition>();
         }
 
         public List<string> Errors { get; set; }
         public Dictionary<string, IValue> Identifiers { get; set; }
+        public Dictionary<string, FunctionDeclaration> Funcs { get; set; }
+        public Dictionary<string, StructDefinition> Structs { get; set; }
 
         public IValue CheckExpression(IExpression expression)
         {
@@ -27,12 +31,15 @@ namespace eeCCompiler.Visitors
                 IValue value = null;
                 if (exp.Value is Refrence)
                 {
-                    var id = ((exp.Value as Refrence).StructRefrence as Identifier).Id;
-                    if (Identifiers.ContainsKey(id))
-                        value = Identifiers[id];
+                    var refrence = (exp.Value as Refrence);
+                    var id = (refrence.Identifiers[0].Id); //Har fat i structen
+                    if (Structs.ContainsKey(id))
+                    {
+                        value = StructRefrenceChecker(refrence);
+                    }
                     else
                     {
-                        value = new UnInitialisedVariable(); // Værdi ligegyldig men forventer at den ikke instansieret variable bliver en num 
+                        value = new UnInitialisedVariable();
                         Errors.Add(id + " Reference was not initialised before use");
                     }
                 }
@@ -90,12 +97,42 @@ namespace eeCCompiler.Visitors
             }
             if (expression is FuncCall)
             {
-                return new NumValue(2.0); // TODO ikke færdig not sure here.
+                //Check om input matcher det som er deklaræret
+                var funcCall = expression as FuncCall;
+                IValue value = null;
+                if (Funcs.ContainsKey(funcCall.Identifier.Id))
+                {
+                    string valueType = Funcs[funcCall.Identifier.Id].TypeId.ValueType.ValueType;
+                    value = TypeChecker(valueType);
+                }
+                else
+                {
+                    value = new UnInitialisedVariable();
+                    Errors.Add(funcCall.Identifier.Id + " function has not been declared");
+                }
+                return value; // TODO ikke færdig not sure here.
             }
             return new NumValue(2.0); //Burde vi aldrig nå tror jeg
         }
 
         #region Visits
+        public override void Visit(Root root)
+        {
+            root.Includes.Accept(this);
+            root.ConstantDefinitions.Accept(this);
+            root.StructDefinitions.Accept(this);
+            root.FunctionDeclarations.Accept(this); //Flyttet over program for at checke kald giver menning
+            root.Program.Accept(this);
+            
+        }
+
+        public override void Visit(StructDefinition structDefinition)
+        {
+            if (!Structs.ContainsKey(structDefinition.Identifier.Id))
+                Structs.Add(structDefinition.Identifier.Id, structDefinition);
+            else
+                Errors.Add(structDefinition.Identifier.Id + " was declared twice");
+        }
 
         public override void Visit(ExpressionNegate expressionNegate)
         {
@@ -171,8 +208,11 @@ namespace eeCCompiler.Visitors
             varDecleration.Identifier.Accept(this);
             varDecleration.AssignmentOperator.Accept(this);
             var value = CheckExpression(varDecleration.Expression);
-
-            if (Identifiers[varDecleration.Identifier.Id] is Identifier)
+            if (value.GetType().Name == "UnInitialisedVariable")
+            {
+                Errors.Add("Identifiier " + varDecleration.Identifier.Id + " was not assigned a value");
+            }
+            else if (Identifiers[varDecleration.Identifier.Id] is Identifier)
                 Identifiers[varDecleration.Identifier.Id] = value;
             else if (Identifiers[varDecleration.Identifier.Id].GetType().Name == value.GetType().Name)
                 Identifiers[varDecleration.Identifier.Id] = value;
@@ -215,6 +255,37 @@ namespace eeCCompiler.Visitors
                      opr.Symbol == Indexes.Indexes.SymbolIndex.And ||
                      opr.Symbol == Indexes.Indexes.SymbolIndex.Or);
         }
+        private IValue TypeChecker(string Type)
+        {
+            IValue value;
+            switch (Type)
+            {
+                case "Num":
+                    value = new NumValue(2.0);
+                    break;
+                case "void":
+                    value = new UnInitialisedVariable();
+                    break;
+                case "string":
+                    value = new StringValue("");
+                    break;
+                case "bool":
+                    value = new BoolValue(true);
+                    break;
+                default:
+                    if (Structs.ContainsKey(Type))
+                    {
+                        value = new StructValue(Structs[Type]);
+                    }
+                    else
+                    {
+                        Errors.Add(Type + " struct identifier was not found");
+                        value = new UnInitialisedVariable();
+                    }
+                    break;
+            }
+            return value;
+        }
 
         private IValue OprChecker(IValue value1, IValue value2, Operator opr, Type expressionType)
         {
@@ -248,11 +319,68 @@ namespace eeCCompiler.Visitors
                            " " + value2.GetType().Name);
             return value1;
         }
+        private IValue StructRefrenceChecker(Refrence refrence)
+        {
+            IValue value = new UnInitialisedVariable();
+            var id = (refrence.Identifiers[0].Id);
+            if (refrence.StructRefrence is Identifier)
+            {
+                foreach (var structpart in Structs[id].StructParts.StructPartList)
+                {
+                    if (structpart is VarDecleration)
+                    {
+                        VarDecleration vardecl = (structpart as VarDecleration);
+                        if (vardecl.Identifier.Id == (refrence.StructRefrence as Identifier).Id)
+                        {
+                            value = CheckExpression(vardecl.Expression);
+                            break;
+                        }
+
+                    }
+                }
+            }
+            else
+            {
+                foreach (var structpart in Structs[id].StructParts.StructPartList)
+                {
+                    if (structpart is FunctionDeclaration)
+                    {
+                        FunctionDeclaration funcdecl = (structpart as FunctionDeclaration);
+                        if (funcdecl.TypeId.Identifier.Id == (refrence.StructRefrence as FuncCall).Identifier.Id)
+                        {
+                            value = TypeChecker(funcdecl.TypeId.ValueType.ValueType);
+                            break;
+                        }
+
+                    }
+                }
+            }
+            if (value is UnInitialisedVariable)
+            {
+                Errors.Add(id + "." + refrence.StructRefrence.ToString() + " was not found");
+            }
+
+
+
+            return value;
+        }
 
         #endregion
     }
     public class UnInitialisedVariable : IValue
     {
+        public void Accept(IEecVisitor visitor)
+        {
+            //Skal aldrig accepteres så bliver aldrig kaldt (y)
+        }
+    }
+    public class StructValue : IValue
+    {
+        public StructValue(StructDefinition identifier)
+        {
+            this.Identifier = identifier;
+        }
+        public StructDefinition Identifier { get; set; }
         public void Accept(IEecVisitor visitor)
         {
             //Skal aldrig accepteres så bliver aldrig kaldt (y)
