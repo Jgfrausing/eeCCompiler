@@ -5,7 +5,7 @@ namespace eeCCompiler.Nodes
 {
     public class TypeId : AbstractSyntaxTree
     {
-        public TypeId(Identifier identifier, IType valueType)
+        public TypeId(IType valueType, Identifier identifier)
         {
             ValueType = valueType;
             Identifier = identifier;

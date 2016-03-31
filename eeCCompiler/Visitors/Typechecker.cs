@@ -136,13 +136,12 @@ namespace eeCCompiler.Visitors
                 IValue value = null;
                 if (Funcs.ContainsKey(funcCall.Identifier.Id))
                 {
-<<<<<<< HEAD
                     //string valueType = Funcs[funcCall.Identifier.Id].TypeId.ValueType.ValueType;
                     //value = TypeChecker(valueType);
-=======
-                    string valueType = Funcs[funcCall.Identifier.Id].FuncDecl.TypeId.ValueType.ValueType;
+
+                    string valueType = Funcs[funcCall.Identifier.Id].FuncDecl.TypeId.ValueType.ToString();
                     value = TypeChecker(valueType);
->>>>>>> origin/master
+
                 }
                 else
                 {
@@ -287,11 +286,11 @@ namespace eeCCompiler.Visitors
         {
             if (!(Funcs.ContainsKey(functionDeclaration.TypeId.Identifier.Id)))
             {
-                IValue Value = TypeChecker(functionDeclaration.TypeId.ValueType.ValueType);
+                IValue Value = TypeChecker(functionDeclaration.TypeId.ValueType.ToString());
                 bool returnFound = ReturnChecker(Value, functionDeclaration.Body.Bodyparts);
                 if (returnFound == false)
                     Errors.Add("not all paths in " + functionDeclaration.TypeId.Identifier.Id + " return a value");
-                Funcs.Add(functionDeclaration.TypeId.Identifier.Id, new Function(functionDeclaration, TypeChecker(functionDeclaration.TypeId.ValueType.ValueType)));
+                Funcs.Add(functionDeclaration.TypeId.Identifier.Id, new Function(functionDeclaration, TypeChecker(functionDeclaration.TypeId.ValueType.ToString())));
             }
             else
                 Errors.Add(functionDeclaration.TypeId.Identifier.Id + " was declared twice");

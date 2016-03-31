@@ -249,7 +249,7 @@ internal class MyParser
 
             case Typeid_Id:
                 // <typeid> ::= <type> Id
-                result = new TypeId(ReductionStack.Pop() as Identifier, ReductionStack.Pop() as IType);
+                result = new TypeId(ReductionStack.Pop() as IType, ReductionStack.Pop() as Identifier);
                 break;
 
                 #endregion
