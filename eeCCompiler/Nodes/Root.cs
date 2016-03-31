@@ -4,9 +4,8 @@ namespace eeCCompiler.Nodes
 {
     public class Root : AbstractSyntaxTree
     {
-        public Root(Includes includes, ConstantDefinitions constantDefinitions, StructDefinitions structDefinitions,
-            Body body,
-            FunctionDeclarations functionDeclarations)
+        public Root(FunctionDeclarations functionDeclarations, Body body, StructDefinitions structDefinitions,
+            ConstantDefinitions constantDefinitions, Includes includes)
         {
             Includes = includes;
             ConstantDefinitions = constantDefinitions;

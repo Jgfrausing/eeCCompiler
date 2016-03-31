@@ -4,7 +4,7 @@ namespace eeCCompiler.Nodes
 {
     public class IfStatement : ElseStatement, IBodypart
     {
-        public IfStatement(IExpression expression, Body body, ElseStatement elseStatement) : base(body)
+        public IfStatement(ElseStatement elseStatement, Body body, IExpression expression) : base(body)
         {
             Expression = expression;
             ElseStatement = elseStatement;

@@ -11,7 +11,7 @@ namespace eeCCompiler.Nodes
             Identifiers = new List<Identifier>();
         }
 
-        public Refrence(Identifier identifier, Refrence refrence)
+        public Refrence(Refrence refrence, Identifier identifier)
         {
             Identifiers = refrence.Identifiers;
             Identifiers.Insert(0, identifier);

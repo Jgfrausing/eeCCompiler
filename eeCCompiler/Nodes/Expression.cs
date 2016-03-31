@@ -24,7 +24,7 @@ namespace eeCCompiler.Nodes
 
     public class ExpressionValOpExpr : AbstractSyntaxTree, IExpression
     {
-        public ExpressionValOpExpr(IValue value, Operator _operator, IExpression expression)
+        public ExpressionValOpExpr(IExpression expression, Operator _operator, IValue value)
         {
             Value = value;
             Operator = _operator;
@@ -108,7 +108,7 @@ namespace eeCCompiler.Nodes
 
     public class ExpressionParenOpExpr : AbstractSyntaxTree, IExpression
     {
-        public ExpressionParenOpExpr(IExpression expressionParen, Operator _operator, IExpression expression)
+        public ExpressionParenOpExpr(IExpression expression, Operator _operator, IExpression expressionParen)
         {
             ExpressionParen = expressionParen;
             Operator = _operator;

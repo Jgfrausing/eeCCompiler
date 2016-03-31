@@ -4,7 +4,7 @@ namespace eeCCompiler.Nodes
 {
     public class Constant : AbstractSyntaxTree
     {
-        public Constant(Identifier identifier, IConstantPart constantPart)
+        public Constant(IConstantPart constantPart, Identifier identifier)
         {
             Identifier = identifier;
             ConstantPart = constantPart;

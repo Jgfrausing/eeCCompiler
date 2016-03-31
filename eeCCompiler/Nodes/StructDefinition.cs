@@ -4,7 +4,7 @@ namespace eeCCompiler.Nodes
 {
     public class StructDefinition : AbstractSyntaxTree
     {
-        public StructDefinition(Identifier identifier, StructParts structParts)
+        public StructDefinition(StructParts structParts, Identifier identifier)
         {
             Identifier = identifier;
             StructParts = structParts;

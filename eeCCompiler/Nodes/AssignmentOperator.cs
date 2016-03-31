@@ -5,7 +5,5 @@ namespace eeCCompiler.Nodes
         public AssignmentOperator(Indexes.Indexes.SymbolIndex symbol) : base(symbol)
         {
         }
-
-        public string Operator { get; set; }
     }
 }

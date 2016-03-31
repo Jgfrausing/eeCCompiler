@@ -25,7 +25,7 @@ namespace eeCCompiler.Nodes
 
     public class FunctionDeclaration : AbstractSyntaxTree, IStructPart
     {
-        public FunctionDeclaration(TypeId typeId, TypeIdList parameters, Body body)
+        public FunctionDeclaration(Body body, TypeIdList parameters, TypeId typeId)
         {
             TypeId = typeId;
             Parameters = parameters;

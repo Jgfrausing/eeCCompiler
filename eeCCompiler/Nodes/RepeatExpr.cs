@@ -4,7 +4,7 @@ namespace eeCCompiler.Nodes
 {
     public class RepeatExpr : AbstractSyntaxTree, IBodypart
     {
-        public RepeatExpr(IExpression expression, Body body)
+        public RepeatExpr(Body body, IExpression expression)
         {
             Expression = expression;
             Body = body;
@@ -21,8 +21,8 @@ namespace eeCCompiler.Nodes
 
     public class RepeatFor : RepeatExpr
     {
-        public RepeatFor(VarDecleration varDecleration, Direction direction, IExpression expression, Body body)
-            : base(expression, body)
+        public RepeatFor(Body body, IExpression expression, Direction direction, VarDecleration varDecleration)
+            : base(body, expression)
         {
             VarDecleration = varDecleration;
             Direction = direction;

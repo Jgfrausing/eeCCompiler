@@ -4,7 +4,7 @@ namespace eeCCompiler.Nodes
 {
     public class VarDecleration : AbstractSyntaxTree, IBodypart, IStructPart
     {
-        public VarDecleration(Identifier identifier, AssignmentOperator assignmentOperator, IExpression expression)
+        public VarDecleration(IExpression expression, AssignmentOperator assignmentOperator, Identifier identifier)
         {
             Identifier = identifier;
             AssignmentOperator = assignmentOperator;

@@ -5,7 +5,7 @@ namespace eeCCompiler.Nodes
 {
     public class FuncCall : AbstractSyntaxTree, IExpression, IBodypart, IStructRefrence
     {
-        public FuncCall(Identifier identifier, List<IExpression> expressions)
+        public FuncCall(List<IExpression> expressions, Identifier identifier)
         {
             Identifier = identifier;
             Expressions = expressions;

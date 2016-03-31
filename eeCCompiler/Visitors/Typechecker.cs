@@ -102,8 +102,8 @@ namespace eeCCompiler.Visitors
                 IValue value = null;
                 if (Funcs.ContainsKey(funcCall.Identifier.Id))
                 {
-                    string valueType = Funcs[funcCall.Identifier.Id].TypeId.ValueType.ValueType;
-                    value = TypeChecker(valueType);
+                    //string valueType = Funcs[funcCall.Identifier.Id].TypeId.ValueType.ValueType;
+                    //value = TypeChecker(valueType);
                 }
                 else
                 {
@@ -348,7 +348,7 @@ namespace eeCCompiler.Visitors
                         FunctionDeclaration funcdecl = (structpart as FunctionDeclaration);
                         if (funcdecl.TypeId.Identifier.Id == (refrence.StructRefrence as FuncCall).Identifier.Id)
                         {
-                            value = TypeChecker(funcdecl.TypeId.ValueType.ValueType);
+                            //value = TypeChecker(funcdecl.TypeId.ValueType.ValueType);
                             break;
                         }
 
