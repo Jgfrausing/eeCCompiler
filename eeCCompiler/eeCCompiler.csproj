@@ -53,6 +53,8 @@
     <Compile Include="Interfaces\IExpression.cs" />
     <Compile Include="Interfaces\INodeElement.cs" />
     <Compile Include="Interfaces\IStructPart.cs" />
+    <Compile Include="Interfaces\IStructRefrence.cs" />
+    <Compile Include="Interfaces\IType.cs" />
     <Compile Include="Interfaces\IValue.cs" />
     <Compile Include="Nodes\AssignmentOperator.cs" />
     <Compile Include="Nodes\Constant.cs" />
@@ -66,7 +68,6 @@
     <Compile Include="Nodes\IfStatement.cs" />
     <Compile Include="Nodes\Include.cs" />
     <Compile Include="Nodes\Includes.cs" />
-    <Compile Include="Nodes\IStructRefrence.cs" />
     <Compile Include="Nodes\Refrence.cs" />
     <Compile Include="Nodes\RepeatExpr.cs" />
     <Compile Include="Nodes\Return.cs" />

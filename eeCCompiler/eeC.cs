@@ -230,7 +230,7 @@ internal class MyParser
 
             case Typeid_Id:
                 // <typeid> ::= <type> Id
-                result = new TypeId(Stack.Pop() as Type, Identifiers.Pop());
+                result = new TypeId(Stack.Pop() as IType, Identifiers.Pop());
                 break;
 
                 #endregion

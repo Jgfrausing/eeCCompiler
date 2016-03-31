@@ -2,7 +2,7 @@
 
 namespace eeCCompiler.Nodes
 {
-    public class Type : AbstractSyntaxTree
+    public class Type : AbstractSyntaxTree, IType
     {
         public Type(string type)
         {

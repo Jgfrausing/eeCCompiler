@@ -5,13 +5,13 @@ namespace eeCCompiler.Nodes
 {
     public class TypeId : AbstractSyntaxTree
     {
-        public TypeId(Type valueType, Identifier identifier)
+        public TypeId(IType valueType, Identifier identifier)
         {
             ValueType = valueType;
             Identifier = identifier;
         }
 
-        public Type ValueType { get; set; }
+        public IType ValueType { get; set; }
         public Identifier Identifier { get; set; }
 
         public override void Accept(IEecVisitor visitor)
@@ -37,9 +37,9 @@ namespace eeCCompiler.Nodes
 
         public override void Accept(IEecVisitor visitor)
         {
-            foreach (var Typeids in TypeIds)
+            foreach (var typeids in TypeIds)
             {
-                Typeids.Accept(visitor);
+                typeids.Accept(visitor);
             }
         }
     }
