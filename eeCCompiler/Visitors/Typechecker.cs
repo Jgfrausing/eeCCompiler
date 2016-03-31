@@ -12,13 +12,13 @@ namespace eeCCompiler.Visitors
         {
             Errors = errors;
             Identifiers = identifiers;
-            Funcs = new Dictionary<string, FunctionDeclaration>();
+            Funcs = new Dictionary<string, Function>();
             Structs = new Dictionary<string, StructDefinition>();
         }
 
         public List<string> Errors { get; set; }
         public Dictionary<string, IValue> Identifiers { get; set; }
-        public Dictionary<string, FunctionDeclaration> Funcs { get; set; }
+        public Dictionary<string, Function> Funcs { get; set; }
         public Dictionary<string, StructDefinition> Structs { get; set; }
 
         public IValue CheckExpression(IExpression expression)
@@ -32,15 +32,49 @@ namespace eeCCompiler.Visitors
                 if (exp.Value is Refrence)
                 {
                     var refrence = (exp.Value as Refrence);
-                    var id = (refrence.Identifiers[0].Id); //Har fat i structen
-                    if (Structs.ContainsKey(id))
+                    if (refrence.Identifiers.Count == 0)
                     {
-                        value = StructRefrenceChecker(refrence);
+                        if (refrence.StructRefrence is FuncCall)
+                        {
+                            if (Funcs.ContainsKey((refrence.StructRefrence as FuncCall).Identifier.Id))
+                                value = Funcs[(refrence.StructRefrence as FuncCall).Identifier.Id].Value;
+                            else
+                            {
+                                Errors.Add((refrence.StructRefrence as FuncCall).Identifier.Id + " function does not exist");
+                                value = new UnInitialisedVariable();
+                            }
+                        }
+                        else
+                        {
+                            if (Identifiers.ContainsKey((refrence.StructRefrence as Identifier).Id))
+                                value = Identifiers[(refrence.StructRefrence as Identifier).Id];
+                            else
+                            {
+                                Errors.Add((refrence.StructRefrence as Identifier).Id + " was not declared before use");
+                                value = new UnInitialisedVariable();
+                            }
+                                
+                        }    
                     }
                     else
                     {
-                        value = new UnInitialisedVariable();
-                        Errors.Add(id + " Reference was not initialised before use");
+                        var id = (refrence.Identifiers[0].Id); //Har fat i structen
+                        if (Identifiers.ContainsKey(id))
+                        {
+                            if (Identifiers[id] is StructValue)
+                            {
+                                value = StructRefrenceChecker(refrence);
+                            }
+                            else
+                            {
+                                Errors.Add((refrence.Identifiers[0].Id + " is not of struct"));
+                            }
+                        }
+                        else
+                        {
+                            value = new UnInitialisedVariable();
+                            Errors.Add(id + " Reference was not initialised before use");
+                        }
                     }
                 }
                 else
@@ -102,7 +136,7 @@ namespace eeCCompiler.Visitors
                 IValue value = null;
                 if (Funcs.ContainsKey(funcCall.Identifier.Id))
                 {
-                    string valueType = Funcs[funcCall.Identifier.Id].TypeId.ValueType.ValueType;
+                    string valueType = Funcs[funcCall.Identifier.Id].FuncDecl.TypeId.ValueType.ValueType;
                     value = TypeChecker(valueType);
                 }
                 else
@@ -132,6 +166,17 @@ namespace eeCCompiler.Visitors
                 Structs.Add(structDefinition.Identifier.Id, structDefinition);
             else
                 Errors.Add(structDefinition.Identifier.Id + " was declared twice");
+        }
+
+        public override void Visit(StructDecleration structDecleration)
+        {
+            if (!(Identifiers.ContainsKey(structDecleration.Identifier.Id)))
+                Identifiers.Add(structDecleration.Identifier.Id, new StructValue(Structs[structDecleration.StructIdentifier.Id]));
+            else if (!(Identifiers[structDecleration.Identifier.Id] is StructValue))
+                Errors.Add(structDecleration.Identifier.Id + " is not of type " + structDecleration.StructIdentifier.Id);
+            else if (!((Identifiers[structDecleration.Identifier.Id] as StructValue).Struct.Identifier.Id == Structs[structDecleration.StructIdentifier.Id].Identifier.Id))
+                Errors.Add(structDecleration.Identifier.Id + " is not of type " + structDecleration.StructIdentifier.Id);
+            base.Visit(structDecleration);
         }
 
         public override void Visit(ExpressionNegate expressionNegate)
@@ -233,6 +278,20 @@ namespace eeCCompiler.Visitors
             Identifiers = preBodyIdentifiers;
         }
 
+        public override void Visit(FunctionDeclaration functionDeclaration)
+        {
+            if (!(Funcs.ContainsKey(functionDeclaration.TypeId.Identifier.Id)))
+            {
+                IValue Value = TypeChecker(functionDeclaration.TypeId.ValueType.ValueType);
+                bool returnFound = ReturnChecker(Value, functionDeclaration.Body.Bodyparts);
+                if (returnFound == false)
+                    Errors.Add("not all paths in " + functionDeclaration.TypeId.Identifier.Id + " return a value");
+                Funcs.Add(functionDeclaration.TypeId.Identifier.Id, new Function(functionDeclaration, TypeChecker(functionDeclaration.TypeId.ValueType.ValueType)));
+            }
+            else
+                Errors.Add(functionDeclaration.TypeId.Identifier.Id + " was declared twice");
+        }
+
         #endregion
 
         #region Private checker metoder
@@ -246,7 +305,6 @@ namespace eeCCompiler.Visitors
                      opr.Symbol == Indexes.Indexes.SymbolIndex.Times ||
                      opr.Symbol == Indexes.Indexes.SymbolIndex.Mod);
         }
-
         private bool BoolChecker(IValue value, Operator opr)
         {
             return value is BoolValue &&
@@ -286,7 +344,6 @@ namespace eeCCompiler.Visitors
             }
             return value;
         }
-
         private IValue OprChecker(IValue value1, IValue value2, Operator opr, Type expressionType)
         {
             if (value1 == null || value2 == null || value1.GetType().Name == "UnInitialisedVariable" || value2.GetType().Name == "UnInitialisedVariable")
@@ -323,9 +380,10 @@ namespace eeCCompiler.Visitors
         {
             IValue value = new UnInitialisedVariable();
             var id = (refrence.Identifiers[0].Id);
+            var structType = (Identifiers[id] as StructValue).Struct.Identifier.Id;
             if (refrence.StructRefrence is Identifier)
             {
-                foreach (var structpart in Structs[id].StructParts.StructPartList)
+                foreach (var structpart in Structs[structType].StructParts.StructPartList)
                 {
                     if (structpart is VarDecleration)
                     {
@@ -341,7 +399,7 @@ namespace eeCCompiler.Visitors
             }
             else
             {
-                foreach (var structpart in Structs[id].StructParts.StructPartList)
+                foreach (var structpart in Structs[structType].StructParts.StructPartList)
                 {
                     if (structpart is FunctionDeclaration)
                     {
@@ -364,6 +422,40 @@ namespace eeCCompiler.Visitors
 
             return value;
         }
+        private bool IfChecker(IValue value, IfStatement ifStatement)
+        {
+            bool returnFound = ReturnChecker(value, ifStatement.Body.Bodyparts);
+            bool returnFound2 = true;
+            if (!(ifStatement.ElseStatement is IfStatement))
+                returnFound2 = ReturnChecker(value, ifStatement.ElseStatement.Body.Bodyparts);
+            else
+                returnFound2 = IfChecker(value, ifStatement.ElseStatement as IfStatement);
+
+            if (returnFound == false || returnFound2 == false)
+                return false;
+
+            return true;    
+        }
+        private bool ReturnChecker(IValue value, List<IBodypart> bodyParts)
+        {
+            bool returnFound = false;
+            foreach (var bp in bodyParts)
+            {
+                if (bp is IfStatement)
+                {
+                    returnFound = IfChecker(value, bp as IfStatement);
+                }
+                else if (bp is Return)
+                {
+                    string type1 = value.GetType().Name;
+                    string type2 = CheckExpression((bp as Return).Expression).GetType().Name;
+                    returnFound = true;
+                    if (type1 != type2)
+                        Errors.Add("return value of " + "!!!LAVDET!!!" + " is not valid");
+                }
+            }
+            return returnFound;
+        }
 
         #endregion
     }
@@ -378,12 +470,26 @@ namespace eeCCompiler.Visitors
     {
         public StructValue(StructDefinition identifier)
         {
-            this.Identifier = identifier;
+            this.Struct = identifier;
         }
-        public StructDefinition Identifier { get; set; }
+        public StructDefinition Struct { get; set; }
         public void Accept(IEecVisitor visitor)
         {
             //Skal aldrig accepteres så bliver aldrig kaldt (y)
+        }
+    }
+    public class Function : IValue
+    {
+        public Function(FunctionDeclaration func, IValue value)
+        {
+            FuncDecl = func;
+            Value = value;
+        }
+        public IValue Value { get; set; }
+        public FunctionDeclaration FuncDecl { get; set; }
+        public void Accept(IEecVisitor visitor)
+        {
+            //bliver aldrig kaldt
         }
     }
 }
