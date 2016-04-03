@@ -3,7 +3,7 @@ using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    public class FuncCall : AbstractSyntaxTree, IExpression, IBodypart, IStructRefrence
+    public class FuncCall : AbstractSyntaxTree, IExpression, IBodypart, IStructRefrence, IValue
     {
         public FuncCall(List<IExpression> expressions, Identifier identifier)
         {

@@ -13,11 +13,7 @@ using Type = eeCCompiler.Nodes.Type;
 internal class MyParser
 {
     private readonly Parser _parser = new Parser();
-
-    public readonly List<AbstractSyntaxTree> List = new List<AbstractSyntaxTree>(); //Is public for debugging only
-    public readonly Stack<AbstractSyntaxTree> ReductionStack = new Stack<AbstractSyntaxTree>(); //Is public for debugging only
-    public readonly Stack<Identifier> IdentifierStack = new Stack<Identifier>(); //Is public for debugging only
-    //public readonly Stack<IValue> ValueStack = new Stack<IValue>(); //Is public for debugging only
+    private readonly Stack<AbstractSyntaxTree> _reductionStack = new Stack<AbstractSyntaxTree>(); //Is public for debugging only
 
     public Root Root;
 
@@ -35,7 +31,6 @@ internal class MyParser
         var accepted = false; //Was the parse successful?
 
         _parser.Open(reader);
-        _parser.TrimReductions = false; //Please read about this feature before enabling  
 
         var done = false;
         while (!done)
@@ -47,21 +42,18 @@ internal class MyParser
                 case ParseMessage.Reduction:
                     //Create a customized object to store the reduction
                     var currentReduction = CreateNewObject(_parser.CurrentReduction as Reduction);
-                    if (currentReduction != null)
-                        ReductionStack.Push(currentReduction);
-                    List.Add(currentReduction); //For debuging
+                    _reductionStack.Push(currentReduction);
                     break;
 
                 case ParseMessage.Accept:
                     //Accepted!
-                    Root = ReductionStack.Pop() as Root;
+                    Root = _reductionStack.Pop() as Root;
                     done = true;
                     accepted = true;
                     break;
 
                 case ParseMessage.TokenRead:
-                    //Checkes token for Identifier
-                    CheckToken();
+                    //Reads tokens
                     break;
 
                     #region Errors
@@ -94,15 +86,9 @@ internal class MyParser
                     #endregion
             }
         } //while
-        if (List.Contains(null) || ReductionStack.Count != 0)
+        if (_reductionStack.Count != 0)
             accepted = false; //A reduction returned null or was handled wrong (Compiler error - NOT input error)
         return accepted;
-    }
-
-    private void CheckToken()
-    {
-        if(_parser.CurrentToken().Parent.ToString()=="Id")
-            IdentifierStack.Push(new Identifier(_parser.CurrentToken().Data.ToString()));
     }
 
     private AbstractSyntaxTree CreateNewObject(Reduction r)
@@ -139,7 +125,7 @@ internal class MyParser
 
             case Program_Program_Lbrace_Rbrace:
                 // <Program> ::= <consts> <struct_defs> program '{' <body> '}' <Func_decls>
-                result = new Root(ReductionStack.Pop() as FunctionDeclarations, ReductionStack.Pop() as Body, ReductionStack.Pop() as StructDefinitions, ReductionStack.Pop() as ConstantDefinitions, ReductionStack.Pop() as Includes);
+                result = new Root(_reductionStack.Pop() as FunctionDeclarations, _reductionStack.Pop() as Body, _reductionStack.Pop() as StructDefinitions, _reductionStack.Pop() as ConstantDefinitions, _reductionStack.Pop() as Includes);
                 break;
 
                 #endregion
@@ -148,8 +134,8 @@ internal class MyParser
 
             case Includes_Include:
                 // <includes> ::= include <include> <includes>
-                var includes = ReductionStack.Pop() as Includes;
-                includes.IncludeList.Insert(0, ReductionStack.Pop() as Include);
+                var includes = _reductionStack.Pop() as Includes;
+                includes.IncludeList.Insert(0, _reductionStack.Pop() as Include);
                 result = includes;
                 break;
 
@@ -160,14 +146,14 @@ internal class MyParser
 
             case Include_Id_Dot:
                 // <include> ::= Id '.' <include>
-                var include = ReductionStack.Pop() as Include;
-                include.Identifiers.Insert(0, IdentifierStack.Pop());
+                var include = _reductionStack.Pop() as Include;
+                include.Identifiers.Insert(0, new Identifier(r.get_Data(0).ToString()));
                 result = include;
                 break;
 
             case Include_Id:
                 // <include> ::= Id 
-                result = new Include(new List<Identifier>() { IdentifierStack.Pop()});
+                result = new Include(new List<Identifier>() { new Identifier(r.get_Data(0).ToString())});
                 break;
 
                 #endregion
@@ -186,7 +172,7 @@ internal class MyParser
 
             case Const_Const_Id_Semi:
                 // <const> ::= const Id <const_part> ';'
-                result = new Constant(ReductionStack.Pop() as IConstantPart, IdentifierStack.Pop());
+                result = new Constant(_reductionStack.Pop() as IConstantPart, new Identifier(r.get_Data(1).ToString()));
                 break;
 
                 #endregion
@@ -205,7 +191,7 @@ internal class MyParser
 
             case Func_decl_Lparen_Rparen_Lbrace_Rbrace:
                 // <func_decl> ::= <typeid> '(' <typeid_list> ')' '{' <body> '}'
-                result = new FunctionDeclaration(ReductionStack.Pop() as Body, ReductionStack.Pop() as TypeIdList, ReductionStack.Pop() as TypeId);
+                result = new FunctionDeclaration(_reductionStack.Pop() as Body, _reductionStack.Pop() as TypeIdList, _reductionStack.Pop() as TypeId);
                 break;
 
                 #endregion
@@ -231,7 +217,7 @@ internal class MyParser
 
             case Typeid_Id:
                 // <typeid> ::= <type> Id
-                result = new TypeId(IdentifierStack.Pop(), ReductionStack.Pop() as IType);
+                result = new TypeId(new Identifier(r.get_Data(1).ToString()), _reductionStack.Pop() as IType);
                 break;
 
                 #endregion
@@ -250,7 +236,7 @@ internal class MyParser
 
             case @Var_decl_Id:
                 // <var_decl> ::= Id <assign_opr> <expr>
-                result = new VarDecleration(ReductionStack.Pop() as IExpression, ReductionStack.Pop() as AssignmentOperator, IdentifierStack.Pop());
+                result = new VarDecleration(_reductionStack.Pop() as IExpression, _reductionStack.Pop() as AssignmentOperator, new Identifier(r.get_Data(0).ToString()));
                 break;
 
                 #endregion
@@ -259,7 +245,6 @@ internal class MyParser
 
             case Struct_decl_Id_Id_Lbrace_Rbrace:
                 // <struct_decl> ::= Id <assign_opr> Id '{' <var_decls> '}'
-                result = new StructDecleration(ReductionStack.Pop() as VarDeclerations, IdentifierStack.Pop(), ReductionStack.Pop() as AssignmentOperator, IdentifierStack.Pop());
                 break;
 
             case Struct_defs:
@@ -274,7 +259,6 @@ internal class MyParser
 
             case Struct_def_Struct_Id_Lbrace_Rbrace:
                 // <struct_def> ::= struct Id '{' <struct_parts> '}'
-                result = new StructDefinition(ReductionStack.Pop() as StructParts, IdentifierStack.Pop());
                 break;
 
             case Struct_parts_Semi:
@@ -401,7 +385,7 @@ internal class MyParser
 
             case Type_Id:
                 // <type> ::= Id
-                result = IdentifierStack.Pop();
+                result = new Identifier(r.get_Data(0).ToString());
                 break;
 
             #endregion
@@ -436,22 +420,22 @@ internal class MyParser
 
             case Value:
                 // <value> ::= <refrence>
-                result = ReductionStack.Pop();
+                result = _reductionStack.Pop();
                 break;
 
             case Indexes.ProductionIndex.Refrence:
                 // <refrence> ::= <func_call>
-                result = new Refrence(ReductionStack.Pop() as IStructRefrence);
+                result = new Refrence(_reductionStack.Pop() as IStructRefrence);
                 break;
 
             case Refrence_Id:
                 // <refrence> ::= Id
-                result = IdentifierStack.Pop();
+                result = new Identifier(r.get_Data(0).ToString());
                 break;
 
             case Refrence_Id_Dot:
                 // <refrence> ::= Id '.' <refrence>
-                result = new Refrence(ReductionStack.Pop() as Refrence, IdentifierStack.Pop());
+                result = new Refrence(_reductionStack.Pop() as Refrence, new Identifier(r.get_Data(0).ToString()));
                 break;
 
                 #endregion
@@ -472,27 +456,27 @@ internal class MyParser
             case Bodypart_Semi:
                 // <bodypart> ::= <var_decl> ';'
 
-                result = ReductionStack.Pop();
+                result = _reductionStack.Pop();
                 break;
 
             case Bodypart_Semi2:
                 // <bodypart> ::= <struct_decl> ';'
-                result = ReductionStack.Pop();
+                result = _reductionStack.Pop();
                 break;
 
             case Bodypart_Semi3:
                 // <bodypart> ::= <func_call> ';'
-                result = ReductionStack.Pop();
+                result = _reductionStack.Pop();
                 break;
 
             case Bodypart:
                 // <bodypart> ::= <ctrl_stmt>
-                result = ReductionStack.Pop();
+                result = _reductionStack.Pop();
                 break;
 
             case Bodypart_Return_Semi:
                 // <bodypart> ::= return <expr> ';'
-                result = new Return(ReductionStack.Pop() as IExpression);
+                result = new Return(_reductionStack.Pop() as IExpression);
                 break;
 
                 #endregion
@@ -501,32 +485,31 @@ internal class MyParser
 
             case Expr:
                 // <expr> ::= <value> <operator> <expr>
-                result = new ExpressionValOpExpr(ReductionStack.Pop() as IExpression, ReductionStack.Pop() as Operator, ReductionStack.Pop() as IValue);
+                result = new ExpressionValOpExpr(_reductionStack.Pop() as IExpression, _reductionStack.Pop() as Operator, _reductionStack.Pop() as IValue);
                 break;
 
             case Expr2:
                 // <expr> ::= <value>
-                result = new ExpressionVal(ReductionStack.Pop() as IValue);
                 break;
 
             case Expr_Lparen_Rparen:
                 // <expr> ::= '(' <expr> ')'
-                result = new ExpressionParen(ReductionStack.Pop() as IExpression);
+                result = new ExpressionParen(_reductionStack.Pop() as IExpression);
                 break;
 
             case Expr_Minus:
                 // <expr> ::= '-' <expr>
-                result = new ExpressionMinus(ReductionStack.Pop() as IExpression);
+                result = new ExpressionMinus(_reductionStack.Pop() as IExpression);
                 break;
 
             case Expr_Lparen_Rparen2:
                 // <expr> ::= '(' <expr> ')' <operator> <expr>
-                result = new ExpressionParenOpExpr(ReductionStack.Pop() as IExpression, ReductionStack.Pop() as Operator, ReductionStack.Pop() as IExpression);
+                result = new ExpressionParenOpExpr(_reductionStack.Pop() as IExpression, _reductionStack.Pop() as Operator, _reductionStack.Pop() as IExpression);
                 break;
 
             case Expr_Exclam:
                 // <expr> ::= '!' <expr>
-                result = new ExpressionNegate(ReductionStack.Pop() as IExpression);
+                result = new ExpressionNegate(_reductionStack.Pop() as IExpression);
                 break;
 
             case Expr_list:
@@ -557,7 +540,7 @@ internal class MyParser
 
             case If_exp_Else_If_Lbrace_Rbrace:
                 // <if_exp> ::= else if <expr> '{' <body> '}' <if_exp>
-                result = new IfStatement(ReductionStack.Pop() as ElseStatement, ReductionStack.Pop() as Body, ReductionStack.Pop() as IExpression);
+                result = new IfStatement(_reductionStack.Pop() as ElseStatement, _reductionStack.Pop() as Body, _reductionStack.Pop() as IExpression);
                 break;
 
             case Ctrl_stmt_Repeat_Lbrace_Rbrace:
@@ -566,17 +549,17 @@ internal class MyParser
 
             case Ctrl_stmt_Repeat_Lparen_Rparen_Lbrace_Rbrace:
                 // <ctrl_stmt> ::= repeat '(' <var_decl> <direction> <expr> ')' '{' <body> '}'
-                result = new RepeatFor(ReductionStack.Pop() as Body, ReductionStack.Pop() as IExpression, ReductionStack.Pop() as Direction, ReductionStack.Pop() as VarDecleration);
+                result = new RepeatFor(_reductionStack.Pop() as Body, _reductionStack.Pop() as IExpression, _reductionStack.Pop() as Direction, _reductionStack.Pop() as VarDecleration);
                 break;
 
             case @Ctrl_stmt_Repeat_Lbrace_Rbrace2:
                 // <ctrl_stmt> ::= repeat <expr> '{' Body '}'
-                result = new RepeatExpr(ReductionStack.Pop() as Body, ReductionStack.Pop() as IExpression);
+                result = new RepeatExpr(_reductionStack.Pop() as Body, _reductionStack.Pop() as IExpression);
                 break;
 
             case If_exp_Else_Lbrace_Rbrace:
                 // <if_exp> ::= else '{' <body> '}'
-                result = new ElseStatement(ReductionStack.Pop() as Body);
+                result = new ElseStatement(_reductionStack.Pop() as Body);
                 break;
 
             case If_exp:
@@ -604,7 +587,7 @@ internal class MyParser
 
             case Func_call_Id_Lparen_Rparen:
                 // <func_call> ::= Id '(' <expr_list> ')'
-                result = new FuncCall((ReductionStack.Pop() as ExpressionList).Expressions, IdentifierStack.Pop());
+                result = new FuncCall((_reductionStack.Pop() as ExpressionList).Expressions, new Identifier(r.get_Data(0).ToString()));
                 break;
 
                 #endregion
@@ -615,63 +598,63 @@ internal class MyParser
 
     private AbstractSyntaxTree CreateFunctionDeclarationList()
     {
-        var funcDecls = ReductionStack.Pop() as FunctionDeclarations;
-        funcDecls.FunctionDeclaration.Insert(0, ReductionStack.Pop() as FunctionDeclaration);
+        var funcDecls = _reductionStack.Pop() as FunctionDeclarations;
+        funcDecls.FunctionDeclaration.Insert(0, _reductionStack.Pop() as FunctionDeclaration);
 
         return funcDecls;
     }
 
     private AbstractSyntaxTree CreateTypeIdList()
     {
-        var typeIds = ReductionStack.Pop() as TypeIdList;
-        typeIds.TypeIds.Insert(0, ReductionStack.Pop() as TypeId);
+        var typeIds = _reductionStack.Pop() as TypeIdList;
+        typeIds.TypeIds.Insert(0, _reductionStack.Pop() as TypeId);
 
         return typeIds;
     }
 
     private AbstractSyntaxTree CreateVarDeclerations()
     {
-        var varDecls = ReductionStack.Pop() as VarDeclerations;
-        varDecls.VarDeclerationList.Insert(0, ReductionStack.Pop() as VarDecleration);
+        var varDecls = _reductionStack.Pop() as VarDeclerations;
+        varDecls.VarDeclerationList.Insert(0, _reductionStack.Pop() as VarDecleration);
 
         return varDecls;
     }
 
     private AbstractSyntaxTree CreateStructDefinitions()
     {
-        var structDefs = ReductionStack.Pop() as StructDefinitions;
-        structDefs.Definitions.Insert(0, ReductionStack.Pop() as StructDefinition);
+        var structDefs = _reductionStack.Pop() as StructDefinitions;
+        structDefs.Definitions.Insert(0, _reductionStack.Pop() as StructDefinition);
 
         return structDefs;
     }
 
     private AbstractSyntaxTree CreateStructParts()
     {
-        var structParts = ReductionStack.Pop() as StructParts;
-        structParts.StructPartList.Insert(0, ReductionStack.Pop() as IStructPart);
+        var structParts = _reductionStack.Pop() as StructParts;
+        structParts.StructPartList.Insert(0, _reductionStack.Pop() as IStructPart);
         
         return structParts;
     }
 
     private AbstractSyntaxTree CreateBody()
     {
-        var body = ReductionStack.Pop() as Body;
-        body.Bodyparts.Insert(0, ReductionStack.Pop() as IBodypart);
+        var body = _reductionStack.Pop() as Body;
+        body.Bodyparts.Insert(0, _reductionStack.Pop() as IBodypart);
         
         return body;
     }
 
     private AbstractSyntaxTree CreateConstants()
     {
-        var constants = ReductionStack.Pop() as ConstantDefinitions;
-        constants.ConstantList.Insert(0, ReductionStack.Pop() as Constant);
+        var constants = _reductionStack.Pop() as ConstantDefinitions;
+        constants.ConstantList.Insert(0, _reductionStack.Pop() as Constant);
         return constants;
     }
 
     private AbstractSyntaxTree CreateExpressionList()
     {
-        var exprs = ReductionStack.Pop() as ExpressionList;
-        exprs.Expressions.Insert(0, ReductionStack.Pop() as IExpression);
+        var exprs = _reductionStack.Pop() as ExpressionList;
+        exprs.Expressions.Insert(0, _reductionStack.Pop() as IExpression);
 
         return exprs;
     }

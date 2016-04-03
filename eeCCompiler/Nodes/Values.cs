@@ -2,7 +2,7 @@
 
 namespace eeCCompiler.Nodes
 {
-    public class BoolValue : AbstractSyntaxTree, IValue, IConstantPart
+    public class BoolValue : AbstractSyntaxTree, IValue, IConstantPart, IExpression
     {
         public BoolValue(bool value)
         {
@@ -22,7 +22,7 @@ namespace eeCCompiler.Nodes
         }
     }
 
-    public class StringValue : AbstractSyntaxTree, IValue, IConstantPart
+    public class StringValue : AbstractSyntaxTree, IValue, IConstantPart, IExpression
     {
         public StringValue(string value)
         {
@@ -42,7 +42,7 @@ namespace eeCCompiler.Nodes
         }
     }
 
-    public class NumValue : AbstractSyntaxTree, IValue, IConstantPart
+    public class NumValue : AbstractSyntaxTree, IValue, IConstantPart, IExpression
     {
         public NumValue(double value)
         {
