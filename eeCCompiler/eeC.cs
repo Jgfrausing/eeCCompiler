@@ -31,6 +31,7 @@ internal class MyParser
         var accepted = false; //Was the parse successful?
 
         _parser.Open(reader);
+        _parser.TrimReductions = false; //Ommits reduntant reductions
 
         var done = false;
         while (!done)
@@ -245,6 +246,7 @@ internal class MyParser
 
             case Struct_decl_Id_Id_Lbrace_Rbrace:
                 // <struct_decl> ::= Id <assign_opr> Id '{' <var_decls> '}'
+                result = new StructDecleration(_reductionStack.Pop() as VarDeclerations, new Identifier(r.get_Data(2).ToString()), _reductionStack.Pop() as AssignmentOperator, new Identifier(r.get_Data(0).ToString()));
                 break;
 
             case Struct_defs:
@@ -259,6 +261,7 @@ internal class MyParser
 
             case Struct_def_Struct_Id_Lbrace_Rbrace:
                 // <struct_def> ::= struct Id '{' <struct_parts> '}'
+                result = new StructDefinition(_reductionStack.Pop() as StructParts, new Identifier(r.get_Data(1).ToString()));
                 break;
 
             case Struct_parts_Semi:
@@ -490,6 +493,7 @@ internal class MyParser
 
             case Expr2:
                 // <expr> ::= <value>
+                result = new ExpressionVal(_reductionStack.Pop() as IValue);
                 break;
 
             case Expr_Lparen_Rparen:
