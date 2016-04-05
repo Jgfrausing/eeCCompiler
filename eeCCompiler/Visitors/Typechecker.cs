@@ -21,10 +21,12 @@ namespace eeCCompiler.Visitors
         public Dictionary<string, Function> Funcs { get; set; }
         public Dictionary<string, StructDefinition> Structs { get; set; }
 
+
         public IValue CheckExpression(IExpression expression)
         {
             var expressionType = expression.GetType();
 
+            #region ExpressionVal
             if (expression is ExpressionVal)
             {
                 var exp = expression as ExpressionVal;
@@ -77,29 +79,39 @@ namespace eeCCompiler.Visitors
                         }
                     }
                 }
+                
+                
+                else if (exp.Value is Identifier)
+                {
+                    if (Identifiers.ContainsKey((exp.Value as Identifier).Id))
+                        value = Identifiers[(exp.Value as Identifier).Id];
+                    else
+                        value = new UnInitialisedVariable(); 
+                }
                 else
                     value = exp.Value;
                 return value;
             }
-            if (expression is ExpressionParen)
+            #endregion
+            else if (expression is ExpressionParen)
             {
                 return CheckExpression((expression as ExpressionParen).Expression);
             }
-            if (expression is ExpressionNegate)
+            else if (expression is ExpressionNegate)
             {
                 var value = CheckExpression((expression as ExpressionNegate).Expression);
                 if (!(value is BoolValue) && !(value is UnInitialisedVariable))
                     Errors.Add(expressionType.Name + " tried with " + value.GetType().Name);
                 return value;
             }
-            if (expression is ExpressionMinus)
+            else if (expression is ExpressionMinus)
             {
                 var value = CheckExpression((expression as ExpressionMinus).Expression);
                 if (!(value is NumValue) && !(value is UnInitialisedVariable))
                     Errors.Add(expressionType.Name + " with " + value.GetType().Name);
                 return value;
             }
-            if (expression is ExpressionValOpExpr)
+            else if (expression is ExpressionValOpExpr)
             {
                 var expressionValOpExpr = expression as ExpressionValOpExpr;
                 IValue value1 = null;
@@ -120,7 +132,7 @@ namespace eeCCompiler.Visitors
                 return OprChecker(value1, CheckExpression(expressionValOpExpr.Expression), expressionValOpExpr.Operator,
                     expressionType);
             }
-            if (expression is ExpressionParenOpExpr)
+            else if (expression is ExpressionParenOpExpr)
             {
                 var expressionParenOpExpr = expression as ExpressionParenOpExpr;
 
@@ -129,7 +141,7 @@ namespace eeCCompiler.Visitors
 
                 return OprChecker(value1, value2, expressionParenOpExpr.Operator, expressionType);
             }
-            if (expression is FuncCall)
+            else if (expression is FuncCall)
             {
                 //Check om input matcher det som er deklaræret
                 var funcCall = expression as FuncCall;
@@ -150,7 +162,8 @@ namespace eeCCompiler.Visitors
                 }
                 return value; // TODO ikke færdig not sure here.
             }
-            return new NumValue(2.0); //Burde vi aldrig nå tror jeg
+            Errors.Add("FATAL ERROR IN COMPILER EXPRESSION NOT CAUGHT IN TYPECHECKER");
+            return new UnInitialisedVariable(); //Burde vi aldrig nå tror jeg
         }
 
         #region Visits
@@ -296,6 +309,31 @@ namespace eeCCompiler.Visitors
                 Errors.Add(functionDeclaration.TypeId.Identifier.Id + " was declared twice");
         }
 
+        public override void Visit(IfStatement ifStatement)
+        {
+            if (!(CheckExpression(ifStatement.Expression) is BoolValue))
+                Errors.Add("if statements expects bool but got " + CheckExpression(ifStatement.Expression).GetType().Name);
+            Visit(ifStatement.Body);
+            Visit(ifStatement.ElseStatement);
+        }
+        public override void Visit(RepeatExpr repeatExpr)
+        {
+            if (!(CheckExpression(repeatExpr.Expression) is BoolValue))
+                Errors.Add("repeats expects a bool but got " + CheckExpression(repeatExpr.Expression).GetType().Name);
+            Visit(repeatExpr.Body);
+        }
+        public override void Visit(RepeatFor repeatFor)
+        {
+            Visit(repeatFor.VarDecleration);
+
+            if (!(Identifiers[repeatFor.VarDecleration.Identifier.Id] is NumValue))
+                Errors.Add(Identifiers[repeatFor.VarDecleration.Identifier.Id] + " was expected to be a num value, but was instead " + Identifiers[repeatFor.VarDecleration.Identifier.Id].GetType().Name);
+            if (!(CheckExpression(repeatFor.Expression) is NumValue))
+                Errors.Add("Expected NumValue in repeat expression but got " + CheckExpression(repeatFor.Expression).GetType().Name);
+
+            Visit(repeatFor.Direction);
+            Visit(repeatFor.Body);
+        }
         #endregion
 
         #region Private checker metoder

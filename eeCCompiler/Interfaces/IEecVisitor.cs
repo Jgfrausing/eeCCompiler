@@ -20,6 +20,7 @@ namespace eeCCompiler.Interfaces
         void Visit(ExpressionList expressionList);
         void Visit(StructDecleration structDecleration);
         void Visit(RepeatExpr repeatExpr);
+        void Visit(RepeatFor repeatFor);
         void Visit(Type type);
         void Visit(StringValue stringValue);
         void Visit(Operator operate);
