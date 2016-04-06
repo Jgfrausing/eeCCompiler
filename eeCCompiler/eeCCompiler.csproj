@@ -68,6 +68,8 @@
     <Compile Include="Nodes\IfStatement.cs" />
     <Compile Include="Nodes\Include.cs" />
     <Compile Include="Nodes\Includes.cs" />
+    <Compile Include="Nodes\ListIndex.cs" />
+    <Compile Include="Nodes\Ref.cs" />
     <Compile Include="Nodes\Refrence.cs" />
     <Compile Include="Nodes\RepeatExpr.cs" />
     <Compile Include="Nodes\Return.cs" />
