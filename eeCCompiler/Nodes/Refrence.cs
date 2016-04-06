@@ -8,17 +8,23 @@ namespace eeCCompiler.Nodes
         public Refrence(IStructRefrence structRefrence)
         {
             StructRefrence = structRefrence;
-            Identifiers = new List<Identifier>();
+            Identifiers = new List<IIdentifier>();
         }
 
-        public Refrence(Refrence refrence, Identifier identifier)
+        public Refrence(Refrence refrence, IIdentifier identifier)
         {
             Identifiers = refrence.Identifiers;
             Identifiers.Insert(0, identifier);
             StructRefrence = refrence.StructRefrence;
         }
+        public Refrence(Refrence refrence, ListIndex index, Identifier identifier)
+        {
+            Identifiers.Insert(0,identifier);
+            Identifiers.Insert(0, index);
+            StructRefrence = refrence.StructRefrence;
+        }
 
-        public List<Identifier> Identifiers { get; set; }
+        public List<IIdentifier> Identifiers { get; set; }
         public IStructRefrence StructRefrence { get; set; }
 
         public override void Accept(IEecVisitor visitor)

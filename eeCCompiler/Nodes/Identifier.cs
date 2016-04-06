@@ -2,7 +2,7 @@
 
 namespace eeCCompiler.Nodes
 {
-    public class Identifier : AbstractSyntaxTree, IValue, IStructRefrence, IType, IExpression
+    public class Identifier : AbstractSyntaxTree, IValue, IStructRefrence, IType, IExpression, IIdentifier
     {
         public Identifier(string id)
         {
@@ -20,5 +20,9 @@ namespace eeCCompiler.Nodes
         {
             return Id;
         }
+    }
+
+    public interface IIdentifier
+    {
     }
 }

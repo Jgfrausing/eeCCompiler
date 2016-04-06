@@ -141,6 +141,16 @@ namespace eeCCompiler.Visitors
             }
         }
 
+        public void Visit(ListIndex expressionParenOpExpr)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Visit(Ref expressionParenOpExpr)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public virtual void Visit(FunctionDeclaration functionDeclaration)
         {
             functionDeclaration.TypeId.Accept(this);
