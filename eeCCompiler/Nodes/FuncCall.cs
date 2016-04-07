@@ -5,14 +5,14 @@ namespace eeCCompiler.Nodes
 {
     public class FuncCall : AbstractSyntaxTree, IExpression, IBodypart, IStructRefrence, IValue
     {
-        public FuncCall(List<IExpression> expressions, Identifier identifier)
+        public FuncCall(List<IExprListElement> expressions, Identifier identifier)
         {
             Identifier = identifier;
             Expressions = expressions;
         }
 
         public Identifier Identifier { get; set; }
-        public List<IExpression> Expressions { get; set; }
+        public List<IExprListElement> Expressions { get; set; }
 
         public override void Accept(IEecVisitor visitor)
         {

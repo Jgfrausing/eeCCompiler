@@ -51,10 +51,13 @@
     <Compile Include="Interfaces\IBodypart.cs" />
     <Compile Include="Interfaces\IEecVisitor.cs" />
     <Compile Include="Interfaces\IExpression.cs" />
+    <Compile Include="Interfaces\IExprListElement.cs" />
+    <Compile Include="Interfaces\IIdentifier.cs" />
     <Compile Include="Interfaces\INodeElement.cs" />
     <Compile Include="Interfaces\IStructPart.cs" />
     <Compile Include="Interfaces\IStructRefrence.cs" />
     <Compile Include="Interfaces\IType.cs" />
+    <Compile Include="Interfaces\ITypeId.cs" />
     <Compile Include="Interfaces\IValue.cs" />
     <Compile Include="Nodes\AssignmentOperator.cs" />
     <Compile Include="Nodes\Constant.cs" />
@@ -68,9 +71,13 @@
     <Compile Include="Nodes\IfStatement.cs" />
     <Compile Include="Nodes\Include.cs" />
     <Compile Include="Nodes\Includes.cs" />
+    <Compile Include="Nodes\ListDimentions.cs" />
     <Compile Include="Nodes\ListIndex.cs" />
+    <Compile Include="Nodes\ListType.cs" />
     <Compile Include="Nodes\Ref.cs" />
+    <Compile Include="Nodes\RefId.cs" />
     <Compile Include="Nodes\Refrence.cs" />
+    <Compile Include="Nodes\RefTypeId.cs" />
     <Compile Include="Nodes\RepeatExpr.cs" />
     <Compile Include="Nodes\Return.cs" />
     <Compile Include="Nodes\StructDecleration.cs" />

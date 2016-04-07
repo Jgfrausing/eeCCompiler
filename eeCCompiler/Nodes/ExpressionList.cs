@@ -7,15 +7,15 @@ namespace eeCCompiler.Nodes
     {
         public ExpressionList()
         {
-            Expressions = new List<IExpression>();
+            Expressions = new List<IExprListElement>();
         }
 
-        public ExpressionList(List<IExpression> expressions)
+        public ExpressionList(List<IExprListElement> expressions)
         {
             Expressions = expressions;
         }
 
-        public List<IExpression> Expressions { get; set; }
+        public List<IExprListElement> Expressions { get; set; }
 
         public override void Accept(IEecVisitor visitor)
         {

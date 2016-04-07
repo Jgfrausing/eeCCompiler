@@ -42,5 +42,9 @@ namespace eeCCompiler.Interfaces
         void Visit(Includes includes);
         void Visit(ListIndex expressionParenOpExpr);
         void Visit(Ref expressionParenOpExpr);
+        void Visit(ListType expressionParenOpExpr);
+        void Visit(RefId expressionParenOpExpr);
+        void Visit(RefTypeId expressionParenOpExpr);
+        void Visit(ListDimentions expressionParenOpExpr);
     }
 }

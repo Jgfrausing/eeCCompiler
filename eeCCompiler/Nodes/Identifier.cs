@@ -21,8 +21,4 @@ namespace eeCCompiler.Nodes
             return Id;
         }
     }
-
-    public interface IIdentifier
-    {
-    }
 }

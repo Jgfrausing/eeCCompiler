@@ -60,16 +60,16 @@ namespace eeCCompiler.Visitors
                     }
                     else
                     {
-                        var id = (refrence.Identifiers[0].Id); //Har fat i structen
-                        if (Identifiers.ContainsKey(id))
+                        var id = new Identifier("d"); //(refrence.Identifiers[0].Id); //Har fat i structen
+                        if (true)//Identifiers.ContainsKey(id))
                         {
-                            if (Identifiers[id] is StructValue)
+                            if (true)//Identifiers[id] is StructValue)
                             {
                                 value = StructRefrenceChecker(refrence);
                             }
                             else
                             {
-                                Errors.Add((refrence.Identifiers[0].Id + " is not of struct"));
+                                //Errors.Add((refrence.Identifiers[0].Id + " is not of struct"));
                             }
                         }
                         else
@@ -421,8 +421,8 @@ namespace eeCCompiler.Visitors
         private IValue StructRefrenceChecker(Refrence refrence)
         {
             IValue value = new UnInitialisedVariable();
-            var id = (refrence.Identifiers[0].Id);
-            var structType = (Identifiers[id] as StructValue).Struct.Identifier.Id;
+            var id = new Identifier("");//refrence.Identifiers[0].Id);
+            var structType = new StructValue(new StructDefinition(new StructParts(), new Identifier(""))).Struct.Identifier.Id;// (Identifiers[id] as StructValue).Struct.Identifier.Id;
             if (refrence.StructRefrence is Identifier)
             {
                 foreach (var structpart in Structs[structType].StructParts.StructPartList)

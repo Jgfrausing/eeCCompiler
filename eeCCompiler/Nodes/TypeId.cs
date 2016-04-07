@@ -3,7 +3,7 @@ using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Nodes
 {
-    public class TypeId : AbstractSyntaxTree
+    public class TypeId : AbstractSyntaxTree, ITypeId
     {
         public TypeId(Identifier identifier, IType valueType)
         {
@@ -25,15 +25,15 @@ namespace eeCCompiler.Nodes
     {
         public TypeIdList()
         {
-            TypeIds = new List<TypeId>();
+            TypeIds = new List<ITypeId>();
         }
 
-        public TypeIdList(List<TypeId> typeIds)
+        public TypeIdList(List<ITypeId> typeIds)
         {
             TypeIds = typeIds;
         }
 
-        public List<TypeId> TypeIds { get; set; }
+        public List<ITypeId> TypeIds { get; set; }
 
         public override void Accept(IEecVisitor visitor)
         {
