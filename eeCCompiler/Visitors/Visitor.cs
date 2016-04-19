@@ -171,6 +171,16 @@ namespace eeCCompiler.Visitors
             throw new System.NotImplementedException();
         }
 
+        public void Visit(TypeId expressionParenOpExpr)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Visit(TypeIdList expressionParenOpExpr)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public virtual void Visit(FunctionDeclaration functionDeclaration)
         {
             functionDeclaration.TypeId.Accept(this);

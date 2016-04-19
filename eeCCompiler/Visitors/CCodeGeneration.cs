@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Security.Policy;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
 
@@ -229,7 +230,7 @@ namespace eeCCompiler.Visitors
             functionDeclaration.Parameters.Accept(this);
             _code += ")";
             functionDeclaration.Body.Accept(this);
-            _code += "\n\n";
+            _code += "\n";
         }
 
         public void Visit(Return returnNode)
@@ -267,9 +268,9 @@ namespace eeCCompiler.Visitors
 
         public void Visit(StructDefinition structDef)
         {
-            _code += $"struct {structDef.Identifier} " + "{";
+            _code += $"struct {structDef.Identifier} " + "{\n";
             structDef.StructParts.Accept(this);
-            _code += "};\n";
+            _code += "\n};\n";
         }
 
         public void Visit(StructParts structParts)
@@ -280,6 +281,7 @@ namespace eeCCompiler.Visitors
         public void Visit(StructDefinitions structDefinitions)
         {
             structDefinitions.Definitions.ForEach(structDef => structDef.Accept(this));
+            _code += "\n";
         }
 
         public void Visit(AssignmentOperator assignOpr)
@@ -334,6 +336,17 @@ namespace eeCCompiler.Visitors
             {
                 _code += "[]";
             }
+        }
+
+        public void Visit(TypeId typeId)
+        {
+            typeId.ValueType.Accept(this);
+            _code += " " + typeId.Identifier;
+        }
+
+        public void Visit(TypeIdList typeIdList)
+        {
+            typeIdList.TypeIds.ForEach(x => x.Accept(this));
         }
     }
 }

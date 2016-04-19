@@ -482,7 +482,8 @@ namespace eeCCompiler
 
                 case Indexes.Indexes.ProductionIndex.Refrence_Id_Dot:
                     // <refrence> ::= Id '.' <refrence>
-                    result = new Refrence(_reductionStack.Pop() as Refrence, new Identifier(r.get_Data(0).ToString()));
+                    //_reductionStack.Pop() as Refrence
+                    result = new Refrence(new Refrence(new Identifier(r.get_Data(0).ToString())), _reductionStack.Pop() as Identifier);
                     break;
 
                 case Indexes.Indexes.ProductionIndex.Refrence_Id_Dot2:                   

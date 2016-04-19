@@ -17,8 +17,7 @@ namespace eeCCompiler.Nodes
 
         public override void Accept(IEecVisitor visitor)
         {
-            ValueType.Accept(visitor);
-            Identifier.Accept(visitor);
+            visitor.Visit(this);
         }
     }
 
@@ -38,10 +37,7 @@ namespace eeCCompiler.Nodes
 
         public override void Accept(IEecVisitor visitor)
         {
-            foreach (var typeids in TypeIds)
-            {
-                typeids.Accept(visitor);
-            }
+            visitor.Visit(this);
         }
     }
 }

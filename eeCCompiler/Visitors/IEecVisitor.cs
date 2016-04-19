@@ -46,5 +46,7 @@ namespace eeCCompiler.Visitors
         void Visit(RefId expressionParenOpExpr);
         void Visit(RefTypeId expressionParenOpExpr);
         void Visit(ListDimentions expressionParenOpExpr);
+        void Visit(TypeId expressionParenOpExpr);
+        void Visit(TypeIdList expressionParenOpExpr);
     }
 }
