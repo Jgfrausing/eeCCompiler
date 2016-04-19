@@ -177,6 +177,18 @@ namespace eeCCompiler.Visitors
             
         }
 
+        public override void Visit(Constant constant)
+        {
+            constant.Identifier.Accept(this);
+
+            if (constant.ConstantPart is NumValue)
+                Identifiers[constant.Identifier.Id] = constant.ConstantPart as NumValue;
+            else if (constant.ConstantPart is BoolValue)
+                Identifiers[constant.Identifier.Id] = constant.ConstantPart as BoolValue;
+            else if (constant.ConstantPart is StringValue)
+                Identifiers[constant.Identifier.Id] = constant.ConstantPart as StringValue;
+        }
+
         public override void Visit(StructDefinition structDefinition)
         {
             if (!Structs.ContainsKey(structDefinition.Identifier.Id))
@@ -267,6 +279,8 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(VarDecleration varDecleration)
         {
+            if (!Identifiers.ContainsKey(varDecleration.Identifier.Id))
+                varDecleration.IsFirstUse = true;
             varDecleration.Identifier.Accept(this);
             varDecleration.AssignmentOperator.Accept(this);
             var value = CheckExpression(varDecleration.Expression);
