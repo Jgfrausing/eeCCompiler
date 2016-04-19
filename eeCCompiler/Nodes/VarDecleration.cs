@@ -10,6 +10,7 @@ namespace eeCCompiler.Nodes
             Identifier = identifier;
             AssignmentOperator = assignmentOperator;
             Expression = expression;
+            Type = new Type("Not set in typechecker");
         }
 
         public bool IsFirstUse { get; set; }
