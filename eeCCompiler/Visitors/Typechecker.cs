@@ -60,16 +60,16 @@ namespace eeCCompiler.Visitors
                     }
                     else
                     {
-                        var id = new Identifier("d"); //(refrence.Identifiers[0].Id); //Har fat i structen
-                        if (true)//Identifiers.ContainsKey(id))
+                        var id = (refrence.StructRefrence.ToString());
+                        if (Identifiers.ContainsKey(id))
                         {
-                            if (true)//Identifiers[id] is StructValue)
+                            if (Identifiers[id] is StructValue)
                             {
-                                value = StructRefrenceChecker(refrence);
+                                value = StructRefrenceChecker(refrence,0);
                             }
                             else
                             {
-                                //Errors.Add((refrence.Identifiers[0].Id + " is not of struct"));
+                                Errors.Add((id + " is not of struct"));
                             }
                         }
                         else
@@ -174,7 +174,6 @@ namespace eeCCompiler.Visitors
             root.StructDefinitions.Accept(this);
             root.FunctionDeclarations.Accept(this); //Flyttet over program for at checke kald giver menning
             root.Program.Accept(this);
-            
         }
 
         public override void Visit(Constant constant)
@@ -284,7 +283,7 @@ namespace eeCCompiler.Visitors
             varDecleration.Identifier.Accept(this);
             varDecleration.AssignmentOperator.Accept(this);
             var value = CheckExpression(varDecleration.Expression);
-            if (value.GetType().Name == "UnInitialisedVariable")
+            if (value is UnInitialisedVariable)
             {
                 Errors.Add("Identifiier " + varDecleration.Identifier.Id + " was not assigned a value");
             }
@@ -299,7 +298,7 @@ namespace eeCCompiler.Visitors
             else if (Identifiers[varDecleration.Identifier.Id].GetType().Name == value.GetType().Name)
                 Identifiers[varDecleration.Identifier.Id] = value;
             else
-                Errors.Add("Identifier " + Identifiers[varDecleration.Identifier.Id] + " is of type " +
+                Errors.Add("Identifier " + varDecleration.Identifier.Id + " is of type " +
                            Identifiers[varDecleration.Identifier.Id].GetType().Name + " but a "
                            + value.GetType().Name + " was tried to be assigned to this identifier");
         }
@@ -380,7 +379,7 @@ namespace eeCCompiler.Visitors
             IValue value;
             switch (Type)
             {
-                case "Num":
+                case "num":
                     value = new NumValue(2.0);
                     break;
                 case "void":
@@ -438,24 +437,34 @@ namespace eeCCompiler.Visitors
                            " " + value2.GetType().Name);
             return value1;
         }
-        private IValue StructRefrenceChecker(Refrence refrence)
+        private IValue StructRefrenceChecker(Refrence refrence, int count)
         {
             IValue value = new UnInitialisedVariable();
-            var id = new Identifier("");//refrence.Identifiers[0].Id);
-            var structType = new StructValue(new StructDefinition(new StructParts(), new Identifier(""))).Struct.Identifier.Id;// (Identifiers[id] as StructValue).Struct.Identifier.Id;
-            if (refrence.StructRefrence is Identifier)
-            {
+            var id = refrence.StructRefrence.ToString();
+            var structType = (Identifiers[id] as StructValue).Struct.Identifier.Id;
+
+            if (refrence.Identifiers.Count == count+1)
+            { 
                 foreach (var structpart in Structs[structType].StructParts.StructPartList)
                 {
                     if (structpart is VarDecleration)
                     {
                         VarDecleration vardecl = (structpart as VarDecleration);
-                        if (vardecl.Identifier.Id == (refrence.StructRefrence as Identifier).Id)
+                        if (vardecl.Identifier.Id == (refrence.Identifiers[count] as Identifier).Id)
                         {
                             value = CheckExpression(vardecl.Expression);
                             break;
                         }
 
+                    }
+                    if (structpart is FunctionDeclaration)
+                    {
+                        FunctionDeclaration funcdecl = (structpart as FunctionDeclaration);
+                        if (funcdecl.TypeId.Identifier.Id == (refrence.StructRefrence as FuncCall).Identifier.Id)
+                        {
+                            value = TypeChecker(funcdecl.TypeId.ValueType.ToString());
+                            break;
+                        }
                     }
                 }
             }
@@ -463,25 +472,17 @@ namespace eeCCompiler.Visitors
             {
                 foreach (var structpart in Structs[structType].StructParts.StructPartList)
                 {
-                    if (structpart is FunctionDeclaration)
+                    if (structpart is StructDecleration)
                     {
-                        FunctionDeclaration funcdecl = (structpart as FunctionDeclaration);
-                        if (funcdecl.TypeId.Identifier.Id == (refrence.StructRefrence as FuncCall).Identifier.Id)
+                        StructDecleration structDecleration = (structpart as StructDecleration);
+                        if (structDecleration.Identifier.Id == (refrence.Identifiers[count] as Identifier).Id)
                         {
-                            //value = TypeChecker(funcdecl.TypeId.ValueType.ValueType);
+                            value = StructRefrenceChecker(refrence, count + 1);
                             break;
                         }
-
                     }
                 }
             }
-            if (value is UnInitialisedVariable)
-            {
-                Errors.Add(id + "." + refrence.StructRefrence.ToString() + " was not found");
-            }
-
-
-
             return value;
         }
         private bool IfChecker(IValue value, IfStatement ifStatement)
