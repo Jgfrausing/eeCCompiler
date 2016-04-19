@@ -485,26 +485,31 @@ namespace eeCCompiler
 
                 case Indexes.Indexes.ProductionIndex.Refrence_Id_Dot:
                     // <refrence> ::= Id '.' <refrence>
-                    //_reductionStack.Pop() as Refrence
-                    result = new Refrence(new Refrence(new Identifier(r.get_Data(0).ToString())), _reductionStack.Pop() as IStructRefrence);
+                    result = new Refrence(_reductionStack.Pop() as IStructRefrence, new Identifier(r.get_Data(0).ToString()));
                     break;
 
-                case Indexes.Indexes.ProductionIndex.Refrence_Id_Dot2:                   
-                    // <refrence> ::= Id <index> '.' <refrence>
-                    result = new Refrence(_reductionStack.Pop() as Refrence, _reductionStack.Pop() as ListIndex, new Identifier(r.get_Data(0).ToString()));
+                case Indexes.Indexes.ProductionIndex.Refrence_Dot:
+                    // <refrence> ::= <id_index> '.' <refrence>
+                    result = new Refrence(_reductionStack.Pop() as IStructRefrence, _reductionStack.Pop() as IStructRefrence );
                     break;
-                case Indexes.Indexes.ProductionIndex.Refrence_Id2:
-                    // <refrence> ::= Id <index>
-                    result = new Refrence(_reductionStack.Pop() as Refrence, _reductionStack.Pop() as ListIndex);
+                case Indexes.Indexes.ProductionIndex.Refrence2:
+                    // <refrence> ::= <id_index>
+                    result = new Refrence(_reductionStack.Pop() as ListIndex);
+                    break;
+
+                case Indexes.Indexes.ProductionIndex.Id_index_Id:
+                    // <id_index> ::= Id <index>
+                    result = new IdIndex(_reductionStack.Pop() as ListIndex, new Identifier(r.get_Data(0).ToString()));
                     break;
 
                 case Indexes.Indexes.ProductionIndex.Index_Lbracket_Rbracket:
                     // <index> ::= '[' <value> ']' <index>
-                    result = new ListIndex(_reductionStack.Pop() as ListIndex, _reductionStack.Pop() as IValue);
+                    result = new ListIndex(_reductionStack.Pop() as ListIndex, _reductionStack.Pop() as IExpression);
                     break;
                 case Indexes.Indexes.ProductionIndex.Index_Lbracket_Rbracket2:
                     // <index> ::= '[' <value> ']'
-                    result = new ListIndex(_reductionStack.Pop() as IValue);
+                    //var f = _reductionStack.Pop().GetType();
+                    result = new ListIndex(_reductionStack.Pop() as IExpression);
                     break;
                     #endregion
 

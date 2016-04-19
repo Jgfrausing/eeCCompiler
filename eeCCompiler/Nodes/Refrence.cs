@@ -4,7 +4,7 @@ using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
 {
-    public class Refrence : AbstractSyntaxTree, IValue, IBodypart
+    public class Refrence : AbstractSyntaxTree, IValue, IBodypart, IStructRefrence
     {
         public Refrence(IStructRefrence structRefrence)
         {
@@ -12,17 +12,17 @@ namespace eeCCompiler.Nodes
             Identifiers = new List<IStructRefrence>();
         }
 
-        public Refrence(Refrence refrence, IStructRefrence identifier)
+        public Refrence(IStructRefrence identifier, IStructRefrence refrence)
         {
-            Identifiers = refrence.Identifiers;
-            Identifiers.Insert(0, identifier);
-            StructRefrence = refrence.StructRefrence;
+            Identifiers = new List<IStructRefrence>() { identifier};
+            StructRefrence = refrence;
         }
-        public Refrence(Refrence refrence, ListIndex index, Identifier identifier)
+        public Refrence(IStructRefrence refrence, ListIndex index, Identifier identifier)
         {
+            var v = new ListIndex(identifier);
             Identifiers.Insert(0,identifier);
             Identifiers.Insert(0, index);
-            StructRefrence = refrence.StructRefrence;
+            StructRefrence = refrence;
         }
 
         public List<IStructRefrence> Identifiers { get; set; }

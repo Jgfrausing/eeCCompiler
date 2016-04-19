@@ -348,5 +348,11 @@ namespace eeCCompiler.Visitors
         {
             typeIdList.TypeIds.ForEach(x => x.Accept(this));
         }
+
+        public void Visit(IdIndex idIndex)
+        {
+            idIndex.Identifier.Accept(this);
+            idIndex.ListIndex.Accept(this);
+        }
     }
 }

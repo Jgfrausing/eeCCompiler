@@ -10,18 +10,18 @@ namespace eeCCompiler.Nodes
 {
     public class ListIndex : AbstractSyntaxTree, IStructRefrence, IIdentifier
     {
-        public ListIndex(IValue index)
+        public ListIndex(IExpression index)
         {
-            Indexes = new List<IValue>() {index};
+            Indexes = new List<IExpression>() {index};
         }
 
-        public ListIndex(ListIndex indexes, IValue value )
+        public ListIndex(ListIndex indexes, IExpression value )
         {
             indexes.Indexes.Insert(0,value);
             Indexes = indexes.Indexes;
         }
 
-        public List<IValue> Indexes { get; set; }
+        public List<IExpression> Indexes { get; set; }
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);
