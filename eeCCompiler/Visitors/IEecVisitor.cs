@@ -1,6 +1,6 @@
 ﻿using eeCCompiler.Nodes;
 
-namespace eeCCompiler.Interfaces
+namespace eeCCompiler.Visitors
 {
     public interface IEecVisitor
     {

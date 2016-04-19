@@ -1,4 +1,5 @@
 using eeCCompiler.Interfaces;
+using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
 {
@@ -11,6 +12,8 @@ namespace eeCCompiler.Nodes
             Expression = expression;
         }
 
+        public bool IsFirstUse { get; set; }
+        public Type Type { get; set; }
         public Identifier Identifier { get; set; }
         public AssignmentOperator AssignmentOperator { get; set; }
         public IExpression Expression { get; set; }

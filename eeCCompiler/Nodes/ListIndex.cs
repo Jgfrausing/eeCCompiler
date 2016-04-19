@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using eeCCompiler.Interfaces;
+using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
 {

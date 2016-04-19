@@ -1,3 +1,5 @@
+using eeCCompiler.Visitors;
+
 namespace eeCCompiler.Interfaces
 {
     public interface INodeElement

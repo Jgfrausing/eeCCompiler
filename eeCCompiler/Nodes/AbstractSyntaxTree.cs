@@ -1,5 +1,6 @@
 using System.Security.AccessControl;
 using eeCCompiler.Interfaces;
+using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
 {

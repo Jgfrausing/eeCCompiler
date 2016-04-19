@@ -1,8 +1,9 @@
 ﻿using eeCCompiler.Interfaces;
+using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
 {
-    public class IfStatement : ElseStatement, IBodypart
+    public class IfStatement : ElseStatement
     {
         public IfStatement(ElseStatement elseStatement, Body body, IExpression expression) : base(body)
         {

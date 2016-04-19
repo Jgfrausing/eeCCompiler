@@ -141,32 +141,32 @@ namespace eeCCompiler.Visitors
             }
         }
 
-        public void Visit(ListIndex expressionParenOpExpr)
+        public virtual void Visit(ListIndex expressionParenOpExpr)
         {
             throw new System.NotImplementedException();
         }
 
-        public void Visit(Ref expressionParenOpExpr)
+        public virtual void Visit(Ref expressionParenOpExpr)
         {
             throw new System.NotImplementedException();
         }
 
-        public void Visit(ListType expressionParenOpExpr)
+        public virtual void Visit(ListType expressionParenOpExpr)
         {
             throw new System.NotImplementedException();
         }
 
-        public void Visit(RefId expressionParenOpExpr)
+        public virtual void Visit(RefId expressionParenOpExpr)
         {
             throw new System.NotImplementedException();
         }
 
-        public void Visit(RefTypeId expressionParenOpExpr)
+        public virtual void Visit(RefTypeId expressionParenOpExpr)
         {
             throw new System.NotImplementedException();
         }
 
-        public void Visit(ListDimentions expressionParenOpExpr)
+        public virtual void Visit(ListDimentions expressionParenOpExpr)
         {
             throw new System.NotImplementedException();
         }
