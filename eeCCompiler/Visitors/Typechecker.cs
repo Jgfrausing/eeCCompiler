@@ -289,7 +289,13 @@ namespace eeCCompiler.Visitors
                 Errors.Add("Identifiier " + varDecleration.Identifier.Id + " was not assigned a value");
             }
             else if (Identifiers[varDecleration.Identifier.Id] is Identifier)
+            {
+                if (value is StructValue)
+                    varDecleration.Type.ValueType = (value as StructValue).Struct.Identifier.Id;
+                else
+                    varDecleration.Type.ValueType = value.GetType().ToString();
                 Identifiers[varDecleration.Identifier.Id] = value;
+            }
             else if (Identifiers[varDecleration.Identifier.Id].GetType().Name == value.GetType().Name)
                 Identifiers[varDecleration.Identifier.Id] = value;
             else
