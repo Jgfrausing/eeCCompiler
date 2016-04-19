@@ -311,7 +311,10 @@ namespace eeCCompiler
                 case Indexes.Indexes.ProductionIndex.Struct_parts_Semi:
                 // <struct_parts> ::= <var_decl> ';' <struct_parts>
                 //FALLTHROUGH
-
+                case Indexes.Indexes.ProductionIndex.Struct_parts_Semi2:
+                    // <struct_parts> ::= <struct_decl> ';' <struct_parts>
+                    //FALLTHROUGH
+                    
                 case Indexes.Indexes.ProductionIndex.Struct_parts:
                     // <struct_parts> ::= <func_decl> ';' <struct_parts>
                     result = CreateStructParts();

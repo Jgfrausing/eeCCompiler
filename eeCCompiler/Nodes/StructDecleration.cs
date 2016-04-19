@@ -3,7 +3,7 @@ using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
 {
-    public class StructDecleration : AbstractSyntaxTree, IBodypart
+    public class StructDecleration : AbstractSyntaxTree, IBodypart, IStructPart
     {
         public StructDecleration(VarDeclerations varDeclerations, Identifier structIdentifier, AssignmentOperator assignmentOperator, Identifier identifier)
         {
