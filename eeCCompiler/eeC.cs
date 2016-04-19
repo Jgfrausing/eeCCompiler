@@ -472,7 +472,7 @@ namespace eeCCompiler
 
                 case Indexes.Indexes.ProductionIndex.Refrence:
                     // <refrence> ::= <func_call>
-                    result = new Refrence(_reductionStack.Pop() as IStructRefrence);
+                    result = _reductionStack.Pop();
                     break;
 
                 case Indexes.Indexes.ProductionIndex.Refrence_Id:
@@ -483,7 +483,7 @@ namespace eeCCompiler
                 case Indexes.Indexes.ProductionIndex.Refrence_Id_Dot:
                     // <refrence> ::= Id '.' <refrence>
                     //_reductionStack.Pop() as Refrence
-                    result = new Refrence(new Refrence(new Identifier(r.get_Data(0).ToString())), _reductionStack.Pop() as Identifier);
+                    result = new Refrence(new Refrence(new Identifier(r.get_Data(0).ToString())), _reductionStack.Pop() as IStructRefrence);
                     break;
 
                 case Indexes.Indexes.ProductionIndex.Refrence_Id_Dot2:                   
@@ -530,7 +530,7 @@ namespace eeCCompiler
                     break;
 
                 case Indexes.Indexes.ProductionIndex.Bodypart_Semi3:
-                    // <bodypart> ::= <func_call> ';'
+                    // <bodypart> ::= <refrence> ';'
                     result = _reductionStack.Pop();
                     break;
 

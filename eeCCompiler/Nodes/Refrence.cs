@@ -4,15 +4,15 @@ using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
 {
-    public class Refrence : AbstractSyntaxTree, IValue
+    public class Refrence : AbstractSyntaxTree, IValue, IBodypart
     {
         public Refrence(IStructRefrence structRefrence)
         {
             StructRefrence = structRefrence;
-            Identifiers = new List<IIdentifier>();
+            Identifiers = new List<IStructRefrence>();
         }
 
-        public Refrence(Refrence refrence, IIdentifier identifier)
+        public Refrence(Refrence refrence, IStructRefrence identifier)
         {
             Identifiers = refrence.Identifiers;
             Identifiers.Insert(0, identifier);
@@ -25,7 +25,7 @@ namespace eeCCompiler.Nodes
             StructRefrence = refrence.StructRefrence;
         }
 
-        public List<IIdentifier> Identifiers { get; set; }
+        public List<IStructRefrence> Identifiers { get; set; }
         public IStructRefrence StructRefrence { get; set; }
 
         public override void Accept(IEecVisitor visitor)
