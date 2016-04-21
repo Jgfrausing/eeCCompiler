@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Security.Policy;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
+using Type = eeCCompiler.Nodes.Type;
 
 namespace eeCCompiler.Visitors
 {
@@ -12,16 +14,31 @@ namespace eeCCompiler.Visitors
 
         public string CCode => _header + _code;
 
-        private StructDefinitions _structDefinitions;
+        private Root _root;
 
         public void Visit(Root root)
         {
+            _root = root;
+            RenameFunctions();
             root.Includes.Accept(this);
             root.ConstantDefinitions.Accept(this);
+            _header = _code;
+            _code = "";
+            //typedef + prototyper
             root.StructDefinitions.Accept(this);
             root.FunctionDeclarations.Accept(this);
+
             _code += "void main()";
             root.Program.Accept(this);
+        }
+
+        private void RenameFunctions()
+        {
+            foreach (var functionDeclaration in _root.FunctionDeclarations.FunctionDeclarationList)
+            {
+                var id = functionDeclaration.TypeId.Identifier.Id;
+                functionDeclaration.TypeId.Identifier.Id = "program_" + id;
+            }
         }
 
         public void Visit(Body body)
@@ -37,7 +54,7 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Constant constant)
         {
-            _header += $"#define {constant.Identifier.ToString().ToUpper()} {constant.ConstantPart}\n";
+            _code += $"#define {constant.Identifier.ToString().ToUpper()} {constant.ConstantPart}\n";
         }
 
         public void Visit(ConstantDefinitions constantDefinitions)
@@ -118,7 +135,7 @@ namespace eeCCompiler.Visitors
 
         public void Visit(StructDecleration structDecleration)
         {
-            var myStruct = _structDefinitions.Definitions.FirstOrDefault(x => x.Identifier == structDecleration.StructIdentifier);
+            var myStruct = _root.StructDefinitions.Definitions.FirstOrDefault(x => x.Identifier.ToString() == structDecleration.StructIdentifier.ToString());
             foreach (var varDecl in myStruct.StructParts.StructPartList)
             {
                 if(varDecl is VarDecleration && !structDecleration.VarDeclerations.VarDeclerationList.Contains(varDecl))
@@ -157,20 +174,29 @@ namespace eeCCompiler.Visitors
         public void Visit(Type type)
         {
             string cType;
-            switch (type.ValueType)
+            cType = GetValueType(type);
+            _code += $"{cType}";
+        }
+
+        private static string GetValueType(IType type)
+        {
+            string cType;
+            switch (type.ToString())
             {
                 case "num":
+                    cType = "double";
+                    break;
                 case "bool":
                     cType = "int";
                     break;
                 case "string":
-                    cType = "char *";
+                    cType = "HELP???";
                     break;
                 default:
-                    cType = "struct " + type.ValueType;
+                    cType = type.ToString();
                     break;
             }
-            _code += $" {cType} ";
+            return cType;
         }
 
         public void Visit(StringValue stringValue)
@@ -180,12 +206,46 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Operator operate)
         {
-            string opr = "";
+            string opr = "OPERATOR!!!";
             switch (operate.Symbol)
             {
                 case Indexes.Indexes.SymbolIndex.Eq:
                     opr = "=";
                     break;
+                case Indexes.Indexes.SymbolIndex.Minus:
+                    opr = "-";
+                    break;
+                case Indexes.Indexes.SymbolIndex.Exclameq:
+                    opr = "!=";
+                    break;
+                case Indexes.Indexes.SymbolIndex.Times:
+                    opr = "*";
+                    break;
+                case Indexes.Indexes.SymbolIndex.Div:
+                    opr = "/";
+                    break;
+                case Indexes.Indexes.SymbolIndex.Lt:
+                    opr = "<";
+                    break;
+                case Indexes.Indexes.SymbolIndex.Lteq:
+                    opr = "<=";
+                    break;
+                case Indexes.Indexes.SymbolIndex.Gt:
+                    opr = ">";
+                    break;
+                case Indexes.Indexes.SymbolIndex.Gteq:
+                    opr = ">=";
+                    break;
+                case Indexes.Indexes.SymbolIndex.And:
+                    opr = "&&";
+                    break;
+                case Indexes.Indexes.SymbolIndex.Or:
+                    opr = "||";
+                    break;
+                case Indexes.Indexes.SymbolIndex.Mod:
+                    opr = "%";
+                    break;
+
             }
             _code += $" {opr} ";
         }
@@ -220,17 +280,37 @@ namespace eeCCompiler.Visitors
 
         public void Visit(FunctionDeclarations functionDeclarations)
         {
-            functionDeclarations.FunctionDeclaration.ForEach(funcDecl => funcDecl.Accept(this));
+            foreach (var funcDecl in functionDeclarations.FunctionDeclarationList)
+            {
+                
+                funcDecl.Accept(this);
+            }
         }
 
         public void Visit(FunctionDeclaration functionDeclaration)
         {
+            CreatePrototype(functionDeclaration);
             functionDeclaration.TypeId.Accept(this);
             _code += "(";
             functionDeclaration.Parameters.Accept(this);
             _code += ")";
             functionDeclaration.Body.Accept(this);
             _code += "\n";
+        }
+
+        private void CreatePrototype(FunctionDeclaration functionDeclaration)
+        {
+            _header += $"{GetValueType(functionDeclaration.TypeId.ValueType as Type)} {functionDeclaration.TypeId.Identifier}(";
+            for (int i = 0; i < functionDeclaration.Parameters.TypeIds.Count; i++)
+            {
+                if (i > 0)
+                    _header += ",";
+                var parameter = functionDeclaration.Parameters.TypeIds[i];
+                if (parameter.Ref)
+                    _header += "ref ";
+                _header += $"{GetValueType(parameter.TypeId.ValueType)} {parameter.TypeId.Identifier}";
+            }
+            _header += ");\n";
         }
 
         public void Visit(Return returnNode)
@@ -265,24 +345,68 @@ namespace eeCCompiler.Visitors
         public void Visit(StructDefinition structDef)
         {
             _code += $"struct {structDef.Identifier} " + "{\n";
-            structDef.StructParts.Accept(this);
+            foreach (var structPart in structDef.StructParts.StructPartList)
+            {
+                if (structPart is VarDecleration)
+                    structPart.Accept(this);
+            }
             _code += "\n};\n";
         }
 
         public void Visit(StructParts structParts)
         {
-            structParts.StructPartList.ForEach(structPart => structPart.Accept(this));
+            // not used - implemented in "public void Visit(StructDefinition structDef)"
+            throw new NotImplementedException();
         }
 
         public void Visit(StructDefinitions structDefinitions)
         {
+            CreateTypedef(structDefinitions);
+            MoveStructFunctions(structDefinitions);
             structDefinitions.Definitions.ForEach(structDef => structDef.Accept(this));
             _code += "\n";
         }
 
+        private void MoveStructFunctions(StructDefinitions structDefinitions)
+        {
+            foreach (var structDefinition in structDefinitions.Definitions)
+            {
+                foreach (var structPart in structDefinition.StructParts.StructPartList)
+                {
+                    if (structPart is FunctionDeclaration)
+                    {
+                        var id = (structPart as FunctionDeclaration)?.TypeId.Identifier.Id;
+                        (structPart as FunctionDeclaration).TypeId.Identifier.Id = structDefinition.Identifier + "_" + id;
+                        _root.FunctionDeclarations.FunctionDeclarationList.Add(structPart as FunctionDeclaration);
+                    }
+                }
+            }
+        }
+
+        private void CreateTypedef(StructDefinitions structDefinitions)
+        {
+            foreach (var structDefinition in structDefinitions.Definitions)
+            {
+                _header += $"typedef struct {structDefinition.Identifier} {structDefinition.Identifier};\n";
+            }
+        }
+
         public void Visit(AssignmentOperator assignOpr)
         {
-            _code += "ASSIGNMENTOPERATOR!!!";
+            var opr = "ASSIGNMENTOPERATOR!!!";
+            switch (assignOpr.Symbol)
+            {
+                case Indexes.Indexes.SymbolIndex.Eq:
+                    opr = "=";
+                    break;
+                case Indexes.Indexes.SymbolIndex.Minuseq:
+                    opr = "-=";
+                    break;
+                case Indexes.Indexes.SymbolIndex.Pluseq:
+                    opr = "+=";
+                    break;
+            }
+            _code += opr;
         }
 
         public void Visit(Include include)
@@ -312,17 +436,17 @@ namespace eeCCompiler.Visitors
 
         public void Visit(ListType listType)
         {
-            _code += "LISTTYPE!!!";
+            _code += "list_" + GetValueType(listType);
         }
 
         public void Visit(RefId refId)
         {
-            _code += $"ref {refId.Identifier}";
+            _code += $" ref {refId.Identifier} ";
         }
 
         public void Visit(RefTypeId refTypeId)
         {
-            _code += $"ref ";
+            _code += refTypeId.Ref ? "ref ": "";
             refTypeId.TypeId.Accept(this);
         }
 
