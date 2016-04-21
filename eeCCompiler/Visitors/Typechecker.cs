@@ -37,7 +37,8 @@ namespace eeCCompiler.Visitors
                     if (Identifiers.ContainsKey(refrence.StructRefrence.ToString()))
                     {
                         var structType = (Identifiers[refrence.StructRefrence.ToString()] as StructValue).Struct.Identifier.Id;
-                        value = StructRefrenceChecker(refrence, structType);
+                        value = StructRefrenceChecker(refrence, structType, refrence);
+                        exp.Value = refrence;
                     }
                     else
                     {
@@ -427,7 +428,7 @@ namespace eeCCompiler.Visitors
                            " " + value2.GetType().Name);
             return value1;
         }
-        private IValue StructRefrenceChecker(Refrence refrence, string structType)
+        private IValue StructRefrenceChecker(Refrence refrence, string structType, Refrence exp)
         {
             IValue value = new UnInitialisedVariable();
             var id = refrence.StructRefrence.ToString();
@@ -451,6 +452,8 @@ namespace eeCCompiler.Visitors
             }
             else if (refrence.Identifier is FuncCall)
             {
+                exp.IsFuncCall = true;
+                exp.FuncsStruct = structType;
                 foreach (var structpart in Structs[structType].StructParts.StructPartList)
                 {
                     if (structpart is FunctionDeclaration)
@@ -475,7 +478,7 @@ namespace eeCCompiler.Visitors
                         {
                             if (structDecleration.Identifier.Id == (refrence.Identifier as Refrence).StructRefrence.ToString())
                             {
-                                value = StructRefrenceChecker(refrence.Identifier as Refrence, structDecleration.StructIdentifier.Id);
+                                value = StructRefrenceChecker(refrence.Identifier as Refrence, structDecleration.StructIdentifier.Id,exp);
                                 break;
                             }
                         }

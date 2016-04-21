@@ -20,6 +20,8 @@ namespace eeCCompiler.Nodes
 
         public IStructRefrence Identifier { get; set; }
         public IStructRefrence StructRefrence { get; set; }
+        public bool IsFuncCall { get; set; }
+        public string FuncsStruct  { get; set; }
 
         public override void Accept(IEecVisitor visitor)
         {
