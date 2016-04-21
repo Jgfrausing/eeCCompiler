@@ -242,11 +242,7 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Refrence referece)
         {
-            foreach (var id in referece.Identifiers)
-            {
-                id.Accept(this);
-                _code += ".";
-            }
+            referece.Identifier.Accept(this);
             referece.StructRefrence.Accept(this);
         }
 

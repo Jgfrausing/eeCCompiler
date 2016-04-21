@@ -81,10 +81,7 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(Refrence reference)
         {
-            foreach (var id in reference.Identifiers)
-            {
-                id.Accept(this);
-            }
+            reference.Identifier.Accept(this);
             reference.StructRefrence.Accept(this);
         }
 

@@ -9,23 +9,16 @@ namespace eeCCompiler.Nodes
         public Refrence(IStructRefrence structRefrence)
         {
             StructRefrence = structRefrence;
-            Identifiers = new List<IStructRefrence>();
+            Identifier = null;
         }
 
         public Refrence(IStructRefrence identifier, IStructRefrence refrence)
         {
-            Identifiers = new List<IStructRefrence>() { identifier};
-            StructRefrence = refrence;
-        }
-        public Refrence(IStructRefrence refrence, ListIndex index, Identifier identifier)
-        {
-            var v = new ListIndex(identifier);
-            Identifiers.Insert(0,identifier);
-            Identifiers.Insert(0, index);
+            Identifier = identifier;
             StructRefrence = refrence;
         }
 
-        public List<IStructRefrence> Identifiers { get; set; }
+        public IStructRefrence Identifier { get; set; }
         public IStructRefrence StructRefrence { get; set; }
 
         public override void Accept(IEecVisitor visitor)
@@ -35,12 +28,7 @@ namespace eeCCompiler.Nodes
 
         public override string ToString()
         {
-            var s = "";
-            foreach (var id in Identifiers)
-            {
-                s += id.ToString();
-                s += ".";
-            }
+            var s = Identifier.ToString() + ".";
             return s + StructRefrence;
         }
     }
