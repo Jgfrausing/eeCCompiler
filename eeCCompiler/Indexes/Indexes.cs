@@ -73,8 +73,8 @@
             @Refrence_Dot = 66,                        // <refrence> ::= <id_index> '.' <refrence>
             @Refrence2 = 67,                           // <refrence> ::= <id_index>
             @Func_refrence = 68,                       // <func_refrence> ::= <func_call>
-            @Func_refrence_Id_Dot = 69,                // <func_refrence> ::= Id '.' <refrence>
-            @Func_refrence_Dot = 70,                   // <func_refrence> ::= <id_index> '.' <refrence>
+            @Func_refrence_Id_Dot = 69,                // <func_refrence> ::= Id '.' <func_refrence>
+            @Func_refrence_Dot = 70,                   // <func_refrence> ::= <id_index> '.' <func_refrence>
             @Id_index_Id = 71,                         // <id_index> ::= Id <index>
             @Index_Lbracket_Rbracket = 72,             // <index> ::= '[' <expr> ']' <index>
             @Index_Lbracket_Rbracket2 = 73,            // <index> ::= '[' <expr> ']'

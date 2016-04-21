@@ -18,13 +18,13 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Root root)
         {
+            _header += "#include <stdio.h>";
             _root = root;
             RenameFunctions();
             root.Includes.Accept(this);
             root.ConstantDefinitions.Accept(this);
-            _header = _code;
+            _header +=_code;
             _code = "";
-            //typedef + prototyper
             root.StructDefinitions.Accept(this);
             root.FunctionDeclarations.Accept(this);
 
@@ -87,6 +87,10 @@ namespace eeCCompiler.Visitors
 
         public void Visit(ExpressionVal expressionVal)
         {
+            if (expressionVal.Value is FuncCall)
+                _code += "program_";
+            if (expressionVal.Value is Refrence)
+                _code += "HELP";
             expressionVal.Value.Accept(this);
         }
 
@@ -141,10 +145,10 @@ namespace eeCCompiler.Visitors
                 if(varDecl is VarDecleration && !structDecleration.VarDeclerations.VarDeclerationList.Contains(varDecl))
                     structDecleration.VarDeclerations.VarDeclerationList.Add(varDecl as VarDecleration);
             }
-            _code += $"struct {structDecleration.StructIdentifier} {structDecleration.Identifier};\n";
+            _code += $"{structDecleration.StructIdentifier} {structDecleration.Identifier};\n";
             foreach (var varDecl in structDecleration.VarDeclerations.VarDeclerationList)
             {
-                _code += $"{structDecleration.Identifier}.{varDecl.Identifier} ";
+                _code += $"{structDecleration.Identifier}.{varDecl.Identifier.Id} ";
                 varDecl.AssignmentOperator.Accept(this);
                 varDecl.Expression.Accept(this);
                 _code += ";\n";
@@ -173,8 +177,7 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Type type)
         {
-            string cType;
-            cType = GetValueType(type);
+            var cType = GetValueType(type);
             _code += $"{cType}";
         }
 
@@ -190,7 +193,7 @@ namespace eeCCompiler.Visitors
                     cType = "int";
                     break;
                 case "string":
-                    cType = "HELP???";
+                    cType = "list_string";
                     break;
                 default:
                     cType = type.ToString();
@@ -209,8 +212,8 @@ namespace eeCCompiler.Visitors
             string opr = "OPERATOR!!!";
             switch (operate.Symbol)
             {
-                case Indexes.Indexes.SymbolIndex.Eq:
-                    opr = "=";
+                case Indexes.Indexes.SymbolIndex.Eqeq:
+                    opr = "==";
                     break;
                 case Indexes.Indexes.SymbolIndex.Minus:
                     opr = "-";
@@ -322,8 +325,9 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Refrence referece)
         {
-            referece.Identifier.Accept(this);
             referece.StructRefrence.Accept(this);
+            _code += ".";
+            referece.Identifier.Accept(this);
         }
 
         public void Visit(VarDeclerations varDecls)
@@ -334,8 +338,8 @@ namespace eeCCompiler.Visitors
         public void Visit(VarDecleration varDecl)
         {
             if (varDecl.IsFirstUse)
-                _code += varDecl.Type + " ";
-            _code += $"{varDecl.Identifier} ";
+                _code += GetValueType(varDecl.Type) + " ";
+            _code += $"{varDecl.Identifier.Id} ";
             varDecl.AssignmentOperator.Accept(this);
             _code += " ";
             varDecl.Expression.Accept(this);
@@ -348,7 +352,7 @@ namespace eeCCompiler.Visitors
             foreach (var structPart in structDef.StructParts.StructPartList)
             {
                 if (structPart is VarDecleration)
-                    structPart.Accept(this);
+                    _code += $"{GetValueType((structPart as VarDecleration).Type)} {(structPart as VarDecleration).Identifier};";
             }
             _code += "\n};\n";
         }
@@ -411,7 +415,14 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Include include)
         {
-            _code += "INCLUDE!!!";
+            //_header += "#include <";
+            //for (int i = 0; i < include.Identifiers.Count; i++)
+            //{
+            //    if (i > 0)
+            //        _header += ".";
+            //    _header = include.Identifiers[i].Id;   
+            //}
+            //_header += ">";
         }
 
         public void Visit(Includes includes)
@@ -431,7 +442,8 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Ref refNode)
         {
-            _code += "REFNODE!!!";
+            // Ref bliver ikke lagt i det endelige AST - men bliver brugt under parsing.
+            throw new NotImplementedException();
         }
 
         public void Visit(ListType listType)

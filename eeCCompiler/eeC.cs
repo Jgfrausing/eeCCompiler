@@ -488,7 +488,7 @@ namespace eeCCompiler
                     break;
 
                 case Indexes.Indexes.ProductionIndex.Func_refrence_Id_Dot:
-                // <func_refrence> ::= Id '.' <refrence>
+                // <func_refrence> ::= Id '.' <func_refrence>
 
                 case Indexes.Indexes.ProductionIndex.Refrence_Id_Dot:
                     // <refrence> ::= Id '.' <refrence>
@@ -496,7 +496,7 @@ namespace eeCCompiler
                     break;
 
                 case Indexes.Indexes.ProductionIndex.Func_refrence_Dot:
-                // <func_refrence> ::= <id_index> '.' <refrence>
+                // <func_refrence> ::= <id_index> '.' <func_refrence>
 
                 case Indexes.Indexes.ProductionIndex.Refrence_Dot:
                     // <refrence> ::= <id_index> '.' <refrence>
