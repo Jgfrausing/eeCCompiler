@@ -290,7 +290,7 @@ namespace eeCCompiler.Visitors
                 if (value is StructValue)
                     varDecleration.Type.ValueType = (value as StructValue).Struct.Identifier.Id;
                 else
-                    varDecleration.Type.ValueType = value.GetType().ToString();
+                    varDecleration.Type.ValueType = CheckValueType(value);
                 Identifiers[varDecleration.Identifier.Id] = value;
             }
             else if (Identifiers[varDecleration.Identifier.Id].GetType().Name == value.GetType().Name)
@@ -388,6 +388,17 @@ namespace eeCCompiler.Visitors
                      opr.Symbol == Indexes.Indexes.SymbolIndex.Eqeq ||
                      opr.Symbol == Indexes.Indexes.SymbolIndex.And ||
                      opr.Symbol == Indexes.Indexes.SymbolIndex.Or);
+        }
+        private string CheckValueType(IValue value)
+        {
+            if (value is NumValue)
+                return "num";
+            else if (value is StringValue)
+                return "string";
+            else if (value is BoolValue)
+                return "bool";
+            else return "404 type not found";
+
         }
         private IValue TypeChecker(string Type)
         {
