@@ -34,53 +34,17 @@ namespace eeCCompiler.Visitors
                 if (exp.Value is Refrence)
                 {
                     var refrence = (exp.Value as Refrence);
-                    if (refrence.Identifier == null)
+                    if (Identifiers.ContainsKey(refrence.StructRefrence.ToString()))
                     {
-                        if (refrence.StructRefrence is FuncCall)
-                        {
-                            if (Funcs.ContainsKey((refrence.StructRefrence as FuncCall).Identifier.Id))
-                                value = Funcs[(refrence.StructRefrence as FuncCall).Identifier.Id].Value;
-                            else
-                            {
-                                Errors.Add((refrence.StructRefrence as FuncCall).Identifier.Id + " function does not exist");
-                                value = new UnInitialisedVariable();
-                            }
-                        }
-                        else
-                        {
-                            if (Identifiers.ContainsKey((refrence.StructRefrence as Identifier).Id))
-                                value = Identifiers[(refrence.StructRefrence as Identifier).Id];
-                            else
-                            {
-                                Errors.Add((refrence.StructRefrence as Identifier).Id + " was not declared before use");
-                                value = new UnInitialisedVariable();
-                            }
-                                
-                        }    
+                        var structType = (Identifiers[refrence.StructRefrence.ToString()] as StructValue).Struct.Identifier.Id;
+                        value = StructRefrenceChecker(refrence, structType);
                     }
                     else
                     {
-                        var id = (refrence.StructRefrence.ToString());
-                        if (Identifiers.ContainsKey(id))
-                        {
-                            if (Identifiers[id] is StructValue)
-                            {
-                                value = StructRefrenceChecker(refrence, (Identifiers[id] as StructValue).Struct.Identifier.Id);
-                            }
-                            else
-                            {
-                                value = new UnInitialisedVariable();
-                                Errors.Add((id + " is not of struct"));
-                            }
-                        }
-                        else
-                        {
-                            value = new UnInitialisedVariable();
-                            Errors.Add(id + " Reference was not initialised before use");
-                        }
+                        Errors.Add(refrence.StructRefrence + " struct refrence was not found");
+                        value = new UnInitialisedVariable();
                     }
                 }
-                               
                 else if (exp.Value is Identifier)
                 {
                     if (Identifiers.ContainsKey((exp.Value as Identifier).Id))
@@ -483,10 +447,16 @@ namespace eeCCompiler.Visitors
                         }
 
                     }
+                }
+            }
+            else if (refrence.Identifier is FuncCall)
+            {
+                foreach (var structpart in Structs[structType].StructParts.StructPartList)
+                {
                     if (structpart is FunctionDeclaration)
                     {
                         FunctionDeclaration funcdecl = (structpart as FunctionDeclaration);
-                        if (funcdecl.TypeId.Identifier.Id == (refrence.StructRefrence as FuncCall).Identifier.Id)
+                        if (funcdecl.TypeId.Identifier.Id == (refrence.Identifier as FuncCall).Identifier.Id)
                         {
                             value = TypeChecker(funcdecl.TypeId.ValueType.ToString());
                             break;
@@ -513,7 +483,7 @@ namespace eeCCompiler.Visitors
                 }
             }
             if (value is UnInitialisedVariable)
-                Errors.Add("You done goofed mr mathias");
+                Errors.Add("A refrence did not exist");
             return value;
         }
         private bool IfChecker(IValue value, IfStatement ifStatement)
