@@ -72,39 +72,42 @@
             @Refrence_Id_Dot = 65,                     // <refrence> ::= Id '.' <refrence>
             @Refrence_Dot = 66,                        // <refrence> ::= <id_index> '.' <refrence>
             @Refrence2 = 67,                           // <refrence> ::= <id_index>
-            @Id_index_Id = 68,                         // <id_index> ::= Id <index>
-            @Index_Lbracket_Rbracket = 69,             // <index> ::= '[' <expr> ']' <index>
-            @Index_Lbracket_Rbracket2 = 70,            // <index> ::= '[' <expr> ']'
-            @Body = 71,                                // <body> ::= <bodypart> <body>
-            @Body2 = 72,                               // <body> ::= 
-            @Bodypart_Semi = 73,                       // <bodypart> ::= <var_decl> ';'
-            @Bodypart_Semi2 = 74,                      // <bodypart> ::= <struct_decl> ';'
-            @Bodypart_Semi3 = 75,                      // <bodypart> ::= <refrence> ';'
-            @Bodypart = 76,                            // <bodypart> ::= <ctrl_stmt>
-            @Bodypart_Return_Semi = 77,                // <bodypart> ::= return <expr> ';'
-            @Expr = 78,                                // <expr> ::= <value> <operator> <expr>
-            @Expr2 = 79,                               // <expr> ::= <value>
-            @Expr_Lparen_Rparen = 80,                  // <expr> ::= '(' <expr> ')'
-            @Expr_Lparen_Rparen2 = 81,                 // <expr> ::= '(' <expr> ')' <operator> <expr>
-            @Expr_Exclam = 82,                         // <expr> ::= '!' <expr>
-            @Expr_Minus = 83,                          // <expr> ::= '-' <expr>
-            @Ctrl_stmt_If_Lbrace_Rbrace = 84,          // <ctrl_stmt> ::= if <expr> '{' <body> '}' <if_exp>
-            @Ctrl_stmt_Repeat_Lbrace_Rbrace = 85,      // <ctrl_stmt> ::= repeat <var_decl> <direction> <expr> '{' <body> '}'
-            @Ctrl_stmt_Repeat_Lparen_Rparen_Lbrace_Rbrace = 86,  // <ctrl_stmt> ::= repeat '(' <var_decl> <direction> <expr> ')' '{' <body> '}'
-            @Ctrl_stmt_Repeat_Lbrace_Rbrace2 = 87,     // <ctrl_stmt> ::= repeat <expr> '{' <body> '}'
-            @Direction_Downto = 88,                    // <direction> ::= downto
-            @Direction_To = 89,                        // <direction> ::= to
-            @If_exp_Else_If_Lbrace_Rbrace = 90,        // <if_exp> ::= else if <expr> '{' <body> '}' <if_exp>
-            @If_exp_Else_Lbrace_Rbrace = 91,           // <if_exp> ::= else '{' <body> '}'
-            @If_exp = 92,                              // <if_exp> ::= 
-            @Func_call_Id_Lparen_Rparen = 93,          // <func_call> ::= Id '(' <expr_list> ')'
-            @Expr_list = 94,                           // <expr_list> ::= <expr> <opt_exprs>
-            @Expr_list2 = 95,                          // <expr_list> ::= <ref_id> <opt_exprs>
-            @Expr_list3 = 96,                          // <expr_list> ::= 
-            @Opt_exprs_Comma = 97,                     // <opt_exprs> ::= ',' <expr> <opt_exprs>
-            @Opt_exprs_Comma2 = 98,                    // <opt_exprs> ::= ',' <ref_id> <opt_exprs>
-            @Opt_exprs = 99,                           // <opt_exprs> ::= 
-            @Ref_id_Ref_Id = 100                       // <ref_id> ::= ref Id
+            @Func_refrence = 68,                       // <func_refrence> ::= <func_call>
+            @Func_refrence_Id_Dot = 69,                // <func_refrence> ::= Id '.' <refrence>
+            @Func_refrence_Dot = 70,                   // <func_refrence> ::= <id_index> '.' <refrence>
+            @Id_index_Id = 71,                         // <id_index> ::= Id <index>
+            @Index_Lbracket_Rbracket = 72,             // <index> ::= '[' <expr> ']' <index>
+            @Index_Lbracket_Rbracket2 = 73,            // <index> ::= '[' <expr> ']'
+            @Body = 74,                                // <body> ::= <bodypart> <body>
+            @Body2 = 75,                               // <body> ::= 
+            @Bodypart_Semi = 76,                       // <bodypart> ::= <var_decl> ';'
+            @Bodypart_Semi2 = 77,                      // <bodypart> ::= <struct_decl> ';'
+            @Bodypart_Semi3 = 78,                      // <bodypart> ::= <func_refrence> ';'
+            @Bodypart = 79,                            // <bodypart> ::= <ctrl_stmt>
+            @Bodypart_Return_Semi = 80,                // <bodypart> ::= return <expr> ';'
+            @Expr = 81,                                // <expr> ::= <value> <operator> <expr>
+            @Expr2 = 82,                               // <expr> ::= <value>
+            @Expr_Lparen_Rparen = 83,                  // <expr> ::= '(' <expr> ')'
+            @Expr_Lparen_Rparen2 = 84,                 // <expr> ::= '(' <expr> ')' <operator> <expr>
+            @Expr_Exclam = 85,                         // <expr> ::= '!' <expr>
+            @Expr_Minus = 86,                          // <expr> ::= '-' <expr>
+            @Ctrl_stmt_If_Lbrace_Rbrace = 87,          // <ctrl_stmt> ::= if <expr> '{' <body> '}' <if_exp>
+            @Ctrl_stmt_Repeat_Lbrace_Rbrace = 88,      // <ctrl_stmt> ::= repeat <var_decl> <direction> <expr> '{' <body> '}'
+            @Ctrl_stmt_Repeat_Lparen_Rparen_Lbrace_Rbrace = 89,  // <ctrl_stmt> ::= repeat '(' <var_decl> <direction> <expr> ')' '{' <body> '}'
+            @Ctrl_stmt_Repeat_Lbrace_Rbrace2 = 90,     // <ctrl_stmt> ::= repeat <expr> '{' <body> '}'
+            @Direction_Downto = 91,                    // <direction> ::= downto
+            @Direction_To = 92,                        // <direction> ::= to
+            @If_exp_Else_If_Lbrace_Rbrace = 93,        // <if_exp> ::= else if <expr> '{' <body> '}' <if_exp>
+            @If_exp_Else_Lbrace_Rbrace = 94,           // <if_exp> ::= else '{' <body> '}'
+            @If_exp = 95,                              // <if_exp> ::= 
+            @Func_call_Id_Lparen_Rparen = 96,          // <func_call> ::= Id '(' <expr_list> ')'
+            @Expr_list = 97,                           // <expr_list> ::= <expr> <opt_exprs>
+            @Expr_list2 = 98,                          // <expr_list> ::= <ref_id> <opt_exprs>
+            @Expr_list3 = 99,                          // <expr_list> ::= 
+            @Opt_exprs_Comma = 100,                    // <opt_exprs> ::= ',' <expr> <opt_exprs>
+            @Opt_exprs_Comma2 = 101,                   // <opt_exprs> ::= ',' <ref_id> <opt_exprs>
+            @Opt_exprs = 102,                          // <opt_exprs> ::= 
+            @Ref_id_Ref_Id = 103                       // <ref_id> ::= ref Id
         }
 
         public enum SymbolIndex
@@ -178,29 +181,30 @@
             @Func_call = 66,                           // <func_call>
             @Func_decl = 67,                           // <func_decl>
             @Func_decls = 68,                          // <Func_decls>
-            @Id_index = 69,                            // <id_index>
-            @If_exp = 70,                              // <if_exp>
-            @Include2 = 71,                            // <include>
-            @Includes = 72,                            // <includes>
-            @Index = 73,                               // <index>
-            @List = 74,                                // <list>
-            @Operator = 75,                            // <operator>
-            @Opt_exprs = 76,                           // <opt_exprs>
-            @Program2 = 77,                            // <Program>
-            @Ref2 = 78,                                // <ref>
-            @Ref_id = 79,                              // <ref_id>
-            @Ref_typeid = 80,                          // <ref_typeid>
-            @Refrence = 81,                            // <refrence>
-            @Struct_decl = 82,                         // <struct_decl>
-            @Struct_def = 83,                          // <struct_def>
-            @Struct_defs = 84,                         // <struct_defs>
-            @Struct_parts = 85,                        // <struct_parts>
-            @Type = 86,                                // <type>
-            @Typeid = 87,                              // <typeid>
-            @Typeid_list = 88,                         // <typeid_list>
-            @Value = 89,                               // <value>
-            @Var_decl = 90,                            // <var_decl>
-            @Var_decls = 91                            // <var_decls>
+            @Func_refrence = 69,                       // <func_refrence>
+            @Id_index = 70,                            // <id_index>
+            @If_exp = 71,                              // <if_exp>
+            @Include2 = 72,                            // <include>
+            @Includes = 73,                            // <includes>
+            @Index = 74,                               // <index>
+            @List = 75,                                // <list>
+            @Operator = 76,                            // <operator>
+            @Opt_exprs = 77,                           // <opt_exprs>
+            @Program2 = 78,                            // <Program>
+            @Ref2 = 79,                                // <ref>
+            @Ref_id = 80,                              // <ref_id>
+            @Ref_typeid = 81,                          // <ref_typeid>
+            @Refrence = 82,                            // <refrence>
+            @Struct_decl = 83,                         // <struct_decl>
+            @Struct_def = 84,                          // <struct_def>
+            @Struct_defs = 85,                         // <struct_defs>
+            @Struct_parts = 86,                        // <struct_parts>
+            @Type = 87,                                // <type>
+            @Typeid = 88,                              // <typeid>
+            @Typeid_list = 89,                         // <typeid_list>
+            @Value = 90,                               // <value>
+            @Var_decl = 91,                            // <var_decl>
+            @Var_decls = 92                            // <var_decls>
         }
     }
 }
