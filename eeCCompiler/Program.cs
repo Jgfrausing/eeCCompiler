@@ -20,11 +20,15 @@ namespace eeCCompiler
             //Console.WriteLine("::::::::::::::::::");
             //parser.Root.Accept(new Treeprint());
             //Console.WriteLine("::::::::::::::::::");
-            parser.Root.Accept(new Typechecker(errors, identifiers));
+            parser.Root.Accept(new Typechecker(errors));
             errors.ForEach(x => Console.WriteLine(x));
             var cCodeVisitor = new CCodeGeneration();
             cCodeVisitor.Visit(parser.Root);
-            Console.Write(cCodeVisitor.CCode);
+
+            var sr = new StreamWriter("code.c");
+            sr.Write(cCodeVisitor.CCode);
+            sr.Close();
+            //Console.Write(cCodeVisitor.CCode);
             Console.ReadKey();
         }
     }
