@@ -34,7 +34,7 @@ namespace eeCCompiler.Visitors
                 if (exp.Value is Refrence)
                 {
                     var refrence = (exp.Value as Refrence);
-                    if (refrence.Identifiers.Count == 0)
+                    if (refrence.Identifier == null)
                     {
                         if (refrence.StructRefrence is FuncCall)
                         {
@@ -69,6 +69,7 @@ namespace eeCCompiler.Visitors
                             }
                             else
                             {
+                                value = new UnInitialisedVariable();
                                 Errors.Add((id + " is not of struct"));
                             }
                         }
@@ -443,14 +444,14 @@ namespace eeCCompiler.Visitors
             var id = refrence.StructRefrence.ToString();
             var structType = (Identifiers[id] as StructValue).Struct.Identifier.Id;
 
-            if (refrence.Identifiers.Count == count+1)
+            if (refrence.Identifier == null)
             { 
                 foreach (var structpart in Structs[structType].StructParts.StructPartList)
                 {
                     if (structpart is VarDecleration)
                     {
                         VarDecleration vardecl = (structpart as VarDecleration);
-                        if (vardecl.Identifier.Id == (refrence.Identifiers[count] as Identifier).Id)
+                        if (vardecl.Identifier.Id == (refrence.Identifier as Identifier).Id)
                         {
                             value = CheckExpression(vardecl.Expression);
                             break;
@@ -475,7 +476,7 @@ namespace eeCCompiler.Visitors
                     if (structpart is StructDecleration)
                     {
                         StructDecleration structDecleration = (structpart as StructDecleration);
-                        if (structDecleration.Identifier.Id == (refrence.Identifiers[count] as Identifier).Id)
+                        if (structDecleration.Identifier.Id == (refrence.Identifier as Identifier).Id)
                         {
                             value = StructRefrenceChecker(refrence, count + 1);
                             break;
@@ -483,6 +484,8 @@ namespace eeCCompiler.Visitors
                     }
                 }
             }
+            if (value is UnInitialisedVariable)
+                Errors.Add("You done goofed mr mathias");
             return value;
         }
         private bool IfChecker(IValue value, IfStatement ifStatement)
