@@ -8,10 +8,10 @@ namespace eeCCompiler.Visitors
 {
     public class Typechecker : Visitor
     {
-        public Typechecker(List<string> errors, Dictionary<string, IValue> identifiers)
+        public Typechecker(List<string> errors)
         {
             Errors = errors;
-            Identifiers = identifiers;
+            Identifiers = new Dictionary<string, IValue>();
             Funcs = new Dictionary<string, Function>();
             Structs = new Dictionary<string, StructDefinition>();
         }
@@ -213,6 +213,14 @@ namespace eeCCompiler.Visitors
                 Structs.Add(structDefinition.Identifier.Id, structDefinition);
             else
                 Errors.Add(structDefinition.Identifier.Id + " was declared twice");
+
+            var preBodyIdentifiers = new Dictionary<string, IValue>();
+            foreach (var val in Identifiers)
+            {
+                preBodyIdentifiers.Add(val.Key, val.Value);
+            }
+            base.Visit(structDefinition);
+            Identifiers = preBodyIdentifiers;
         }
 
         public override void Visit(StructDecleration structDecleration)
@@ -322,7 +330,7 @@ namespace eeCCompiler.Visitors
                 }
                 foreach (var parameter in functionDeclaration.Parameters.TypeIds)
                 {
-                        Identifiers.Add(parameter.TypeId.Identifier.Id, TypeChecker(parameter.TypeId.ValueType.ToString()));
+                    Identifiers.Add(parameter.TypeId.Identifier.Id, TypeChecker(parameter.TypeId.ValueType.ToString()));
                 }
                 IValue Value = TypeChecker(functionDeclaration.TypeId.ValueType.ToString());
                 bool returnFound = ReturnChecker(Value, functionDeclaration.Body.Bodyparts);
