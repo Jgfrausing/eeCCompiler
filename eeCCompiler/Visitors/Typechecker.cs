@@ -80,14 +80,22 @@ namespace eeCCompiler.Visitors
                         }
                     }
                 }
-                
-                
+                               
                 else if (exp.Value is Identifier)
                 {
                     if (Identifiers.ContainsKey((exp.Value as Identifier).Id))
                         value = Identifiers[(exp.Value as Identifier).Id];
                     else
-                        value = new UnInitialisedVariable(); 
+                    {
+                        value = new UnInitialisedVariable();
+                        Errors.Add((exp.Value as Identifier).Id + " Identifier was not initialised before use");
+                    }
+                }
+                else if (exp.Value is FuncCall)
+                {
+                    var id = (exp.Value as FuncCall).Identifier.Id;
+                    if (Funcs.ContainsKey(id))
+                        value = Funcs[id].Value;
                 }
                 else
                     value = exp.Value;
@@ -123,8 +131,19 @@ namespace eeCCompiler.Visitors
                         value1 = Identifiers[id];
                     else
                     {
-                        value1 = new UnInitialisedVariable(); 
+                        value1 = new UnInitialisedVariable();
                         Errors.Add(id + " Reference was not initialised before use");
+                    }
+                }
+                else if (expressionValOpExpr.Value is Identifier)
+                {
+                    var id = (expressionValOpExpr.Value as Identifier).Id;
+                    if (Identifiers.ContainsKey(id))
+                        value1 = Identifiers[id];
+                    else
+                    {
+                        value1 = new UnInitialisedVariable();
+                        Errors.Add(id + " identifier was not initialised before use");
                     }
                 }
                 else
