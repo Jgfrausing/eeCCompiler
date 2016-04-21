@@ -3,7 +3,7 @@ using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
 {
-    public class ListType : AbstractSyntaxTree, IType
+    public class ListType : AbstractSyntaxTree, IType, IExpression
     {
         public IType Type { get; set; }
         public int Dimentions { get; set; }
@@ -16,6 +16,11 @@ namespace eeCCompiler.Nodes
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);
+        }
+
+        public override string ToString()
+        {
+            return Type.ToString();
         }
     }
 }

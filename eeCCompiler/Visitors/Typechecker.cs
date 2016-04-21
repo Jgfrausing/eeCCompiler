@@ -303,11 +303,7 @@ namespace eeCCompiler.Visitors
                 }
                 foreach (var parameter in functionDeclaration.Parameters.TypeIds)
                 {
-                    if (parameter is TypeId)
-                        Identifiers.Add((parameter as TypeId).Identifier.Id, TypeChecker((parameter as TypeId).ValueType.ToString()));
-                    else
-                        Identifiers.Add((parameter as RefTypeId).TypeId.Identifier.Id, TypeChecker((parameter as RefTypeId).TypeId.ValueType.ToString()));
-
+                        Identifiers.Add(parameter.TypeId.Identifier.Id, TypeChecker(parameter.TypeId.ValueType.ToString()));
                 }
                 IValue Value = TypeChecker(functionDeclaration.TypeId.ValueType.ToString());
                 bool returnFound = ReturnChecker(Value, functionDeclaration.Body.Bodyparts);

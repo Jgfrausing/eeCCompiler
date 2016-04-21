@@ -25,15 +25,15 @@ namespace eeCCompiler.Nodes
     {
         public TypeIdList()
         {
-            TypeIds = new List<ITypeId>();
+            TypeIds = new List<RefTypeId>();
         }
 
-        public TypeIdList(List<ITypeId> typeIds)
+        public TypeIdList(List<RefTypeId> typeIds)
         {
             TypeIds = typeIds;
         }
 
-        public List<ITypeId> TypeIds { get; set; }
+        public List<RefTypeId> TypeIds { get; set; }
 
         public override void Accept(IEecVisitor visitor)
         {

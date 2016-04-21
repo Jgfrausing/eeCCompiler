@@ -8,15 +8,15 @@ namespace eeCCompiler.Nodes
     {
         public FunctionDeclarations()
         {
-            FunctionDeclaration = new List<FunctionDeclaration>();
+            FunctionDeclarationList = new List<FunctionDeclaration>();
         }
 
         public FunctionDeclarations(List<FunctionDeclaration> functionDeclaration)
         {
-            FunctionDeclaration = functionDeclaration;
+            FunctionDeclarationList = functionDeclaration;
         }
 
-        public List<FunctionDeclaration> FunctionDeclaration { get; set; }
+        public List<FunctionDeclaration> FunctionDeclarationList { get; set; }
 
         public override void Accept(IEecVisitor visitor)
         {

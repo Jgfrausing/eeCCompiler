@@ -228,16 +228,18 @@ namespace eeCCompiler
                     break;
 
                 case Indexes.Indexes.ProductionIndex.Typeid_Id2:
-
+                    // <typeid> ::= <list> Id
+                    result = new TypeId(new Identifier(r.get_Data(1).ToString()), _reductionStack.Pop() as IType);
+                    break;
 
                 case Indexes.Indexes.ProductionIndex.Brackets_Lbracketrbracket:           
                     // <brackets> ::= '[]' <brackets>
-                    //ERROR
+                    result = new ListDimentions(_reductionStack.Pop() as ListDimentions);
                     break;
 
                 case Indexes.Indexes.ProductionIndex.Brackets_Lbracketrbracket2:
                     // <brackets> ::= '[]'
-                    //ERROR
+                    result = new ListDimentions();
                     break;
 
                 #endregion
@@ -276,7 +278,7 @@ namespace eeCCompiler
 
                 case Indexes.Indexes.ProductionIndex.Var_decl_Id2:
                     // <var_decl> ::= Id <assign_opr> <list>
-                    //ERROR
+                    result = new VarDecleration(_reductionStack.Pop() as IExpression, _reductionStack.Pop() as AssignmentOperator, new Identifier(r.get_Data(0).ToString())); 
                     break;
 
                 case Indexes.Indexes.ProductionIndex.List:
@@ -689,7 +691,7 @@ namespace eeCCompiler
         private AbstractSyntaxTree CreateFunctionDeclarationList()
         {
             var funcDecls = _reductionStack.Pop() as FunctionDeclarations;
-            funcDecls.FunctionDeclaration.Insert(0, _reductionStack.Pop() as FunctionDeclaration);
+            funcDecls.FunctionDeclarationList.Insert(0, _reductionStack.Pop() as FunctionDeclaration);
 
             return funcDecls;
         }
@@ -697,7 +699,7 @@ namespace eeCCompiler
         private AbstractSyntaxTree CreateTypeIdList()
         {
             var typeIds = _reductionStack.Pop() as TypeIdList;
-            typeIds.TypeIds.Insert(0, _reductionStack.Pop() as ITypeId);
+            typeIds.TypeIds.Insert(0, _reductionStack.Pop() as RefTypeId);
 
             return typeIds;
         }

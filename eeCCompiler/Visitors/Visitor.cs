@@ -68,7 +68,7 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(FunctionDeclarations functionDeclarations)
         {
-            foreach (var funcdecl in functionDeclarations.FunctionDeclaration)
+            foreach (var funcdecl in functionDeclarations.FunctionDeclarationList)
             {
                 funcdecl.Accept(this);
             }
