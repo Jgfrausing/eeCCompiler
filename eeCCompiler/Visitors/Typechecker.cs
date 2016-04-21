@@ -180,7 +180,6 @@ namespace eeCCompiler.Visitors
         public override void Visit(Constant constant)
         {
             constant.Identifier.Accept(this);
-
             if (constant.ConstantPart is NumValue)
                 Identifiers[constant.Identifier.Id] = constant.ConstantPart as NumValue;
             else if (constant.ConstantPart is BoolValue)
@@ -199,6 +198,8 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(StructDecleration structDecleration)
         {
+            if (!(structDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq))
+                Errors.Add("The " + structDecleration.AssignmentOperator.Symbol + " can not be used on a struct");
             if (!(Identifiers.ContainsKey(structDecleration.Identifier.Id)))
                 Identifiers.Add(structDecleration.Identifier.Id, new StructValue(Structs[structDecleration.StructIdentifier.Id]));
             else if (!(Identifiers[structDecleration.Identifier.Id] is StructValue))
@@ -216,39 +217,6 @@ namespace eeCCompiler.Visitors
         public override void Visit(ExpressionValOpExpr expressionValOpExpr)
         {
             CheckExpression(expressionValOpExpr);
-
-
-            /*if(expression.Name == "ExpressionVal")
-            {
-                IValue expressionValue = (expressionValOpExpr.Expression as ExpressionVal).Value;
-                if (expressionValue.GetType().Name == value1.Name)
-                {
-                    if (value1.Name == "NumValue" &&
-                        expressionValOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Plus ||
-                        expressionValOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Minus ||
-                        expressionValOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Div ||
-                        expressionValOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Times ||
-                        expressionValOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Mod)
-                    {
-                        Console.WriteLine("YOU DID A NUM RIGHT");
-                    }
-                    else if (value1.Name == "StringValue" &&
-                            expressionValOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Plus)
-                    {
-                        Console.WriteLine("YOU DID A STRING RIGHT");
-                    }
-                    else if (value1.Name == "BoolValue" &&
-                        expressionValOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.And ||
-                        expressionValOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Eqeq ||
-                        expressionValOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Lt ||
-                        expressionValOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Lteq ||
-                        expressionValOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Gt ||
-                        expressionValOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Gteq ||
-                        expressionValOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Or ||
-                        expressionValOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Exclameq)
-                    {
-                        Console.WriteLine("YOU DID A BOOL RIGHT");
-                    }*/
         }
 
         public override void Visit(ExpressionMinus expressionMinus)
@@ -281,12 +249,14 @@ namespace eeCCompiler.Visitors
         {
             if (!Identifiers.ContainsKey(varDecleration.Identifier.Id))
                 varDecleration.IsFirstUse = true;
+            if (!(varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq) && varDecleration.IsFirstUse)
+                Errors.Add("The " + varDecleration.AssignmentOperator.Symbol + " can not be used on an uninitialised variable");
             varDecleration.Identifier.Accept(this);
             varDecleration.AssignmentOperator.Accept(this);
             var value = CheckExpression(varDecleration.Expression);
             if (value is UnInitialisedVariable)
             {
-                Errors.Add("Identifiier " + varDecleration.Identifier.Id + " was not assigned a value");
+                Errors.Add("Identifier " + varDecleration.Identifier.Id + " was not assigned a value");
             }
             else if (Identifiers[varDecleration.Identifier.Id] is Identifier)
             {
@@ -297,7 +267,14 @@ namespace eeCCompiler.Visitors
                 Identifiers[varDecleration.Identifier.Id] = value;
             }
             else if (Identifiers[varDecleration.Identifier.Id].GetType().Name == value.GetType().Name)
+            {
+                if (Identifiers[varDecleration.Identifier.Id] is BoolValue &&
+                   !(varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq))
+                    Errors.Add(varDecleration.AssignmentOperator.Symbol + " can not be used with two bool values");
+                else if (Identifiers[varDecleration.Identifier.Id] is StringValue && varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Minuseq)
+                    Errors.Add(varDecleration.AssignmentOperator.Symbol + " can not be used with two string values");
                 Identifiers[varDecleration.Identifier.Id] = value;
+            }
             else
                 Errors.Add("Identifier " + varDecleration.Identifier.Id + " is of type " +
                            Identifiers[varDecleration.Identifier.Id].GetType().Name + " but a "
@@ -319,11 +296,25 @@ namespace eeCCompiler.Visitors
         {
             if (!(Funcs.ContainsKey(functionDeclaration.TypeId.Identifier.Id)))
             {
+                var preBodyIdentifiers = new Dictionary<string, IValue>();
+                foreach (var val in Identifiers)
+                {
+                    preBodyIdentifiers.Add(val.Key, val.Value);
+                }
+                foreach (var parameter in functionDeclaration.Parameters.TypeIds)
+                {
+                    if (parameter is TypeId)
+                        Identifiers.Add((parameter as TypeId).Identifier.Id, TypeChecker((parameter as TypeId).ValueType.ToString()));
+                    else
+                        Identifiers.Add((parameter as RefTypeId).TypeId.Identifier.Id, TypeChecker((parameter as RefTypeId).TypeId.ValueType.ToString()));
+
+                }
                 IValue Value = TypeChecker(functionDeclaration.TypeId.ValueType.ToString());
                 bool returnFound = ReturnChecker(Value, functionDeclaration.Body.Bodyparts);
                 if (returnFound == false)
                     Errors.Add("not all paths in " + functionDeclaration.TypeId.Identifier.Id + " return a value");
                 Funcs.Add(functionDeclaration.TypeId.Identifier.Id, new Function(functionDeclaration, TypeChecker(functionDeclaration.TypeId.ValueType.ToString())));
+                Identifiers = preBodyIdentifiers;
             }
             else
                 Errors.Add(functionDeclaration.TypeId.Identifier.Id + " was declared twice");
@@ -508,6 +499,11 @@ namespace eeCCompiler.Visitors
         private bool ReturnChecker(IValue value, List<IBodypart> bodyParts)
         {
             bool returnFound = false;
+            var preBodyIdentifiers = new Dictionary<string, IValue>();
+            foreach (var val in Identifiers)
+            {
+                preBodyIdentifiers.Add(val.Key, val.Value);
+            }
             foreach (var bp in bodyParts)
             {
                 if (bp is IfStatement)
@@ -520,9 +516,10 @@ namespace eeCCompiler.Visitors
                     string type2 = CheckExpression((bp as Return).Expression).GetType().Name;
                     returnFound = true;
                     if (type1 != type2)
-                        Errors.Add("return value of " + "!!!LAVDET!!!" + " is not valid");
+                        Errors.Add("return value of " + "!!!FunktionsNavnHer!!!" + " is not valid");
                 }
             }
+            Identifiers = preBodyIdentifiers;
             return returnFound;
         }
 
