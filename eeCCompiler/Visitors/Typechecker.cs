@@ -65,7 +65,7 @@ namespace eeCCompiler.Visitors
                         {
                             if (Identifiers[id] is StructValue)
                             {
-                                value = StructRefrenceChecker(refrence,0);
+                                value = StructRefrenceChecker(refrence, (Identifiers[id] as StructValue).Struct.Identifier.Id);
                             }
                             else
                             {
@@ -438,13 +438,13 @@ namespace eeCCompiler.Visitors
                            " " + value2.GetType().Name);
             return value1;
         }
-        private IValue StructRefrenceChecker(Refrence refrence, int count)
+        private IValue StructRefrenceChecker(Refrence refrence, string structType)
         {
             IValue value = new UnInitialisedVariable();
             var id = refrence.StructRefrence.ToString();
-            var structType = (Identifiers[id] as StructValue).Struct.Identifier.Id;
+            //var structType = (Identifiers[id] as StructValue).Struct.Identifier.Id;
 
-            if (refrence.Identifier == null)
+            if (refrence.Identifier is Identifier)
             { 
                 foreach (var structpart in Structs[structType].StructParts.StructPartList)
                 {
@@ -476,10 +476,13 @@ namespace eeCCompiler.Visitors
                     if (structpart is StructDecleration)
                     {
                         StructDecleration structDecleration = (structpart as StructDecleration);
-                        if (structDecleration.Identifier.Id == (refrence.Identifier as Identifier).Id)
+                        if (refrence.Identifier is Refrence)
                         {
-                            value = StructRefrenceChecker(refrence, count + 1);
-                            break;
+                            if (structDecleration.Identifier.Id == (refrence.Identifier as Refrence).StructRefrence.ToString())
+                            {
+                                value = StructRefrenceChecker(refrence.Identifier as Refrence, structDecleration.StructIdentifier.Id);
+                                break;
+                            }
                         }
                     }
                 }
