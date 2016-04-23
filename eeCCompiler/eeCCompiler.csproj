@@ -98,6 +98,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Visitors\CCodeGeneration.cs" />
+    <Compile Include="Visitors\CCode\ListGenerator.cs" />
     <Compile Include="Visitors\IEecVisitor.cs" />
     <Compile Include="Visitors\PrettyPrinter.cs" />
     <Compile Include="Visitors\Treeprint.cs" />
