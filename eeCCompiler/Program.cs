@@ -11,17 +11,17 @@ namespace eeCCompiler
     {
         private static void Main(string[] args)
         {
-            var testingList = new DefaultCCode();
-            var s = testingList.GetIncludes();
-            s += testingList.GenerateListTypeHeader("int");
-            //s += testingList.GenerateListTypeHeader("myTest");
-            s += testingList.GenerateListTypeCode("int");
-            //s += testingList.GenerateListTypeCode("myTest");
-            s += testingList.IncludeMain(@"..\..\C_code\MainForTestingIntList.c");
-            var test = new StreamWriter("testinglistcode.c");
-            test.Write(s);
-            test.Close();
-            Environment.Exit(1);
+            //var testingList = new DefaultCCode();
+            //var s = testingList.GetIncludes();
+            //s += testingList.GenerateListTypeHeader("int");
+            ////s += testingList.GenerateListTypeHeader("myTest");
+            //s += testingList.GenerateListTypeCode("int");
+            ////s += testingList.GenerateListTypeCode("myTest");
+            //s += testingList.IncludeMain(@"..\..\C_code\MainForTestingIntList.c");
+            //var test = new StreamWriter("testinglistcode.c");
+            //test.Write(s);
+            //test.Close();
+            //Environment.Exit(1);
             var parser = new MyParser(); //Derp
             var result = parser.Parse(new StreamReader("HelloWorld.eec"));
             var syntax = result ? "The syntax is correct!" : "There are errors in the syntax";

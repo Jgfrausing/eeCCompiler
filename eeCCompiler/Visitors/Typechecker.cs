@@ -60,7 +60,26 @@ namespace eeCCompiler.Visitors
                 {
                     var id = (exp.Value as FuncCall).Identifier.Id;
                     if (Funcs.ContainsKey(id))
+                    {
                         value = Funcs[id].Value;
+                        //Check om kald og parametre stemmer overens
+                        if (Funcs[id].FuncDecl.Parameters.TypeIds.Count == (exp.Value as FuncCall).Expressions.Count)
+                        {
+                            bool parametersCorrect = true;
+                            for (int i = 0; i < Funcs[id].FuncDecl.Parameters.TypeIds.Count; i++)
+                            {
+                                if (!(TypeChecker(Funcs[id].FuncDecl.Parameters.TypeIds[i].TypeId.ValueType.ToString()).GetType().ToString() ==
+                                    CheckExpression((exp.Value as FuncCall).Expressions[i] as IExpression).GetType().ToString()))
+                                    parametersCorrect = false;
+                            }
+                            if (!parametersCorrect)
+                            {
+                                Errors.Add("Parameters for " + (exp.Value as FuncCall).Identifier.Id + " was not correct");
+                            }
+                        }
+                        else
+                            Errors.Add("Parameters for " + (exp.Value as FuncCall).Identifier.Id + " was not correct");
+                    }
                 }
                 else
                     value = exp.Value;
@@ -133,12 +152,8 @@ namespace eeCCompiler.Visitors
                 IValue value = null;
                 if (Funcs.ContainsKey(funcCall.Identifier.Id))
                 {
-                    //string valueType = Funcs[funcCall.Identifier.Id].TypeId.ValueType.ValueType;
-                    //value = TypeChecker(valueType);
-
                     string valueType = Funcs[funcCall.Identifier.Id].FuncDecl.TypeId.ValueType.ToString();
                     value = TypeChecker(valueType);
-
                 }
                 else
                 {
@@ -146,6 +161,10 @@ namespace eeCCompiler.Visitors
                     Errors.Add(funcCall.Identifier.Id + " function has not been declared");
                 }
                 return value; // TODO ikke færdig not sure here.
+            }
+            else if (expression is ListType)
+            {
+                return new ListValue(expression as ListType, TypeChecker((expression as ListType).Type.ToString()));
             }
             Errors.Add("FATAL ERROR IN COMPILER EXPRESSION NOT CAUGHT IN TYPECHECKER");
             return new UnInitialisedVariable(); //Burde vi aldrig nå tror jeg
@@ -179,13 +198,20 @@ namespace eeCCompiler.Visitors
             else
                 Errors.Add(structDefinition.Identifier.Id + " was declared twice");
 
+            //RYD OP!!
             var preBodyIdentifiers = new Dictionary<string, IValue>();
             foreach (var val in Identifiers)
             {
                 preBodyIdentifiers.Add(val.Key, val.Value);
             }
+            var preStructDefFunctions = new Dictionary<string, Function>();
+            foreach (var val in preStructDefFunctions)
+            {
+                preStructDefFunctions.Add(val.Key, val.Value);
+            }
             base.Visit(structDefinition);
             Identifiers = preBodyIdentifiers;
+            Funcs = preStructDefFunctions;
         }
 
         public override void Visit(StructDecleration structDecleration)
@@ -198,7 +224,7 @@ namespace eeCCompiler.Visitors
                 Errors.Add(structDecleration.Identifier.Id + " is not of type " + structDecleration.StructIdentifier.Id);
             else if (!((Identifiers[structDecleration.Identifier.Id] as StructValue).Struct.Identifier.Id == Structs[structDecleration.StructIdentifier.Id].Identifier.Id))
                 Errors.Add(structDecleration.Identifier.Id + " is not of type " + structDecleration.StructIdentifier.Id);
-            base.Visit(structDecleration);
+           // base.Visit(structDecleration);
         }
 
         public override void Visit(ExpressionNegate expressionNegate)
@@ -297,8 +323,12 @@ namespace eeCCompiler.Visitors
                 {
                     Identifiers.Add(parameter.TypeId.Identifier.Id, TypeChecker(parameter.TypeId.ValueType.ToString()));
                 }
+                bool returnFound;
                 IValue Value = TypeChecker(functionDeclaration.TypeId.ValueType.ToString());
-                bool returnFound = ReturnChecker(Value, functionDeclaration.Body.Bodyparts);
+                if (functionDeclaration.TypeId.ValueType.ToString() == "void")
+                    returnFound = true;
+                else
+                    returnFound = ReturnChecker(Value, functionDeclaration.Body.Bodyparts);
                 if (returnFound == false)
                     Errors.Add("not all paths in " + functionDeclaration.TypeId.Identifier.Id + " return a value");
                 Funcs.Add(functionDeclaration.TypeId.Identifier.Id, new Function(functionDeclaration, TypeChecker(functionDeclaration.TypeId.ValueType.ToString())));
@@ -315,12 +345,14 @@ namespace eeCCompiler.Visitors
             Visit(ifStatement.Body);
             Visit(ifStatement.ElseStatement);
         }
+
         public override void Visit(RepeatExpr repeatExpr)
         {
             if (!(CheckExpression(repeatExpr.Expression) is BoolValue))
                 Errors.Add("repeats expects a bool but got " + CheckExpression(repeatExpr.Expression).GetType().Name);
             Visit(repeatExpr.Body);
         }
+
         public override void Visit(RepeatFor repeatFor)
         {
             Visit(repeatFor.VarDecleration);
@@ -333,6 +365,23 @@ namespace eeCCompiler.Visitors
             Visit(repeatFor.Direction);
             Visit(repeatFor.Body);
         }
+
+        public override void Visit(Refrence refrence) //Bliver kun besøgt hvis refrence er en bodypart aka når vi har et funktionskald uden for en vardecl.
+        {
+            NakedFuncCallChecker(refrence);
+        }
+
+        public override void Visit(FuncCall funcCall)
+        {
+            if (!(Funcs.ContainsKey(funcCall.Identifier.Id)))
+            {
+                string expressions = "";
+                funcCall.Expressions.ForEach(x => expressions += x.ToString() + ",");
+                if (expressions.Length > 0)
+                    expressions = expressions.Remove(expressions.Length - 1, 1);
+                Errors.Add(funcCall.Identifier.Id + "(" + expressions +  ") was not declared but was used in the code");
+            }
+       }
         #endregion
 
         #region Private checker metoder
@@ -431,7 +480,8 @@ namespace eeCCompiler.Visitors
         private IValue StructRefrenceChecker(Refrence refrence, string structType, Refrence exp)
         {
             IValue value = new UnInitialisedVariable();
-            var id = refrence.StructRefrence.ToString();
+            bool valueFound = false;
+            //var id = refrence.StructRefrence.ToString();
             //var structType = (Identifiers[id] as StructValue).Struct.Identifier.Id;
 
             if (refrence.Identifier is Identifier)
@@ -444,6 +494,7 @@ namespace eeCCompiler.Visitors
                         if (vardecl.Identifier.Id == (refrence.Identifier as Identifier).Id)
                         {
                             value = CheckExpression(vardecl.Expression);
+                            valueFound = true;
                             break;
                         }
 
@@ -462,6 +513,7 @@ namespace eeCCompiler.Visitors
                         if (funcdecl.TypeId.Identifier.Id == (refrence.Identifier as FuncCall).Identifier.Id)
                         {
                             value = TypeChecker(funcdecl.TypeId.ValueType.ToString());
+                            valueFound = true;
                             break;
                         }
                     }
@@ -479,15 +531,56 @@ namespace eeCCompiler.Visitors
                             if (structDecleration.Identifier.Id == (refrence.Identifier as Refrence).StructRefrence.ToString())
                             {
                                 value = StructRefrenceChecker(refrence.Identifier as Refrence, structDecleration.StructIdentifier.Id,exp);
+                                valueFound = true;
                                 break;
                             }
                         }
                     }
                 }
             }
-            if (value is UnInitialisedVariable)
+            if (value is UnInitialisedVariable && !valueFound)
                 Errors.Add("A refrence did not exist");
             return value;
+        }
+        private void NakedFuncCallChecker(Refrence refrence)
+        {
+            if (Identifiers.ContainsKey(refrence.StructRefrence.ToString()))
+            {
+                if (Identifiers[refrence.StructRefrence.ToString()] is StructValue)
+                {
+                    var value = StructRefrenceChecker(refrence, (Identifiers[refrence.StructRefrence.ToString()] as StructValue).Struct.Identifier.Id, refrence);
+                }
+
+                else if (Identifiers[refrence.StructRefrence.ToString()] is ListValue)
+                {
+                    if (refrence.Identifier is FuncCall)
+                    {
+                        ListFuncChecker((refrence.Identifier as FuncCall), Identifiers[refrence.StructRefrence.ToString()] as ListValue);
+                    }
+                    else
+                    {
+                        Errors.Add("Lists do not have any values associated to them, please use a function instead");
+                    }
+                }
+            }
+            else
+                Errors.Add(refrence.StructRefrence.ToString() + " was not found");
+        }
+        private void ListFuncChecker(FuncCall funcCall, ListValue listValue)
+        {
+            if (funcCall.Identifier.Id == "add")
+            {
+                if (funcCall.Expressions.Count == 1)
+                {
+                    if (!(CheckExpression(funcCall.Expressions[0] as IExpression).GetType().ToString() == listValue.Value.GetType().ToString())) //Kan jeg det !!JONATAN DA FUQ!!
+                        Errors.Add("List is of type " + listValue.GetType().ToString() + " but a " + (funcCall.Expressions[0] as IExpression).GetType().ToString() + " was tried to be added");
+                }
+                else
+                    Errors.Add("Only one element can be added to a list at a time");
+            }
+
+            else
+                Errors.Add("unknown list function " + funcCall.Identifier.ToString());
         }
         private bool IfChecker(IValue value, IfStatement ifStatement)
         {
@@ -560,6 +653,20 @@ namespace eeCCompiler.Visitors
         }
         public IValue Value { get; set; }
         public FunctionDeclaration FuncDecl { get; set; }
+        public void Accept(IEecVisitor visitor)
+        {
+            //bliver aldrig kaldt
+        }
+    }
+    public class ListValue : IValue
+    {
+        public ListValue(ListType listType, IValue value)
+        {
+            Type = listType;
+            Value = value;
+        }
+        public ListType Type {get; set;}
+        public IValue Value { get; set; }
         public void Accept(IEecVisitor visitor)
         {
             //bliver aldrig kaldt
