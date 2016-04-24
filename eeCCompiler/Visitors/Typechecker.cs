@@ -63,22 +63,7 @@ namespace eeCCompiler.Visitors
                     {
                         value = Funcs[id].Value;
                         //Check om kald og parametre stemmer overens
-                        if (Funcs[id].FuncDecl.Parameters.TypeIds.Count == (exp.Value as FuncCall).Expressions.Count)
-                        {
-                            bool parametersCorrect = true;
-                            for (int i = 0; i < Funcs[id].FuncDecl.Parameters.TypeIds.Count; i++)
-                            {
-                                if (!(TypeChecker(Funcs[id].FuncDecl.Parameters.TypeIds[i].TypeId.ValueType.ToString()).GetType().ToString() ==
-                                    CheckExpression((exp.Value as FuncCall).Expressions[i] as IExpression).GetType().ToString()))
-                                    parametersCorrect = false;
-                            }
-                            if (!parametersCorrect)
-                            {
-                                Errors.Add("Parameters for " + (exp.Value as FuncCall).Identifier.Id + " was not correct");
-                            }
-                        }
-                        else
-                            Errors.Add("Parameters for " + (exp.Value as FuncCall).Identifier.Id + " was not correct");
+                        ParameterChecker(Funcs[id].FuncDecl, exp.Value as FuncCall);
                     }
                     else
                     {
@@ -150,7 +135,7 @@ namespace eeCCompiler.Visitors
 
                 return OprChecker(value1, value2, expressionParenOpExpr.Operator, expressionType);
             }
-            else if (expression is FuncCall)
+            else if (expression is FuncCall) //Ikke sikker på vi nogensinde får... skal testes!
             {
                 //Check om input matcher det som er deklaræret
                 var funcCall = expression as FuncCall;
@@ -214,7 +199,8 @@ namespace eeCCompiler.Visitors
             {
                 preStructDefFunctions.Add(val.Key, val.Value);
             }
-            base.Visit(structDefinition);
+
+            structDefinition.StructParts.Accept(this);
             Identifiers = preBodyIdentifiers;
             Funcs = preStructDefFunctions;
         }
@@ -518,6 +504,7 @@ namespace eeCCompiler.Visitors
                         if (funcdecl.TypeId.Identifier.Id == (refrence.Identifier as FuncCall).Identifier.Id)
                         {
                             value = TypeChecker(funcdecl.TypeId.ValueType.ToString());
+                            ParameterChecker(funcdecl, refrence.Identifier as FuncCall);
                             valueFound = true;
                             break;
                         }
@@ -626,6 +613,43 @@ namespace eeCCompiler.Visitors
             }
             Identifiers = preBodyIdentifiers;
             return returnFound;
+        }
+        private void ParameterChecker(FunctionDeclaration funcDecl, FuncCall funcCall)
+        {
+            if (funcDecl.Parameters.TypeIds.Count == funcCall.Expressions.Count)
+            {
+                bool parametersCorrect = true;
+                for (int i = 0; i < funcDecl.Parameters.TypeIds.Count; i++)
+                {
+                    string type1 = "", type2 = "";
+                    bool refBool = false;
+
+                    if (funcCall.Expressions[i] is RefId)
+                    {
+                        if (Identifiers.ContainsKey((funcCall.Expressions[i] as RefId).Identifier.Id))
+                            type1 = Identifiers[(funcCall.Expressions[i] as RefId).Identifier.Id].GetType().ToString();
+                        else
+                        {
+                            Errors.Add((funcCall.Expressions[i] as RefId).Identifier.Id + " does not exist at the call of " + funcCall.Identifier.Id); 
+                            type1 = "Uninitialized value";
+                        }
+                        refBool = true;
+                    }
+                    else
+                        type1 = CheckExpression(funcCall.Expressions[i] as IExpression).GetType().ToString();
+
+                    type2 = TypeChecker(funcDecl.Parameters.TypeIds[i].TypeId.ValueType.ToString()).GetType().ToString();
+
+                    if (!(type1 == type2 && (funcDecl.Parameters.TypeIds[i].Ref == refBool) || type1 == "Uninitialized value"))
+                        parametersCorrect = false;
+                }
+                if (!parametersCorrect)
+                {
+                    Errors.Add("Parameters for " + funcCall.Identifier.Id + " was not correct");
+                }
+            }
+            else
+                Errors.Add("Parameters for " + funcCall.Identifier.Id + " was not correct");
         }
 
         #endregion
