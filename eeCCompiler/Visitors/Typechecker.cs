@@ -80,6 +80,11 @@ namespace eeCCompiler.Visitors
                         else
                             Errors.Add("Parameters for " + (exp.Value as FuncCall).Identifier.Id + " was not correct");
                     }
+                    else
+                    {
+                        Errors.Add((exp.Value as FuncCall).Identifier.Id + " function call was not found");
+                        value = new UnInitialisedVariable();
+                    }
                 }
                 else
                     value = exp.Value;
