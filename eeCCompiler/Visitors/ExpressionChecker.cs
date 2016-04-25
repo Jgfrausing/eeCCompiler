@@ -64,6 +64,29 @@ namespace eeCCompiler.Visitors
                         value = new UnInitialisedVariable();
                     }
                 }
+                else if (exp.Value is IdIndex)
+                {
+                    var idIndex = exp.Value as IdIndex;
+                    if (_typechecker.Identifiers.ContainsKey(idIndex.Identifier.Id))
+                    {
+                        if (_typechecker.Identifiers[idIndex.Identifier.Id] is ListValue)
+                        {
+                            value = (_typechecker.Identifiers[idIndex.Identifier.Id] as ListValue).Value;
+                        }
+                        else
+                        {
+                            _typechecker.Errors.Add("Expected a List but identifier " + idIndex.Identifier.Id + " is of type " +
+                                _typechecker.Identifiers[idIndex.Identifier.Id].GetType().ToString());
+                            value = new UnInitialisedVariable();
+                        }
+                    }
+                    else
+                    {
+                        value = new UnInitialisedVariable();
+                        _typechecker.Errors.Add(idIndex.Identifier.Id + " identifier was not found");
+                    }
+                    return value;
+                }
                 else
                     value = exp.Value;
                 return value;
@@ -286,6 +309,29 @@ namespace eeCCompiler.Visitors
                         {
                             value = TypeChecker(funcdecl.TypeId.ValueType.ToString());
                             ParameterChecker(funcdecl, refrence.Identifier as FuncCall);
+                            valueFound = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            else if (refrence.Identifier is IdIndex)
+            {
+                foreach (var structpart in _typechecker.Structs[structType].StructParts.StructPartList)
+                {
+                    if (structpart is VarDecleration)
+                    {
+                        if ((structpart as VarDecleration).Identifier.Id == (refrence.Identifier as IdIndex).Identifier.Id)
+                        {
+                            value = CheckExpression((structpart as VarDecleration).Expression);
+                            if (value is ListValue)
+                            {
+                                value = (value as ListValue).Value;
+                            }
+                            else
+                            {
+                                _typechecker.Errors.Add("Expected list but got a " + value.GetType().ToString());
+                            }
                             valueFound = true;
                             break;
                         }
