@@ -176,6 +176,7 @@ namespace eeCCompiler.Visitors
             return new UnInitialisedVariable(); //Burde vi aldrig nå tror jeg
         }
 
+        #region CheckerFunctions
         public bool NumChecker(IValue value, Operator opr)
         {
             return value is NumValue &&
@@ -483,5 +484,6 @@ namespace eeCCompiler.Visitors
             else
                 _typechecker.Errors.Add("Parameters for " + funcCall.Identifier.Id + " was not correct");
         }
+        #endregion
     }
 }

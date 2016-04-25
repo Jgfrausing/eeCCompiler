@@ -176,6 +176,8 @@ namespace eeCCompiler.Visitors
                 }
                 foreach (var parameter in functionDeclaration.Parameters.TypeIds)
                 {
+                    if (parameter.TypeId.ValueType.ToString() == "void")
+                        Errors.Add("Parameter to function can not be of type void");
                     Identifiers.Add(parameter.TypeId.Identifier.Id, _expressionChecker.TypeChecker(parameter.TypeId.ValueType.ToString()));
                 }
                 bool returnFound;
