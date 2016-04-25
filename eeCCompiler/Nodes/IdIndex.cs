@@ -3,7 +3,7 @@ using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
 {
-    public class IdIndex : AbstractSyntaxTree, IStructRefrence, IIdentifier, IExpression
+    public class IdIndex : AbstractSyntaxTree, IStructRefrence, IIdentifier, IExpression, IValue
     {
         public IdIndex(ListIndex listIndex, Identifier identifier)
         {

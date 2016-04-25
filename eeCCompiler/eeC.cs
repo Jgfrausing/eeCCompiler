@@ -504,7 +504,7 @@ namespace eeCCompiler
                     break;
                 case Indexes.Indexes.ProductionIndex.Refrence2:
                     // <refrence> ::= <id_index>
-                    result = new Refrence(_reductionStack.Pop() as ListIndex);
+                    result = _reductionStack.Pop() as IdIndex;
                     break;
 
                 case Indexes.Indexes.ProductionIndex.Id_index_Id:
