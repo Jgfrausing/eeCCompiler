@@ -147,11 +147,14 @@ namespace eeCCompiler.Visitors
         {
             if (!Identifiers.ContainsKey(varDecleration.Identifier.Id))
                 varDecleration.IsFirstUse = true;
+
             if (!(varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq) && varDecleration.IsFirstUse)
                 Errors.Add("The " + varDecleration.AssignmentOperator.Symbol + " can not be used on an uninitialised variable");
             varDecleration.Identifier.Accept(this);
+
             varDecleration.AssignmentOperator.Accept(this);
             var value = _expressionChecker.CheckExpression(varDecleration.Expression);
+
             if (value is UnInitialisedVariable)
             {
                 Errors.Add("Identifier " + varDecleration.Identifier.Id + " was not assigned a value");

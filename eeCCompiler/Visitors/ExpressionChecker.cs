@@ -29,9 +29,29 @@ namespace eeCCompiler.Visitors
                     var refrence = (exp.Value as Refrence);
                     if (_typechecker.Identifiers.ContainsKey(refrence.StructRefrence.ToString()))
                     {
-                        var structType = (_typechecker.Identifiers[refrence.StructRefrence.ToString()] as StructValue).Struct.Identifier.Id;
-                        value = StructRefrenceChecker(refrence, structType, refrence);
-                        exp.Value = refrence;
+                        if (_typechecker.Identifiers[refrence.StructRefrence.ToString()] is StructValue) {
+                            var structType = (_typechecker.Identifiers[refrence.StructRefrence.ToString()] as StructValue).Struct.Identifier.Id;
+                            value = StructRefrenceChecker(refrence, structType, refrence);
+                            exp.Value = refrence;
+                        }
+                        else
+                        {
+                            if (refrence.Identifier is FuncCall)
+                            {
+                                if ((refrence.Identifier as FuncCall).Identifier.Id == "count")
+                                    value = new NumValue(2.0);
+                                else
+                                    value = new UnInitialisedVariable();
+
+                                ListFuncChecker(refrence.Identifier as FuncCall, _typechecker.Identifiers[refrence.StructRefrence.ToString()] as ListValue);
+                            }
+                            else
+                            {
+                                _typechecker.Errors.Add("Lists do not contain any fields"); 
+                                value = new UnInitialisedVariable();
+                            }
+                        }
+
                     }
                     else
                     {
