@@ -311,7 +311,7 @@ namespace eeCCompiler.Visitors
                         {
                             value = CheckExpression(vardecl.Expression);
                             valueFound = true;
-                            break;
+                            break; 
                         }
 
                     }
@@ -373,6 +373,26 @@ namespace eeCCompiler.Visitors
                                 value = StructRefrenceChecker(refrence.Identifier as Refrence, structDecleration.StructIdentifier.Id,exp);
                                 valueFound = true;
                                 break;
+                            }
+                        }
+                    }
+                    else if (structpart is VarDecleration)
+                    {
+                        var varDecl  = (structpart as VarDecleration);
+                        if (varDecl.Identifier.Id == (refrence.Identifier as Refrence).StructRefrence.ToString())
+                        {
+                            if ((CheckExpression(varDecl.Expression) is ListValue))
+                            {
+                                var listRefrence = (refrence.Identifier as Refrence);
+                                if (listRefrence.Identifier is FuncCall)
+                                {
+                                    var funcCall = listRefrence.Identifier as FuncCall;
+                                    if (funcCall.Identifier.Id == "count")
+                                        value = new NumValue(2.0);
+                                    else
+                                        value = new UnInitialisedVariable();
+                                    ListFuncChecker(funcCall, CheckExpression(varDecl.Expression) as ListValue);
+                                }
                             }
                         }
                     }
