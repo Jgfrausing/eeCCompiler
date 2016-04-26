@@ -400,7 +400,25 @@ namespace eeCCompiler.Visitors
                 else
                     _typechecker.Errors.Add("Only one element can be added to a list at a time");
             }
+            else if (funcCall.Identifier.Id == "insert")
+            {
 
+            }
+            else if (funcCall.Identifier.Id == "remove")
+            {
+            }
+            else if (funcCall.Identifier.Id == "clear")
+            {
+            }
+            else if (funcCall.Identifier.Id == "count")
+            {
+            }
+            else if (funcCall.Identifier.Id == "reverse")
+            {
+            }
+            else if (funcCall.Identifier.Id == "sort")
+            {
+            }
             else
                 _typechecker.Errors.Add("unknown list function " + funcCall.Identifier.ToString());
         }

@@ -183,7 +183,7 @@ namespace eeCCompiler.Visitors
             throw new System.NotImplementedException();
         }
 
-        public void Visit(VarInStructDecleration varInStructDecleration)
+        public virtual void Visit(VarInStructDecleration varInStructDecleration)
         {
              //throw new System.NotImplementedException();
         }

@@ -118,6 +118,31 @@ namespace eeCCompiler.Visitors
                 Identifiers.Add(identifier.Id, identifier);
         }
 
+        public override void Visit(VarInStructDecleration varInStructDecleration)
+        {
+            IValue value1 = null;
+            if (Identifiers.ContainsKey((varInStructDecleration.Refrence.StructRefrence as Identifier).Id))
+            {
+                if (Identifiers[(varInStructDecleration.Refrence.StructRefrence as Identifier).Id] is StructValue)
+                { 
+                    value1 = _expressionChecker.StructRefrenceChecker(varInStructDecleration.Refrence, 
+                        (Identifiers[(varInStructDecleration.Refrence.StructRefrence as Identifier).Id] as StructValue).Struct.Identifier.Id,
+                        varInStructDecleration.Refrence);
+                    if (value1.GetType().ToString() != _expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType().ToString())
+                    {
+                        Errors.Add("Struct variable is of type" + value1.GetType().ToString() +  "and expression is of type " 
+                            + _expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType().ToString());
+                    }
+                    //Den skal ikke gøre noget hvis det er lykkes da vi er ligeglade med værdien.
+                }
+                else
+                    Errors.Add((varInStructDecleration.Refrence.StructRefrence as Identifier).Id + " is not of type struct");
+            }
+            else
+            {
+                Errors.Add((varInStructDecleration.Refrence.StructRefrence as Identifier).Id + " does not exist");
+            }
+        }
         public override void Visit(VarDecleration varDecleration)
         {
             if (!Identifiers.ContainsKey(varDecleration.Identifier.Id))
