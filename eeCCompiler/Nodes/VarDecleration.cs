@@ -23,5 +23,31 @@ namespace eeCCompiler.Nodes
         {
             visitor.Visit(this);
         }
+
+        public override bool Equals(object obj) //Vurderer om de har samme identifier
+        {
+            return obj is VarDecleration ? (obj as VarDecleration).Identifier.ToString() == Identifier.ToString() : false;
+        }
+    }
+
+    public class VarInStructDecleration : AbstractSyntaxTree, IBodypart, IStructPart
+    {
+        public VarInStructDecleration(IExpression expression, AssignmentOperator assignmentOperator, Refrence refrence)
+        {
+            Refrence = refrence;
+            AssignmentOperator = assignmentOperator;
+            Expression = expression;
+            Type = new Type("Not set in typechecker");
+        }
+
+        public Type Type { get; set; }
+        public Refrence Refrence { get; set; }
+        public AssignmentOperator AssignmentOperator { get; set; }
+        public IExpression Expression { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
     }
 }

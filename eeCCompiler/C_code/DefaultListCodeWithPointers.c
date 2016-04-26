@@ -9,7 +9,7 @@ struct {name}_element{
     {name}_element *next;
 };
 
-{type}_handle * {name}_new(){
+{name}_handle * {name}_new(){
     {name}_handle * head = malloc(sizeof({name}_handle));
     head->first = NULL;
     head->last = NULL;
@@ -18,7 +18,7 @@ struct {name}_element{
     return head;
 }
 
-{type}_element *{name}_newElement({type} *inputElement){			// ALLWAYS HAVE ADDCHARACTORTOLIST() CALL THIS!
+{name}_element *{name}_newElement({type} *inputElement){			// ALLWAYS HAVE ADDCHARACTORTOLIST() CALL THIS!
     {name}_element * element = malloc(sizeof({name}_element));
     element->element = *inputElement;
     element->next = NULL;
@@ -116,21 +116,18 @@ void {name}_clear({name}_handle * head){
 }
 
 void {name}_reverse({name}_handle * head){
-    //PROBLEMER MED LISTE AF LISTER
     {name}_handle *temporayHandle = {name}_new();
     for (int i = 0; i < head->size; ++i)
     {
         {name}_insert(0, temporayHandle, {name}_get(i, head));
-
     }
+
     for (int i = 0; i < temporayHandle->size; ++i)
     {
         {name}_set(i, {name}_get(i, temporayHandle), head);
     }
 
-    free(head);
-    head = temporayHandle;
-    //free(temporayHandle);
+    free(temporayHandle);
 }
 
 

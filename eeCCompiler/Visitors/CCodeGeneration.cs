@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Policy;
 using eeCCompiler.Interfaces;
@@ -13,12 +14,13 @@ namespace eeCCompiler.Visitors
         private string _header { get; set; }
         private string _code { get; set; }
         private readonly DefaultCCode _defaultCCode = new DefaultCCode();
+        private readonly Stack<List<Identifier>> _heapIdentifiers = new Stack<List<Identifier>>();
 
         public string CCode => _header + _code;
 
         private Root _root;
 
-        public void Visit(Root root)
+        public void Visit(Root root)    
         {
             _header += _defaultCCode.GetIncludes();
             _root = root;
@@ -29,20 +31,20 @@ namespace eeCCompiler.Visitors
             _code = "";
             root.StructDefinitions.Accept(this);
             /////////
-            _header += _defaultCCode.GenerateListTypeHeader("numlist", "double", false);
-            _header += _defaultCCode.GenerateListTypeHeader("boollist", "int", false);
-            _header += _defaultCCode.GenerateListTypeHeader("string", "char", false);
-            _header += _defaultCCode.GenerateListTypeHeader("string_handle", "string_handle", true);
+            //_header += _defaultCCode.GenerateListTypeHeader("numlist", "double", false);
+            //_header += _defaultCCode.GenerateListTypeHeader("boollist", "int", false);
+            //_header += _defaultCCode.GenerateListTypeHeader("string", "char", false);
+            //_header += _defaultCCode.GenerateListTypeHeader("string_handle", "string_handle", true);
 
-            _code += _defaultCCode.GenerateListTypeCode("numlist", "double", false);
-            _code += _defaultCCode.GenerateListTypeCode("boollist", "int", false);
-            _code += _defaultCCode.GenerateListTypeCode("string", "char", false);
-            _code += _defaultCCode.GenerateListTypeCode("string_handle", "string_handle", true);
+            //_code += _defaultCCode.GenerateListTypeCode("numlist", "double", false);
+            //_code += _defaultCCode.GenerateListTypeCode("boollist", "int", false);
+            //_code += _defaultCCode.GenerateListTypeCode("string", "char", false);
+            //_code += _defaultCCode.GenerateListTypeCode("string_handle", "string_handle", true);
 
             foreach (var structDefinition in root.StructDefinitions.Definitions)
             {
-                _header += _defaultCCode.GenerateListTypeHeader(structDefinition.Identifier.Id , structDefinition.Identifier.Id, true);
-                _code += _defaultCCode.GenerateListTypeCode(structDefinition.Identifier.Id, structDefinition.Identifier.Id, true);
+                _header += _defaultCCode.GenerateListTypeHeader(structDefinition.Identifier.Id + "list", structDefinition.Identifier.Id, true);
+                _code += _defaultCCode.GenerateListTypeCode(structDefinition.Identifier.Id + "list", structDefinition.Identifier.Id, true);
             }
             ////////
             root.FunctionDeclarations.Accept(this);
@@ -61,11 +63,16 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Body body)
         {
+            _heapIdentifiers.Push(new List<Identifier>());
             _code += "{\n";
             foreach (var bodyPart in body.Bodyparts)
             {
                 bodyPart.Accept(this);
                 _code += "\n";
+            }
+            foreach (var heapIdentifier in _heapIdentifiers.Pop())
+            {
+                _code += $"free({heapIdentifier});\n";
             }
             _code += "}\n";
         }
@@ -115,10 +122,7 @@ namespace eeCCompiler.Visitors
                 while (!(reference.Identifier is FuncCall))
                 {
                     reference = reference.Identifier as Refrence;
-                    if (reference.Identifier is FuncCall)
-                        strucCallOrder += "->" + reference.StructRefrence;
-                    else
-                        strucCallOrder += "." + reference.StructRefrence;
+                    strucCallOrder += "->" + reference.StructRefrence;
                 }
                 (reference.Identifier as FuncCall).Expressions.Insert(0, new Identifier(strucCallOrder));
                 (reference.Identifier as FuncCall).Accept(this);
@@ -127,21 +131,14 @@ namespace eeCCompiler.Visitors
             {
                 var reference = expressionVal.Value as Refrence;
                 string strucCallOrder = reference.StructRefrence.ToString();
-                bool refrenceVisit = false;
                 while (!(reference.Identifier is Identifier))
                 {
-                    refrenceVisit = true;
-                    reference = reference.Identifier as Refrence;
-                    //if (reference.Identifier is Identifier)
-                    //    strucCallOrder += "->" + reference.StructRefrence;
-                    //else
-                        strucCallOrder += "." + reference.StructRefrence;
+                    reference = (reference.Identifier as Refrence);
+                    strucCallOrder += "->";
+                    reference.StructRefrence.Accept(this);
                 }
 
-                _code += strucCallOrder;
-                _code += refrenceVisit ? "->" : ".";
-                _code += reference.Identifier.ToString();
-
+                _code += strucCallOrder + "->" + reference.Identifier;
             }
             else
                 expressionVal.Value.Accept(this);
@@ -195,19 +192,18 @@ namespace eeCCompiler.Visitors
             var myStruct = _root.StructDefinitions.Definitions.FirstOrDefault(x => x.Identifier.ToString() == structDecleration.StructIdentifier.ToString());
             foreach (var varDecl in myStruct.StructParts.StructPartList)
             {
-                if(varDecl is VarDecleration && !structDecleration.VarDeclerations.VarDeclerationList.Contains(varDecl))
+                if (varDecl is VarDecleration && !structDecleration.VarDeclerations.VarDeclerationList.Contains(varDecl))
                     structDecleration.VarDeclerations.VarDeclerationList.Add(varDecl as VarDecleration);
             }
-            _code += $"{structDecleration.StructIdentifier} {structDecleration.Identifier};\n";
+            _code += $"{structDecleration.StructIdentifier} *{structDecleration.Identifier} = malloc(sizeof({structDecleration.Identifier}));\n";
+            _heapIdentifiers.Peek().Add(structDecleration.Identifier);
             foreach (var varDecl in structDecleration.VarDeclerations.VarDeclerationList)
             {
-                _code += $"{structDecleration.Identifier}.{varDecl.Identifier.Id} ";
+                _code += $"{structDecleration.Identifier}->{varDecl.Identifier.Id} ";
                 varDecl.AssignmentOperator.Accept(this);
                 varDecl.Expression.Accept(this);
                 _code += ";\n";
             }
-            //FOREACH STRUCTDECL
-
         }
 
         public void Visit(RepeatExpr repeatExpr)
@@ -381,7 +377,7 @@ namespace eeCCompiler.Visitors
         public void Visit(Refrence referece)
         {
             referece.StructRefrence.Accept(this);
-            _code += ".";
+            _code += "->";
             referece.Identifier.Accept(this);
         }
 
@@ -551,6 +547,16 @@ namespace eeCCompiler.Visitors
         {
             idIndex.Identifier.Accept(this);
             idIndex.ListIndex.Accept(this);
+        }
+
+        public void Visit(VarInStructDecleration varInStructDecleration)
+        {
+            varInStructDecleration.Refrence.Accept(this);
+            _code += " ";
+            varInStructDecleration.AssignmentOperator.Accept(this);
+            _code += " ";
+            varInStructDecleration.Expression.Accept(this);
+            _code += ";";
         }
     }
 }

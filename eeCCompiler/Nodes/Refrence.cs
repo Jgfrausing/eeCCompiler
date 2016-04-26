@@ -4,7 +4,7 @@ using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
 {
-    public class Refrence : AbstractSyntaxTree, IValue, IBodypart, IStructRefrence
+    public class Refrence : AbstractSyntaxTree, IValue, IBodypart, IStructRefrence, IIdentifier
     {
         public Refrence(IStructRefrence structRefrence)
         {

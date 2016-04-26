@@ -65,6 +65,8 @@ namespace eeCCompiler
                         break;
 
                     case ParseMessage.SyntaxError:
+                        var pos = _parser.CurrentPosition();
+                        var pm = _parser.CurrentToken();
                         //Expecting a different token
                         done = true;
                         break;
@@ -243,7 +245,8 @@ namespace eeCCompiler
                     break;
 
                 #endregion
-                #region ref
+                    
+                    #region ref
                 case Indexes.Indexes.ProductionIndex.Ref_Ref:
                     // <ref> ::= ref
                     result = new Ref(true);
@@ -259,7 +262,8 @@ namespace eeCCompiler
                     result = new RefId(new Identifier(r.get_Data(1).ToString()));
                     break;
                 #endregion
-                #region Var_decl
+
+                    #region Var_decl
 
                 case Indexes.Indexes.ProductionIndex.Var_decls_Semi:
                     // <var_decls> ::= <var_decl> ';' <var_decls>
@@ -281,6 +285,10 @@ namespace eeCCompiler
                     result = new VarDecleration(_reductionStack.Pop() as IExpression, _reductionStack.Pop() as AssignmentOperator, new Identifier(r.get_Data(0).ToString())); 
                     break;
 
+                case Indexes.Indexes.ProductionIndex.Var_decl:
+                    // <var_decl> ::= <refrence> <assign_opr> <expr>
+                    result = new VarInStructDecleration(_reductionStack.Pop() as IExpression, _reductionStack.Pop() as AssignmentOperator, _reductionStack.Pop() as Refrence);
+                    break;
                 case Indexes.Indexes.ProductionIndex.List:
                     // <list> ::= <type> <brackets>
                     result = new ListType(_reductionStack.Pop() as ListDimentions, _reductionStack.Pop() as IType);
@@ -475,6 +483,17 @@ namespace eeCCompiler
                     result = _reductionStack.Pop();
                     break;
 
+
+                case Indexes.Indexes.ProductionIndex.Var_refrence_w_id_Id:
+                // <var_refrence_w_id> ::= Id
+                    result = new Identifier(r.get_Data(0).ToString());
+                    break;
+                case Indexes.Indexes.ProductionIndex.Var_refrence_w_id_Id_Dot:
+                // <var_refrence_w_id> ::= Id '.' <var_refrence_w_id>
+                case Indexes.Indexes.ProductionIndex.Var_refrence_w_id_Dot:
+                // <var_refrence_w_id> ::= <id_index> '.' <var_refrence_w_id>
+                case Indexes.Indexes.ProductionIndex.Var_refrence_w_id:                   
+                    // <var_refrence_w_id> ::= <id_index>
                 case Indexes.Indexes.ProductionIndex.Func_refrence:
                 // <func_refrence> ::= <func_call>
                 case Indexes.Indexes.ProductionIndex.Refrence:
@@ -490,6 +509,9 @@ namespace eeCCompiler
                 case Indexes.Indexes.ProductionIndex.Func_refrence_Id_Dot:
                 // <func_refrence> ::= Id '.' <func_refrence>
 
+                case Indexes.Indexes.ProductionIndex.Var_refrence_Id_Dot:
+                // <var_refrence> ::= Id '.' <var_refrence_w_id>
+
                 case Indexes.Indexes.ProductionIndex.Refrence_Id_Dot:
                     // <refrence> ::= Id '.' <refrence>
                     result = new Refrence(_reductionStack.Pop() as IStructRefrence, new Identifier(r.get_Data(0).ToString()));
@@ -498,10 +520,16 @@ namespace eeCCompiler
                 case Indexes.Indexes.ProductionIndex.Func_refrence_Dot:
                 // <func_refrence> ::= <id_index> '.' <func_refrence>
 
+                case Indexes.Indexes.ProductionIndex.Var_refrence_Dot:
+                // <var_refrence> ::= <id_index> '.' <var_refrence_w_id>
+
                 case Indexes.Indexes.ProductionIndex.Refrence_Dot:
                     // <refrence> ::= <id_index> '.' <refrence>
                     result = new Refrence(_reductionStack.Pop() as IStructRefrence, _reductionStack.Pop() as IStructRefrence );
                     break;
+
+                case Indexes.Indexes.ProductionIndex.Var_refrence:
+                    // <var_refrence> ::= <id_index>
                 case Indexes.Indexes.ProductionIndex.Refrence2:
                     // <refrence> ::= <id_index>
                     result = _reductionStack.Pop() as IdIndex;
