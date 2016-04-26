@@ -402,22 +402,47 @@ namespace eeCCompiler.Visitors
             }
             else if (funcCall.Identifier.Id == "insert")
             {
-
+                if (funcCall.Expressions.Count == 2)
+                {
+                    if (!(CheckExpression(funcCall.Expressions[0] as IExpression).GetType().ToString() == "num"))
+                    {
+                        _typechecker.Errors.Add("You can only insert at a num index");
+                    }//Kan jeg det !!JONATAN DA FUQ!!
+                    else if (!(CheckExpression(funcCall.Expressions[1] as IExpression).GetType().ToString() == listValue.Value.GetType().ToString()))
+                        _typechecker.Errors.Add("List is of type " + listValue.GetType().ToString() + " but a " + (funcCall.Expressions[1] as IExpression).GetType().ToString() + " was tried to be added");
+                }
+                else
+                    _typechecker.Errors.Add("Too many parameters for a list insert");
             }
             else if (funcCall.Identifier.Id == "remove")
             {
+                if (funcCall.Expressions.Count == 1)
+                {
+                    if (!(CheckExpression(funcCall.Expressions[0] as IExpression).GetType().ToString() == "num")) //Kan jeg det !!JONATAN DA FUQ!!
+                        _typechecker.Errors.Add("You can only remove at a num index");
+                }
+                else
+                    _typechecker.Errors.Add("Only one element can be removed from a list at a time");
             }
             else if (funcCall.Identifier.Id == "clear")
             {
+                if (funcCall.Expressions.Count > 0)
+                    _typechecker.Errors.Add("clear() does not take in parameters");
             }
             else if (funcCall.Identifier.Id == "count")
             {
+                if (funcCall.Expressions.Count > 0)
+                    _typechecker.Errors.Add("count() does not take in parameters");
             }
             else if (funcCall.Identifier.Id == "reverse")
             {
+                if (funcCall.Expressions.Count > 0)
+                    _typechecker.Errors.Add("reverse() does not take in parameters");
             }
             else if (funcCall.Identifier.Id == "sort")
             {
+                if (funcCall.Expressions.Count > 0)
+                    _typechecker.Errors.Add("sort() does not take in parameters");
             }
             else
                 _typechecker.Errors.Add("unknown list function " + funcCall.Identifier.ToString());
