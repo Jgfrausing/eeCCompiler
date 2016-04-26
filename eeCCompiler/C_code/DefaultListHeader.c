@@ -1,15 +1,15 @@
 
-typedef struct {type}list_Element {type}list_Element;
-typedef struct {type}list_Handle {type}list_Handle;
+typedef struct {name}_element {name}_element;
+typedef struct {name}_handle {name}_handle;
 
-{type}list_Handle * {type}list_newHandle();
-{type}list_Element * {type}list_newElement({type} element);
-{type} {type}list_get(int index, {type}list_Handle * head);
-void {type}list_add({type} element, {type}list_Handle * head);
-void {type}list_remove(int index, {type}list_Handle * head);
-void {type}list_insert(int index, {type}list_Handle * head, {type} element);
-void {type}list_clear({type}list_Handle * head);
-void {type}list_reverse({type}list_Handle * head);
-void {type}list_swap({type}list_Handle * head, int first, int second);
-void {type}list_set(int index, {type} value, {type}list_Handle * head);
-void {type}list_sort({type}list_Handle * head);
+{name}_handle * {name}_newHandle();
+{name}_element * {name}_newElement({type} element);
+{type} {name}_get(int index, {name}_handle * head);
+void {name}_add({type} element, {name}_handle * head);
+void {name}_remove(int index, {name}_handle * head);
+void {name}_insert(int index, {name}_handle * head, {type} element);
+void {name}_clear({name}_handle * head);
+void {name}_reverse({name}_handle * head);
+void {name}_swap({name}_handle * head, int first, int second);
+void {name}_set(int index, {type} value, {name}_handle * head);
+void {name}_sort({name}_handle * head);

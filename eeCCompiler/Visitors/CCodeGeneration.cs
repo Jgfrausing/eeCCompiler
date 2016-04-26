@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Policy;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
+using eeCCompiler.Visitors.CCode;
 using Type = eeCCompiler.Nodes.Type;
 
 namespace eeCCompiler.Visitors
@@ -11,6 +12,7 @@ namespace eeCCompiler.Visitors
     {
         private string _header { get; set; }
         private string _code { get; set; }
+        private readonly DefaultCCode _defaultCCode = new DefaultCCode();
 
         public string CCode => _header + _code;
 
@@ -18,7 +20,7 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Root root)
         {
-            _header += "#include <stdio.h>";
+            _header += _defaultCCode.GetIncludes();
             _root = root;
             RenameFunctions();
             root.Includes.Accept(this);
@@ -26,8 +28,24 @@ namespace eeCCompiler.Visitors
             _header +=_code;
             _code = "";
             root.StructDefinitions.Accept(this);
-            root.FunctionDeclarations.Accept(this);
+            /////////
+            _header += _defaultCCode.GenerateListTypeHeader("numlist", "double", false);
+            _header += _defaultCCode.GenerateListTypeHeader("boollist", "int", false);
+            _header += _defaultCCode.GenerateListTypeHeader("string", "char", false);
+            _header += _defaultCCode.GenerateListTypeHeader("string_handle", "string_handle", true);
 
+            _code += _defaultCCode.GenerateListTypeCode("numlist", "double", false);
+            _code += _defaultCCode.GenerateListTypeCode("boollist", "int", false);
+            _code += _defaultCCode.GenerateListTypeCode("string", "char", false);
+            _code += _defaultCCode.GenerateListTypeCode("string_handle", "string_handle", true);
+
+            foreach (var structDefinition in root.StructDefinitions.Definitions)
+            {
+                _header += _defaultCCode.GenerateListTypeHeader(structDefinition.Identifier.Id , structDefinition.Identifier.Id, true);
+                _code += _defaultCCode.GenerateListTypeCode(structDefinition.Identifier.Id, structDefinition.Identifier.Id, true);
+            }
+            ////////
+            root.FunctionDeclarations.Accept(this);
             _code += "void main()";
             root.Program.Accept(this);
         }

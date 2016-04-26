@@ -1,17 +1,17 @@
 
-struct {type}list_Handle {
-    {type}list_Element *first;
-    {type}list_Element *last;
+struct {name}_handle {
+    {name}_element *first;
+    {name}_element *last;
     int size;
 };
 
-struct {type}list_Element{
+struct {name}_element{
     {type} element;
-    {type}list_Element *next;
+    {name}_element *next;
 };
 
-{type}list_Handle * {type}list_new(){
-    {type}list_Handle * head = malloc(sizeof({type}list_Handle));
+{name}_handle * {name}_new(){
+    {name}_handle * head = malloc(sizeof({name}_handle));
     head->first = NULL;
     head->last = NULL;
     head->size = 0;
@@ -19,16 +19,16 @@ struct {type}list_Element{
     return head;
 }
 
-{type}list_Element *{type}list_newElement({type} inputElement){			// ALLWAYS HAVE ADDCHARACTORTOLIST() CALL THIS!
-    {type}list_Element * element = malloc(sizeof({type}list_Element));
+{name}_element *{name}_newElement({type} inputElement){			// ALLWAYS HAVE ADDCHARACTORTOLIST() CALL THIS!
+    {name}_element * element = malloc(sizeof({name}_element));
     element->element = inputElement;
     element->next = NULL;
 
     return element;
 }
 
-{type} {type}list_get(int index, {type}list_Handle * head){
-    {type}list_Element * current = head->first;
+{type} {name}_get(int index, {name}_handle * head){
+    {name}_element * current = head->first;
     int i;
     for (i=0; i<index && current != NULL; i++) {
         current = current->next;
@@ -39,14 +39,14 @@ struct {type}list_Element{
     return current->element;
 }
 
-void {type}list_add({type} inputElement, {type}list_Handle * head){
-    {type}list_Element * element = {type}list_newElement(inputElement);
+void {name}_add({type} inputElement, {name}_handle * head){
+    {name}_element * element = {name}_newElement(inputElement);
     if (head->first == NULL)
     {
         head->first = element;
     }
     else{
-        {type}list_Element * current = head->first;
+        {name}_element * current = head->first;
         while(current->next != NULL){
             current = current->next;
         }
@@ -56,12 +56,12 @@ void {type}list_add({type} inputElement, {type}list_Handle * head){
     head->size ++;
 }
 
-void {type}list_remove(int index, {type}list_Handle * head){
+void {name}_remove(int index, {name}_handle * head){
     if (index >= head->size){
         raise(SIGSEGV);     //Segmentation fault
     }
-    {type}list_Element * current = head->first;
-    {type}list_Element * previous = NULL;
+    {name}_element * current = head->first;
+    {name}_element * previous = NULL;
 
     if(index == 0 && head->first != NULL){
         head->first = head->first->next;
@@ -83,13 +83,13 @@ void {type}list_remove(int index, {type}list_Handle * head){
     head->size--;
 }
 
-void {type}list_insert(int index, {type}list_Handle * head, {type} inputElement){
+void {name}_insert(int index, {name}_handle * head, {type} inputElement){
     if (index > head->size){
         raise(SIGSEGV);     //Segmentation fault
     }
-    {type}list_Element * element = {type}list_newElement(inputElement);
-    {type}list_Element * current = head->first;
-    {type}list_Element * previous = NULL;
+    {name}_element * element = {name}_newElement(inputElement);
+    {name}_element * current = head->first;
+    {name}_element * previous = NULL;
 
     if(index == 0){
         element->next = current;
@@ -112,44 +112,44 @@ void {type}list_insert(int index, {type}list_Handle * head, {type} inputElement)
     head->size++;
 }
 
-void {type}list_clear({type}list_Handle * head){
+void {name}_clear({name}_handle * head){
     while(head->size != 0){
-        {type}list_remove(0, head);
+        {name}_remove(0, head);
     }
 }
 
-void {type}list_reverse({type}list_Handle * head){
+void {name}_reverse({name}_handle * head){
     //PROBLEMER MED LISTE AF LISTER
-    {type}list_Handle *temporayHandle = {type}list_new();
+    {name}_handle *temporayHandle = {name}_new();
     while(head->size != 0){
-        {type} element = {type}list_get(0, head);
-        {type}list_remove(0, head);
-        {type}list_insert(0, temporayHandle, element);
+        {type} element = {name}_get(0, head);
+        {name}_remove(0, head);
+        {name}_insert(0, temporayHandle, element);
     }    
     //ET ALTERNATIV TIL HEAD = TEMPORAYHANDLE?
     while(temporayHandle->size != 0){
-        {type} element = {type}list_get(0, temporayHandle);
-        {type}list_remove(0, temporayHandle);
-        {type}list_add(element, head);
+        {type} element = {name}_get(0, temporayHandle);
+        {name}_remove(0, temporayHandle);
+        {name}_add(element, head);
     }
     free(temporayHandle);
 }
 
 
-void {type}list_swap({type}list_Handle * head, int first, int second){
+void {name}_swap({name}_handle * head, int first, int second){
     if (first >= head->size || second >= head->size){
         raise(SIGSEGV);     //Segmentation fault
     }
-    {type} temp = {type}list_get(first, head);
-    {type}list_set(first, {type}list_get(second, head), head);
-    {type}list_set(second, temp, head);
+    {type} temp = {name}_get(first, head);
+    {name}_set(first, {name}_get(second, head), head);
+    {name}_set(second, temp, head);
 }
 
-void {type}list_set(int index, {type} value, {type}list_Handle * head){
+void {name}_set(int index, {type} value, {name}_handle * head){
     if (index >= head->size){
         raise(SIGSEGV);     //Segmentation fault
     }
-    {type}list_Element * current = head->first;
+    {name}_element * current = head->first;
 
     for (int i=0; i<index; i++) {
         current = current->next;
@@ -157,15 +157,15 @@ void {type}list_set(int index, {type} value, {type}list_Handle * head){
     current->element = value;
 }
 
-void {type}list_sort({type}list_Handle * head){
+void {name}_sort({name}_handle * head){
     int m = 0, t = 0, q = 1;
 
     for (int heapsize = 0; heapsize<head->size; heapsize++){
         int n = heapsize;
         while (n > 0){
             int p = (n+1)/2;
-            if({type}list_get(n, head) > {type}list_get(p, head)){
-                {type}list_swap(head, n, p); //ChildWithParent
+            if({name}_get(n, head) > {name}_get(p, head)){
+                {name}_swap(head, n, p); //ChildWithParent
                 n = p;
             }
             else{
@@ -175,7 +175,7 @@ void {type}list_sort({type}list_Handle * head){
     }
 
     for(int heapsize = head->size; heapsize>0;){
-        {type}list_swap(head, 0, --heapsize); //root with last heap element. decreasing heapsize
+        {name}_swap(head, 0, --heapsize); //root with last heap element. decreasing heapsize
         int n = 0;
         while(1){
             int left = (n*2)+1;
@@ -183,26 +183,26 @@ void {type}list_sort({type}list_Handle * head){
                 break;
             int right = left+1;
             if (right >= heapsize){
-                if ({type}list_get(left, head) > {type}list_get(n, head))
-                    {type}list_swap(head, left, n);
+                if ({name}_get(left, head) > {name}_get(n, head))
+                    {name}_swap(head, left, n);
                 break;
             }
-            if ({type}list_get(left, head) > {type}list_get(n, head)){
-                if ({type}list_get(left, head) > {type}list_get(right, head)){
-                    {type}list_swap(head, left, n);
+            if ({name}_get(left, head) > {name}_get(n, head)){
+                if ({name}_get(left, head) > {name}_get(right, head)){
+                    {name}_swap(head, left, n);
                     n = left;
                     continue;
                 }
                 else{
-                    {type}list_swap(head, right, n);
+                    {name}_swap(head, right, n);
                     n = right;
                     continue;
                 }
             }
             else {
-                if ({type}list_get(right, head) > {type}list_get(n, head))
+                if ({name}_get(right, head) > {name}_get(n, head))
                 {
-                    {type}list_swap(head, right,n);
+                    {name}_swap(head, right,n);
                     n = right;
                     continue;
                 }

@@ -27,13 +27,13 @@ namespace eeCCompiler
             var syntax = result ? "The syntax is correct!" : "There are errors in the syntax";
             Console.WriteLine(syntax);
             var errors = new List<string>();
-            var identifiers = new Dictionary<string, IValue>();
-            //parser.Root.Accept(new PrettyPrinter());
-            //Console.WriteLine("::::::::::::::::::");
-            //parser.Root.Accept(new Treeprint());
-            //Console.WriteLine("::::::::::::::::::");
+            //var identifiers = new Dictionary<string, IValue>();
+            ////parser.Root.Accept(new PrettyPrinter());
+            ////Console.WriteLine("::::::::::::::::::");
+            ////parser.Root.Accept(new Treeprint());
+            ////Console.WriteLine("::::::::::::::::::");
             parser.Root.Accept(new Typechecker(errors));
-            errors.ForEach(x => Console.WriteLine(x));
+            //errors.ForEach(x => Console.WriteLine(x));
             var cCodeVisitor = new CCodeGeneration();
             cCodeVisitor.Visit(parser.Root);
 
