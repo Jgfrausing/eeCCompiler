@@ -69,9 +69,11 @@ namespace eeCCompiler.Visitors
                         _typechecker.Errors.Add((exp.Value as Identifier).Id + " Identifier was not initialised before use");
                     }
                 }
-                else if (exp.Value is FuncCall)
+                else if (exp.Value is FuncCall) //Func i vardecl
                 {
+                    (exp.Value as FuncCall).Identifier.Id = "program_" + (exp.Value as FuncCall).Identifier;
                     var id = (exp.Value as FuncCall).Identifier.Id;
+                    
                     if (_typechecker.Funcs.ContainsKey(id))
                     {
                         value = _typechecker.Funcs[id].Value;
@@ -319,6 +321,7 @@ namespace eeCCompiler.Visitors
             }
             else if (refrence.Identifier is FuncCall)
             {
+                (refrence.Identifier as FuncCall).Identifier.Id = structType + "_" + (refrence.Identifier as FuncCall).Identifier.Id;
                 exp.IsFuncCall = true;
                 exp.FuncsStruct = structType;
                 foreach (var structpart in _typechecker.Structs[structType].StructParts.StructPartList)

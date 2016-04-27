@@ -64,6 +64,11 @@ namespace eeCCompiler.Visitors
                 preStructDefFunctions.Add(val.Key, val.Value);
             }
 
+            foreach (var stpart in structDefinition.StructParts.StructPartList)
+            {
+                if (stpart is FunctionDeclaration)
+                    (stpart as FunctionDeclaration).TypeId.Identifier.Id = structDefinition.Identifier.Id + "_" + (stpart as FunctionDeclaration).TypeId.Identifier.Id;
+            }
             structDefinition.StructParts.Accept(this);
             Identifiers = preBodyIdentifiers;
             Funcs = preStructDefFunctions;
@@ -192,7 +197,13 @@ namespace eeCCompiler.Visitors
             base.Visit(body);
             Identifiers = preBodyIdentifiers;
         }
-
+        public override void Visit(FunctionDeclarations functionsDeclarations)
+        {
+            foreach (var decl in functionsDeclarations.FunctionDeclarationList)
+            {
+                decl.TypeId.Identifier.Id = "program_" + decl.TypeId.Identifier.Id;
+            }
+        }
         public override void Visit(FunctionDeclaration functionDeclaration)
         {
             if (!(Funcs.ContainsKey(functionDeclaration.TypeId.Identifier.Id)))
@@ -258,6 +269,7 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(FuncCall funcCall)
         {
+            funcCall.Identifier.Id = "program_" + funcCall.Identifier.Id;
             if (!(Funcs.ContainsKey(funcCall.Identifier.Id)))
             {
                 string expressions = "";
