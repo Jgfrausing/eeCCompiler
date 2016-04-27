@@ -113,11 +113,16 @@ namespace eeCCompiler.Visitors
                     value = exp.Value;
                 return value;
             }
-                #endregion
+            #endregion
+
+            #region ExpressionParen
             else if (expression is ExpressionParen)
             {
                 return CheckExpression((expression as ExpressionParen).Expression);
             }
+            #endregion
+
+            #region ExpressionNegate
             else if (expression is ExpressionNegate)
             {
                 var value = CheckExpression((expression as ExpressionNegate).Expression);
@@ -125,6 +130,9 @@ namespace eeCCompiler.Visitors
                     _typechecker.Errors.Add(expressionType.Name + " tried with " + value.GetType().Name);
                 return value;
             }
+            #endregion
+
+            #region ExpressionMinus
             else if (expression is ExpressionMinus)
             {
                 var value = CheckExpression((expression as ExpressionMinus).Expression);
@@ -132,6 +140,9 @@ namespace eeCCompiler.Visitors
                     _typechecker.Errors.Add(expressionType.Name + " with " + value.GetType().Name);
                 return value;
             }
+            #endregion
+
+            #region ExpressionValOpExpr
             else if (expression is ExpressionValOpExpr)
             {
                 var expressionValOpExpr = expression as ExpressionValOpExpr;
@@ -164,6 +175,9 @@ namespace eeCCompiler.Visitors
                 return OprChecker(value1, CheckExpression(expressionValOpExpr.Expression), expressionValOpExpr.Operator,
                     expressionType);
             }
+            #endregion
+
+            #region ExpressionParenOpExpr
             else if (expression is ExpressionParenOpExpr)
             {
                 var expressionParenOpExpr = expression as ExpressionParenOpExpr;
@@ -173,6 +187,9 @@ namespace eeCCompiler.Visitors
 
                 return OprChecker(value1, value2, expressionParenOpExpr.Operator, expressionType);
             }
+            #endregion
+
+            #region FuncCall
             else if (expression is FuncCall) //Ikke sikker på vi nogensinde får... skal testes!
             {
                 //Check om input matcher det som er deklaræret
@@ -190,10 +207,15 @@ namespace eeCCompiler.Visitors
                 }
                 return value; // TODO ikke færdig not sure here.
             }
+            #endregion
+
+            #region ListType
             else if (expression is ListType)
             {
                 return new ListValue(expression as ListType, TypeChecker((expression as ListType).Type.ToString()));
             }
+            #endregion
+
             _typechecker.Errors.Add("FATAL ERROR IN COMPILER EXPRESSION NOT CAUGHT IN TYPECHECKER");
             return new UnInitialisedVariable(); //Burde vi aldrig nå tror jeg
         }

@@ -99,8 +99,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Visitors\CCodeGeneration.cs" />
     <Compile Include="Visitors\CCode\DefaultCCode.cs" />
+    <Compile Include="Visitors\ExprCheck.cs" />
     <Compile Include="Visitors\ExpressionChecker.cs" />
     <Compile Include="Visitors\IEecVisitor.cs" />
+    <Compile Include="Visitors\PrecedenceVisitor.cs" />
     <Compile Include="Visitors\PrettyPrinter.cs" />
     <Compile Include="Visitors\Treeprint.cs" />
     <Compile Include="Visitors\Typechecker.cs" />
