@@ -11,7 +11,7 @@ namespace eeCCompiler.Nodes
         }
 
         public string Id { get; set; }
-
+        
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);
@@ -20,6 +20,11 @@ namespace eeCCompiler.Nodes
         public override string ToString()
         {
             return Id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return (obj is Identifier) && (obj as Identifier).Id == Id;
         }
     }
 }

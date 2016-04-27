@@ -1,4 +1,5 @@
-﻿using eeCCompiler.Interfaces;
+﻿using System.Collections.Generic;
+using eeCCompiler.Interfaces;
 using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
@@ -31,6 +32,7 @@ namespace eeCCompiler.Nodes
         }
 
         public string Value { get; set; }
+        public List<string> TypeIds { get; set; }
 
         public override void Accept(IEecVisitor visitor)
         {

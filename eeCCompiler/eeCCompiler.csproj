@@ -104,6 +104,7 @@
     <Compile Include="Visitors\IEecVisitor.cs" />
     <Compile Include="Visitors\PrecedenceVisitor.cs" />
     <Compile Include="Visitors\PrettyPrinter.cs" />
+    <Compile Include="Visitors\StructFunctionIdentifiers.cs" />
     <Compile Include="Visitors\Treeprint.cs" />
     <Compile Include="Visitors\Typechecker.cs" />
     <Compile Include="Visitors\Visitor.cs" />

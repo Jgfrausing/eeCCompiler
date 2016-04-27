@@ -27,7 +27,13 @@ namespace eeCCompiler.Visitors.CCode
             return sr.ReadToEnd();
         }
 
-        public string StandardFunctions()
+        public string StandardFunctionsHeader()
+        {
+            var sr = new StreamReader(_location + "StandardFunctionsHeader.c");
+            return sr.ReadToEnd();
+        }
+
+        public string StandardFunctionsCode()
         {
             var sr = new StreamReader(_location + "StandardFunctions.c");
             return sr.ReadToEnd();

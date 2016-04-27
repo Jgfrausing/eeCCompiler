@@ -168,17 +168,17 @@ namespace eeCCompiler.Visitors
             throw new System.NotImplementedException();
         }
 
-        public void Visit(TypeId expressionParenOpExpr)
+        public virtual void Visit(TypeId expressionParenOpExpr)
+        {
+            //
+        }
+
+        public virtual void Visit(TypeIdList expressionParenOpExpr)
         {
             throw new System.NotImplementedException();
         }
 
-        public void Visit(TypeIdList expressionParenOpExpr)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void Visit(IdIndex expressionParenOpExpr)
+        public virtual void Visit(IdIndex expressionParenOpExpr)
         {
             throw new System.NotImplementedException();
         }

@@ -1,27 +1,8 @@
-void print(char *input);
-char* read();
-int stringconvertNumToString(double input, char *output);
-int convertBoolToString(int input, char *output); 
-int convertStringToNum(char* input, double *output);
-int convertStringToBool(char* input, int* output);
-
-
-void print(char *input){
-    printf("%s\n", input);
-}
-char* read(){
-    char *input = "";
-    scanf("%s", input);
-    return input;
-}
-int stringconvertNumToString(double input, char *output){
-    sprintf(output,"%lf", input);
-    return true;
-}
-int convertBoolToString(int input, char *output); 
-{
-    sprintf(output,"%d", input);
-    return true;
-}
-int convertStringToNum(char* input, double *output);
-int convertStringToBool(char* input, int* output);
+int program_convertNumToString(double input, string_handle * output);
+int program_convertBoolToString(int input, string_handle * output);
+int program_convertStringToNum(string_handle * input, double *output);
+int program_convertStringToBool(string_handle * input, int *output);
+void program_printNum(double input);
+void program_printBool(int input);
+void program_printString(string_handle * input);
+string_handle * program_createString(char input[]);

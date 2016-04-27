@@ -24,22 +24,26 @@ namespace eeCCompiler.Visitors
         {
             _header += _defaultCCode.GetIncludes();
             _root = root;
-            RenameFunctions();
+            //RenameFunctions();
             root.Includes.Accept(this);
             root.ConstantDefinitions.Accept(this);
             _header +=_code;
             _code = "";
             root.StructDefinitions.Accept(this);
+            
+
             /////////
             //_header += _defaultCCode.GenerateListTypeHeader("numlist", "double", false);
             //_header += _defaultCCode.GenerateListTypeHeader("boollist", "int", false);
-            //_header += _defaultCCode.GenerateListTypeHeader("string", "char", false);
+            _header += _defaultCCode.GenerateListTypeHeader("string", "char", false);
             //_header += _defaultCCode.GenerateListTypeHeader("string_handle", "string_handle", true);
 
             //_code += _defaultCCode.GenerateListTypeCode("numlist", "double", false);
             //_code += _defaultCCode.GenerateListTypeCode("boollist", "int", false);
-            //_code += _defaultCCode.GenerateListTypeCode("string", "char", false);
+            _code += _defaultCCode.GenerateListTypeCode("string", "char", false);
             //_code += _defaultCCode.GenerateListTypeCode("string_handle", "string_handle", true);
+            _header += _defaultCCode.StandardFunctionsHeader();
+            _code += _defaultCCode.StandardFunctionsCode();
 
             foreach (var structDefinition in root.StructDefinitions.Definitions)
             {
@@ -59,6 +63,7 @@ namespace eeCCompiler.Visitors
                 var id = functionDeclaration.TypeId.Identifier.Id;
                 functionDeclaration.TypeId.Identifier.Id = "program_" + id;
             }
+
         }
 
         public void Visit(Body body)
@@ -112,12 +117,15 @@ namespace eeCCompiler.Visitors
         //MANDAGS ARBEJDE! HAVE FUN!
         public void Visit(ExpressionVal expressionVal)
         {
-            if (expressionVal.Value is FuncCall)
-                _code += "program_";
+            //if (expressionVal.Value is Refrence &&
+            //    (expressionVal.Value as Refrence).Identifier.ToString().Contains("("))
+            //{
+            //    (expressionVal.Value as Refrence).IsFuncCall = true; }
+
             if (expressionVal.Value is Refrence && (expressionVal.Value as Refrence).IsFuncCall)
             {
                 var reference = expressionVal.Value as Refrence;
-                _code += reference.FuncsStruct + "_";
+                 //_code += reference.FuncsStruct + "_";
                 string strucCallOrder = reference.StructRefrence.ToString();
                 while (!(reference.Identifier is FuncCall))
                 {
@@ -244,7 +252,7 @@ namespace eeCCompiler.Visitors
                     cType = "int";
                     break;
                 case "string":
-                    cType = "list_string";
+                    cType = "string_handle";
                     break;
                 default:
                     cType = type.ToString();
@@ -322,6 +330,10 @@ namespace eeCCompiler.Visitors
 
         public void Visit(FuncCall funcCall)
         {
+            if (funcCall.Identifier.Id == "program_print")
+            {
+                ConvertPrintFunction(funcCall);
+            }
             _code += $"{funcCall.Identifier}(";
             for (int i = 0; i < funcCall.Expressions.Count; i++)
             {
@@ -330,6 +342,14 @@ namespace eeCCompiler.Visitors
                 funcCall.Expressions[i].Accept(this);
             }
             _code += ")";
+            if (funcCall.IsBodyPart)
+                _code += ";";
+        }
+
+        private void ConvertPrintFunction(FuncCall funcCall)
+        {
+            
+            var parameter = (funcCall.Expressions[0] as ExpressionVal).Value as StringValue;
         }
 
         public void Visit(FunctionDeclarations functionDeclarations)
@@ -376,8 +396,14 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Refrence referece)
         {
-            referece.StructRefrence.Accept(this);
-            _code += "->";
+            if (!referece.IsFuncCall)
+            {
+                referece.StructRefrence.Accept(this);
+                _code += "->";
+            }
+            //_code += referece.FuncsStruct + "_";
+            if (referece.Identifier is FuncCall)
+             (referece.Identifier as FuncCall).Expressions.Insert(0, new Identifier(referece.StructRefrence.ToString()));
             referece.Identifier.Accept(this);
         }
 
@@ -388,13 +414,22 @@ namespace eeCCompiler.Visitors
 
         public void Visit(VarDecleration varDecl)
         {
-            if (varDecl.IsFirstUse)
-                _code += GetValueType(varDecl.Type) + " ";
-            _code += $"{varDecl.Identifier.Id} ";
-            varDecl.AssignmentOperator.Accept(this);
-            _code += " ";
-            varDecl.Expression.Accept(this);
-            _code += ";";
+            if (varDecl.Type.ValueType == "string")
+            {
+                if (varDecl.IsFirstUse)
+                    _code += GetValueType(varDecl.Type) + " *";
+                _code += $"{varDecl.Identifier.Id} = program_createString({varDecl.Expression});";
+            }
+            else
+            {
+                if (varDecl.IsFirstUse)
+                    _code += GetValueType(varDecl.Type) + " ";
+                _code += $"{varDecl.Identifier.Id} ";
+                varDecl.AssignmentOperator.Accept(this);
+                _code += " ";
+                varDecl.Expression.Accept(this);
+                _code += ";";
+            }
         }
 
         public void Visit(StructDefinition structDef)
@@ -429,14 +464,20 @@ namespace eeCCompiler.Visitors
         {
             foreach (var structDefinition in structDefinitions.Definitions)
             {
+                var list = new List<Identifier>();
+                foreach (var varDecl in structDefinition.StructParts.StructPartList)
+                {
+                    if ((varDecl is VarDecleration)) list.Add((varDecl as VarDecleration).Identifier);
+                }
+                var StructFuncVisitor = new StructFunctionIdentifiers(list);
+
                 foreach (var structPart in structDefinition.StructParts.StructPartList)
                 {
                     if (structPart is FunctionDeclaration)
                     {
-                        var id = (structPart as FunctionDeclaration).TypeId.Identifier.Id;
-                        (structPart as FunctionDeclaration).TypeId.Identifier.Id = structDefinition.Identifier + "_" + id;
+                        (structPart as FunctionDeclaration).Body.Accept(StructFuncVisitor);
                         (structPart as FunctionDeclaration).Parameters.TypeIds
-                            .Insert(0, new RefTypeId(new TypeId(new Identifier("this"), new Type(structDefinition.Identifier.Id) ), new Ref(false)));
+                            .Insert(0, new RefTypeId(new TypeId(new Identifier("this"), new Type(structDefinition.Identifier.Id) ), new Ref(true)));
                         _root.FunctionDeclarations.FunctionDeclarationList.Add(structPart as FunctionDeclaration);
                     }
                 }
