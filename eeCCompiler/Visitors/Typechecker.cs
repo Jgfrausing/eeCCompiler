@@ -269,6 +269,7 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(FuncCall funcCall)
         {
+            funcCall.IsBodyPart = true;
             funcCall.Identifier.Id = "program_" + funcCall.Identifier.Id;
             if (!(Funcs.ContainsKey(funcCall.Identifier.Id)))
             {

@@ -33,7 +33,7 @@ namespace eeCCompiler
             ////parser.Root.Accept(new Treeprint());
             ////Console.WriteLine("::::::::::::::::::");
             parser.Root.Accept(new Typechecker(errors));
-            //errors.ForEach(x => Console.WriteLine(x));
+            errors.ForEach(x => Console.WriteLine(x));
             var cCodeVisitor = new CCodeGeneration();
             cCodeVisitor.Visit(parser.Root);
 

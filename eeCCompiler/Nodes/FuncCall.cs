@@ -14,6 +14,7 @@ namespace eeCCompiler.Nodes
 
         public Identifier Identifier { get; set; }
         public List<IExprListElement> Expressions { get; set; }
+        public bool IsBodyPart { get; set; }
 
         public override void Accept(IEecVisitor visitor)
         {

@@ -412,6 +412,11 @@ namespace eeCCompiler.Visitors
             {
                 if (_typechecker.Identifiers[refrence.StructRefrence.ToString()] is StructValue)
                 {
+                    var refid = refrence.Identifier;
+                    while (!(refid is FuncCall)) {
+                        refid = (refid as Refrence).Identifier;
+                    }
+                    (refid as FuncCall).IsBodyPart = true;
                     var value = StructRefrenceChecker(refrence, (_typechecker.Identifiers[refrence.StructRefrence.ToString()] as StructValue).Struct.Identifier.Id, refrence);
                 }
 
@@ -419,6 +424,7 @@ namespace eeCCompiler.Visitors
                 {
                     if (refrence.Identifier is FuncCall)
                     {
+                        (refrence.Identifier as FuncCall).IsBodyPart = true;
                         ListFuncChecker((refrence.Identifier as FuncCall), _typechecker.Identifiers[refrence.StructRefrence.ToString()] as ListValue);
                     }
                     else
