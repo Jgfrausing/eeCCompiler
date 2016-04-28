@@ -21,7 +21,7 @@ namespace eeCCompiler.Visitors
             FuncDict.Add("program_print",CreateFunction("program_print",parameters,new TypeId(new Identifier("program_print"), type),
                 type, new UnInitialisedVariable()).Value);
 
-            parameters.Clear();
+            parameters = new List<RefTypeId>();
             type.ValueType = "string";
 
             FuncDict.Add("program_read", CreateFunction("program_read", parameters, new TypeId(new Identifier("program_read"), type),
@@ -35,18 +35,24 @@ namespace eeCCompiler.Visitors
             FuncDict.Add("program_convertNumToString", CreateFunction("program_convertNumToString", parameters, new TypeId(new Identifier("program_convertNumToString"), type),
                 type, new BoolValue(true)).Value);
 
-            (parameters[0].TypeId.ValueType as eeCCompiler.Nodes.Type).ValueType = "bool";
+            parameters = new List<RefTypeId>()
+            {   new RefTypeId(new TypeId(new Identifier("input1"), new eeCCompiler.Nodes.Type("bool")),new Ref(false)),
+                new RefTypeId(new TypeId(new Identifier("input2"), new eeCCompiler.Nodes.Type("string")),new Ref(true)) };
+       
 
             FuncDict.Add("program_convertBoolToString", CreateFunction("program_convertBoolToString", parameters, new TypeId(new Identifier("program_convertBoolToString"), type),
                 type, new BoolValue(true)).Value);
 
-            (parameters[0].TypeId.ValueType as eeCCompiler.Nodes.Type).ValueType = "string";
-            (parameters[1].TypeId.ValueType as eeCCompiler.Nodes.Type).ValueType = "num";
+            parameters = new List<RefTypeId>()
+            {   new RefTypeId(new TypeId(new Identifier("input1"), new eeCCompiler.Nodes.Type("string")),new Ref(false)),
+                new RefTypeId(new TypeId(new Identifier("input2"), new eeCCompiler.Nodes.Type("num")),new Ref(true)) };
 
             FuncDict.Add("program_convertStringToNum", CreateFunction("program_convertStringToNum", parameters, new TypeId(new Identifier("program_convertStringToNum"), type),
                 type, new BoolValue(true)).Value);
 
-            (parameters[1].TypeId.ValueType as eeCCompiler.Nodes.Type).ValueType = "bool";
+            parameters = new List<RefTypeId>()
+            {   new RefTypeId(new TypeId(new Identifier("input1"), new eeCCompiler.Nodes.Type("string")),new Ref(false)),
+                new RefTypeId(new TypeId(new Identifier("input2"), new eeCCompiler.Nodes.Type("bool")),new Ref(true)) };
 
             FuncDict.Add("program_convertStringToBool", CreateFunction("program_convertStringToBool", parameters, new TypeId(new Identifier("program_convertStringToBool"), type),
                 type, new BoolValue(true)).Value);
