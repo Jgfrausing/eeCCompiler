@@ -14,7 +14,7 @@ namespace eeCCompiler.Visitors
         {
             Errors = errors;
             Identifiers = new Dictionary<string, IValue>();
-            Funcs = new Dictionary<string, Function>();
+            Funcs = StandardFunctions.FunctionDict();
             Structs = new Dictionary<string, StructDefinition>();
             _expressionChecker = new ExpressionChecker(this);
         }
@@ -202,6 +202,7 @@ namespace eeCCompiler.Visitors
             foreach (var decl in functionsDeclarations.FunctionDeclarationList)
             {
                 decl.TypeId.Identifier.Id = "program_" + decl.TypeId.Identifier.Id;
+                decl.Accept(this);
             }
         }
         public override void Visit(FunctionDeclaration functionDeclaration)
@@ -277,8 +278,10 @@ namespace eeCCompiler.Visitors
                 funcCall.Expressions.ForEach(x => expressions += x.ToString() + ",");
                 if (expressions.Length > 0)
                     expressions = expressions.Remove(expressions.Length - 1, 1);
-                Errors.Add(funcCall.Identifier.Id + "(" + expressions +  ") was not declared but was used in the code");
+                Errors.Add(funcCall.Identifier.Id + "(" + expressions + ") was not declared but was used in the code");
             }
+            else
+                _expressionChecker.ParameterChecker(Funcs[funcCall.Identifier.Id].FuncDecl, funcCall);
        }
         #endregion
     }

@@ -109,6 +109,11 @@ namespace eeCCompiler.Visitors
                     }
                     return value;
                 }
+                else if (exp.Value is StringValue)
+                {
+                    value = exp.Value;
+                    //Regularexpression på forvidt vi har \{ eller { og check om variablen eksistere i {VariableHer}
+                }
                 else
                     value = exp.Value;
                 return value;

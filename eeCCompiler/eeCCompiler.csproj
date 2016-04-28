@@ -100,13 +100,14 @@
     <Compile Include="Visitors\CCodeGeneration.cs" />
     <Compile Include="Visitors\CCode\DefaultCCode.cs" />
     <Compile Include="Visitors\ExprCheck.cs" />
-    <Compile Include="Visitors\ExpressionChecker.cs" />
+    <Compile Include="Visitors\Typechecker\ExpressionChecker.cs" />
     <Compile Include="Visitors\IEecVisitor.cs" />
     <Compile Include="Visitors\PrecedenceVisitor.cs" />
     <Compile Include="Visitors\PrettyPrinter.cs" />
     <Compile Include="Visitors\StructFunctionIdentifiers.cs" />
     <Compile Include="Visitors\Treeprint.cs" />
-    <Compile Include="Visitors\Typechecker.cs" />
+    <Compile Include="Visitors\Typechecker\StandardFunctions.cs" />
+    <Compile Include="Visitors\Typechecker\Typechecker.cs" />
     <Compile Include="Visitors\Visitor.cs" />
   </ItemGroup>
   <ItemGroup>
