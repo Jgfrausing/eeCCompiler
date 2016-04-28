@@ -14,13 +14,14 @@ namespace eeCCompiler
     {
         private readonly Parser _parser = new Parser();
         private readonly Stack<AbstractSyntaxTree> _reductionStack = new Stack<AbstractSyntaxTree>(); //Is public for debugging only
-
+        public List<string> Errors { get; set; }
         public Root Root;
 
         public MyParser()
         {
             //Loads the tables created by GOLD parser
             _parser.LoadTables(@"..\..\eec.egt");
+            Errors = new List<string>();
         }
 
         public bool Parse(TextReader reader)
@@ -34,12 +35,14 @@ namespace eeCCompiler
             _parser.TrimReductions = false; //Ommits reduntant reductions
 
             var done = false;
+            var errorOccur = false;
             while (!done)
             {
                 var response = _parser.Parse();
-
+                var a = _parser.CurrentToken();
                 switch (response)
                 {
+
                     case ParseMessage.Reduction:
                         //Create a customized object to store the reduction
                         var currentReduction = CreateNewObject(_parser.CurrentReduction as Reduction);
@@ -57,10 +60,15 @@ namespace eeCCompiler
                         //Reads tokens
                         break;
 
-                        #region Errors
+                    #region Errors
 
                     case ParseMessage.LexicalError:
-                        //Cannot recognize token
+                        //Cannot recognize token           
+                        Errors.Add("Lexical error, token not recognized:\n" +
+                                   "Position: " + _parser.CurrentPosition().Line + ", " + _parser.CurrentPosition().Column + "\n" +
+                                   "Token Read: " + _parser.CurrentToken().Data + "\n" +
+                                   "Expecting: " + _parser.ExpectedSymbols().Text());
+
                         done = true;
                         break;
 
@@ -68,21 +76,40 @@ namespace eeCCompiler
                         var pos = _parser.CurrentPosition();
                         var pm = _parser.CurrentToken();
                         //Expecting a different token
+                        Errors.Add("Syntax Error:\n" +
+                                   "Position: " + _parser.CurrentPosition().Line + ", " + _parser.CurrentPosition().Column + "\n" +
+                                   "Token Read: " + _parser.CurrentToken().Data + "\n" +
+                                   "Expecting: " + _parser.ExpectedSymbols().Text());
+
+                        
+
+                        //var i = _parser.SymbolTable();
+
+                        //Token token = new Token(i[17], i[17].ToString());
+                        //_parser.PushInput(ref token);
+
+                        //var u = _parser.ExpectedSymbols();
+                        ////Token b = new Token(u[0], u[0].Text() as object);
+                        ////_parser.PushInput(ref b);
+                        //errorOccur = true;
                         done = true;
                         break;
 
                     case ParseMessage.InternalError:
                         //INTERNAL ERROR! Something is horribly wrong.
+                        Errors.Add("Internal error - something went wrong.");
                         done = true;
                         break;
 
                     case ParseMessage.NotLoadedError:
-                        //This error occurs if the CGT was not loaded.                   
+                        //This error occurs if the CGT was not loaded.   
+                        Errors.Add("Error: CGT not loaded.");                
                         done = true;
                         break;
 
                     case ParseMessage.GroupError:
                         //GROUP ERROR! Unexpected end of file
+                        Errors.Add("Error: Unexpected end of file");
                         done = true;
                         break;
 
