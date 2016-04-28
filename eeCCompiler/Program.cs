@@ -15,7 +15,6 @@ namespace eeCCompiler
     {
         private static void Main(string[] args)
         {
-
             var parser = new MyParser();
             var result = parser.Parse(new StreamReader("HelloWorld.eec"));
             var syntax = result ? "The syntax is correct!" : "There are errors in the syntax";
@@ -36,16 +35,6 @@ namespace eeCCompiler
             sr.Close();
             //Console.Write(cCodeVisitor.CCode);
             Console.ReadKey();
-        }
-
-        private static bool ValidateIdentifier(char charactor)
-        {
-            return ValidateFirstChar(charactor) || (charactor >= '0' && charactor <= '9');
-        }
-
-        private static bool ValidateFirstChar(char charactor)
-        {
-            return (charactor >= 'A' && charactor <= 'Z') || (charactor >= 'a' && charactor <= 'z') || (charactor == '_');
         }
     }
 }
