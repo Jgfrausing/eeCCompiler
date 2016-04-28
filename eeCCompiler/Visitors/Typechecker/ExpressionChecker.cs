@@ -573,7 +573,7 @@ namespace eeCCompiler.Visitors
             {
                 if (funcCall.Expressions.Count == 2)
                 {
-                    if (!(CheckExpression(funcCall.Expressions[0] as IExpression).GetType().ToString() == "num"))
+                    if (!(CheckExpression(funcCall.Expressions[0] as IExpression) is NumValue))
                     {
                         _typechecker.Errors.Add("You can only insert at a num index");
                     }//Kan jeg det !!JONATAN DA FUQ!!
