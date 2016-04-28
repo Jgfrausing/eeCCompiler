@@ -57,6 +57,7 @@ namespace eeCCompiler
                         break;
 
                     case ParseMessage.TokenRead:
+                        var token = _parser.CurrentToken();
                         //Reads tokens
                         break;
 
@@ -515,10 +516,8 @@ namespace eeCCompiler
                 // <var_refrence_w_id> ::= Id
                     result = new Identifier(r.get_Data(0).ToString());
                     break;
-                case Indexes.Indexes.ProductionIndex.Var_refrence_w_id_Id_Dot:
-                // <var_refrence_w_id> ::= Id '.' <var_refrence_w_id>
-                case Indexes.Indexes.ProductionIndex.Var_refrence_w_id_Dot:
-                // <var_refrence_w_id> ::= <id_index> '.' <var_refrence_w_id>
+
+
                 case Indexes.Indexes.ProductionIndex.Var_refrence_w_id:                   
                     // <var_refrence_w_id> ::= <id_index>
                 case Indexes.Indexes.ProductionIndex.Func_refrence:
@@ -539,6 +538,10 @@ namespace eeCCompiler
                 case Indexes.Indexes.ProductionIndex.Var_refrence_Id_Dot:
                 // <var_refrence> ::= Id '.' <var_refrence_w_id>
 
+
+                case Indexes.Indexes.ProductionIndex.Var_refrence_w_id_Id_Dot:
+                // <var_refrence_w_id> ::= Id '.' <var_refrence_w_id>
+
                 case Indexes.Indexes.ProductionIndex.Refrence_Id_Dot:
                     // <refrence> ::= Id '.' <refrence>
                     result = new Refrence(_reductionStack.Pop() as IStructRefrence, new Identifier(r.get_Data(0).ToString()));
@@ -550,6 +553,8 @@ namespace eeCCompiler
                 case Indexes.Indexes.ProductionIndex.Var_refrence_Dot:
                 // <var_refrence> ::= <id_index> '.' <var_refrence_w_id>
 
+                case Indexes.Indexes.ProductionIndex.Var_refrence_w_id_Dot:
+                // <var_refrence_w_id> ::= <id_index> '.' <var_refrence_w_id>
                 case Indexes.Indexes.ProductionIndex.Refrence_Dot:
                     // <refrence> ::= <id_index> '.' <refrence>
                     result = new Refrence(_reductionStack.Pop() as IStructRefrence, _reductionStack.Pop() as IStructRefrence );
