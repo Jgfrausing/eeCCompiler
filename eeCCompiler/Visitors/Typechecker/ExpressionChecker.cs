@@ -587,7 +587,7 @@ namespace eeCCompiler.Visitors
             {
                 if (funcCall.Expressions.Count == 1)
                 {
-                    if (!(CheckExpression(funcCall.Expressions[0] as IExpression).GetType().ToString() == "num")) //Kan jeg det !!JONATAN DA FUQ!!
+                    if (!(CheckExpression(funcCall.Expressions[0] as IExpression) is NumValue)) //Kan jeg det !!JONATAN DA FUQ!!
                         _typechecker.Errors.Add("You can only remove at a num index");
                 }
                 else
