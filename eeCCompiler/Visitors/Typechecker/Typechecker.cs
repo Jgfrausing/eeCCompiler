@@ -162,6 +162,7 @@ namespace eeCCompiler.Visitors
 
             varDecleration.AssignmentOperator.Accept(this);
             var value = _expressionChecker.CheckExpression(varDecleration.Expression);
+            varDecleration.Type.ValueType = _expressionChecker.CheckValueType(value);
 
             if (value is UnInitialisedVariable)
             {
