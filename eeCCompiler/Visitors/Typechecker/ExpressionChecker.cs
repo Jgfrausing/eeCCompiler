@@ -3,6 +3,9 @@ using System.Security.Cryptography.X509Certificates;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
 using Type = System.Type;
+using System.Text.RegularExpressions;
+using System;
+using System.Linq;
 
 namespace eeCCompiler.Visitors
 {
@@ -111,6 +114,7 @@ namespace eeCCompiler.Visitors
                 }
                 else if (exp.Value is StringValue)
                 {
+                    StringConverter(exp.Value as StringValue);
                     value = exp.Value;
                     //Regularexpression på forvidt vi har \{ eller { og check om variablen eksistere i {VariableHer}
                 }
@@ -226,6 +230,95 @@ namespace eeCCompiler.Visitors
         }
 
         #region CheckerFunctions
+        public void StringConverter(StringValue stringValue)
+        {
+            var input = stringValue.Value;
+            bool escaped = false, firstChar = false;
+            bool isIdentifier = false;
+            var stringParts = new List<IStringPart>() { new StringValue("") };
+            foreach (var charactor in input.ToCharArray(0, input.Length))
+            {
+                if (!escaped)
+                {
+                    if (charactor == '\\')
+                    {
+                        (stringParts[stringParts.Count - 1] as StringValue).Value += charactor;
+                        escaped = true;
+                        continue;
+                    }
+                    if (charactor == '{')
+                    {
+                        stringParts.Add(new TypeId(new Identifier(""), new eeCCompiler.Nodes.Type("I dont fucking know!")));
+                        isIdentifier = true;
+                        firstChar = true;
+                    }
+                    else if (charactor == '}')
+                    {
+                        isIdentifier = false;
+                        stringParts.Add(new StringValue(""));
+                    }
+                    else if (firstChar && ValidateFirstChar(charactor))
+                    {
+                        firstChar = false;
+                        (stringParts[stringParts.Count - 1] as TypeId).Identifier.Id += charactor;
+                    }
+                    else if ((isIdentifier && ValidateIdentifier(charactor)))
+                    {
+                        (stringParts[stringParts.Count - 1] as TypeId).Identifier.Id += charactor;
+                    }
+                    else if (!isIdentifier)
+                    {
+                        (stringParts[stringParts.Count - 1] as StringValue).Value += charactor;
+                    }
+                    else
+                    {
+                        _typechecker.Errors.Add("Identifier in string " + input + ". Has " + charactor + " which is not allowed for identifiers"); 
+                    }
+                }
+                else
+                {
+                    (stringParts[stringParts.Count - 1] as StringValue).Value += charactor;
+                }
+                escaped = false;
+            }
+            for (int i = 0; i < stringParts.Count; i++)
+            {
+                if (stringParts[i] is StringValue)
+                {
+                    (stringParts[i] as StringValue).Value = ((StringValue)stringParts[i]).Value.Replace(@"\{", "{");
+                    (stringParts[i] as StringValue).Value = ((StringValue)stringParts[i]).Value.Replace(@"\}", "}");
+                }
+                else if (stringParts[i] is TypeId)
+                {
+                    (stringParts[i] as TypeId).Identifier.Id = ((TypeId)stringParts[i]).Identifier.Id.Replace(@"\{", "{");
+                    (stringParts[i] as TypeId).Identifier.Id = ((TypeId)stringParts[i]).Identifier.Id.Replace(@"\{", "{");
+                }
+            }
+            foreach (TypeId typeId in stringParts.Where(x => x is TypeId))
+            {
+                if (_typechecker.Identifiers.ContainsKey(typeId.Identifier.Id))
+                {
+                    if (_typechecker.Identifiers[typeId.Identifier.Id] is NumValue)
+                        (typeId.ValueType as eeCCompiler.Nodes.Type).ValueType = "num";
+                    else if (_typechecker.Identifiers[typeId.Identifier.Id] is StringValue)
+                        (typeId.ValueType as eeCCompiler.Nodes.Type).ValueType = "string";
+                    else if (_typechecker.Identifiers[typeId.Identifier.Id] is BoolValue)
+                        (typeId.ValueType as eeCCompiler.Nodes.Type).ValueType = "string";
+                    else
+                        _typechecker.Errors.Add("A " + _typechecker.Identifiers[typeId.Identifier.Id].GetType().Name + " can no be used in a string");
+                }   
+            }
+            stringValue.Elements = stringParts;
+        }
+        private bool ValidateIdentifier(char charactor)
+        {
+            return ValidateFirstChar(charactor) || (charactor >= '0' && charactor <= '9');
+        }
+
+        private bool ValidateFirstChar(char charactor)
+        {
+            return (charactor >= 'A' && charactor <= 'Z') || (charactor >= 'a' && charactor <= 'z') || (charactor == '_');
+        }
         public bool NumChecker(IValue value, Operator opr)
         {
             return value is NumValue &&
