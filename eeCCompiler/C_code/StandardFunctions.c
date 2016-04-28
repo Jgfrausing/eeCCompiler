@@ -2,7 +2,7 @@
 int program_convertNumToString(double input, string_handle * output){
     char str[50];
     sprintf(str,"%lf",input);
-
+    string_clear(output);
     for (int i = 0; str[i] != '\0' && i<50; ++i)
     {
         string_add(str[i], output);
@@ -11,7 +11,7 @@ int program_convertNumToString(double input, string_handle * output){
 }
 int program_convertBoolToString(int input, string_handle * output){
 	char str[6], t[] = "true", f[] = "false";
-	//strcpy(char *dest, const char *src)
+	string_clear(output);
 
 	if(input){
 		strcpy(str, t);
@@ -45,11 +45,11 @@ int program_convertStringToBool(string_handle * input, int *output){
 	return result;
 }
 
-void program_printNum(double input){
+void standard_printNum(double input){
 	printf("%lf", input);
 }
 
-void program_printBool(int input){
+void standard_printBool(int input){
 	string_handle * myString = string_new();
 	program_convertBoolToString(input, myString);
 	for (int i = 0; i < myString->size; ++i)
@@ -59,14 +59,14 @@ void program_printBool(int input){
 	free(myString);
 }
 
-void program_printString(string_handle * input){
+void standard_printString(string_handle * input){
 	for (int i = 0; i < input->size; ++i)
 	{
 		printf("%c", string_get(i, input));
 	}
 }
 
-string_handle * program_createString(char input[]){
+string_handle * standard_createString(char input[]){
     string_handle *myString = string_new();
     for (int i = 0; input[i] != '\0'; ++i)
     {
@@ -74,4 +74,29 @@ string_handle * program_createString(char input[]){
     }
 
     return myString;
+}
+
+void standard_appendChars(string_handle * head, char input[]){
+	string_handle *myInputString = standard_createString(input);
+	head->size += myInputString->size;
+	head->last->next = myInputString->first;
+	head->last = myInputString->last;
+}
+
+void standard_appendString(string_handle * head, string_handle * input){
+	head->size += input->size;
+	head->last->next = input->first;
+	head->last = input->last;
+}
+
+void standard_appendNum(string_handle * head, double input){
+	string_handle *myString = string_new();
+	program_convertNumToString(input, myString);
+	standard_appendString(head, myString);
+}
+
+void standard_appendBool(string_handle * head, int input){
+	string_handle *myString = string_new();
+	program_convertBoolToString(input, myString);
+	standard_appendString(head, myString);
 }

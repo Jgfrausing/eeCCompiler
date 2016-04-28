@@ -53,6 +53,7 @@
     <Compile Include="Interfaces\IExprListElement.cs" />
     <Compile Include="Interfaces\IIdentifier.cs" />
     <Compile Include="Interfaces\INodeElement.cs" />
+    <Compile Include="Interfaces\IStringPart.cs" />
     <Compile Include="Interfaces\IStructPart.cs" />
     <Compile Include="Interfaces\IStructRefrence.cs" />
     <Compile Include="Interfaces\IType.cs" />

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Policy;
+using System.Text.RegularExpressions;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
 using eeCCompiler.Visitors.CCode;
@@ -24,7 +25,6 @@ namespace eeCCompiler.Visitors
         {
             _header += _defaultCCode.GetIncludes();
             _root = root;
-            //RenameFunctions();
             root.Includes.Accept(this);
             root.ConstantDefinitions.Accept(this);
             _header +=_code;
@@ -54,16 +54,6 @@ namespace eeCCompiler.Visitors
             root.FunctionDeclarations.Accept(this);
             _code += "void main()";
             root.Program.Accept(this);
-        }
-
-        private void RenameFunctions()
-        {
-            foreach (var functionDeclaration in _root.FunctionDeclarations.FunctionDeclarationList)
-            {
-                var id = functionDeclaration.TypeId.Identifier.Id;
-                functionDeclaration.TypeId.Identifier.Id = "program_" + id;
-            }
-
         }
 
         public void Visit(Body body)
@@ -332,16 +322,46 @@ namespace eeCCompiler.Visitors
         {
             if (funcCall.Identifier.Id == "program_print")
             {
-                ConvertPrintFunction(funcCall);
+                foreach (var element in (funcCall.Expressions[0] as StringValue).Elements)
+                {
+                    _code += "standard_print";
+                    if (element is StringValue)
+                    {
+                        _code += $"Chars(\"{(element as StringValue).Value}\")";
+                    }
+                    else if (element is TypeId)
+                    {
+                        
+                    }
+                }
             }
-            _code += $"{funcCall.Identifier}(";
-            for (int i = 0; i < funcCall.Expressions.Count; i++)
+            else if (funcCall.Identifier.Id == "program_convertStringToBool")
             {
-                if (i > 0)
-                    _code += ",";
-                funcCall.Expressions[i].Accept(this);
+                Regex.Match(@"{variable} text \{ikke variable\}", @"{|}");
             }
-            _code += ")";
+            else if (funcCall.Identifier.Id == "program_convertStringToNum")
+            {
+
+            }
+            else if (funcCall.Identifier.Id == "program_convertBoolToString")
+            {
+
+            }
+            else if (funcCall.Identifier.Id == "program_convertNumToString")
+            {
+                _code += $"{funcCall.Identifier}({funcCall.Expressions[0]}, {funcCall.Expressions[1]})";
+            }
+            else
+            {
+                _code += $"{funcCall.Identifier}(";
+                for (int i = 0; i < funcCall.Expressions.Count; i++)
+                {
+                    if (i > 0)
+                        _code += ",";
+                    funcCall.Expressions[i].Accept(this);
+                }
+                _code += ")";
+            }
             if (funcCall.IsBodyPart)
                 _code += ";";
         }
@@ -416,9 +436,16 @@ namespace eeCCompiler.Visitors
         {
             if (varDecl.Type.ValueType == "string")
             {
-                if (varDecl.IsFirstUse)
-                    _code += GetValueType(varDecl.Type) + " *";
-                _code += $"{varDecl.Identifier.Id} = program_createString({varDecl.Expression});";
+                if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
+                {
+                    if (varDecl.IsFirstUse)
+                        _code += GetValueType(varDecl.Type) + " *";
+                    _code += $"{varDecl.Identifier.Id} = standard_createString({varDecl.Expression});";
+                }
+                else if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Pluseq)
+                {
+                    getString(varDecl.Expression);
+                }
             }
             else
             {
@@ -429,6 +456,22 @@ namespace eeCCompiler.Visitors
                 _code += " ";
                 varDecl.Expression.Accept(this);
                 _code += ";";
+            }
+        }
+
+        private void getString(IExpression expression)
+        {
+            foreach (var element in (expression as StringValue).Elements)
+            {
+                if (element is StringValue)
+                {
+                    var stringValue = element as StringValue;
+                }
+                else if (element is TypeId)
+                {
+                    var typeId = element as TypeId;
+                }
+
             }
         }
 

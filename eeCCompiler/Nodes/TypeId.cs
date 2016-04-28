@@ -4,7 +4,7 @@ using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
 {
-    public class TypeId : AbstractSyntaxTree, ITypeId
+    public class TypeId : AbstractSyntaxTree, ITypeId, IStringPart
     {
         public TypeId(Identifier identifier, IType valueType)
         {

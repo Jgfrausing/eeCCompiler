@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.ExceptionServices;
+using System.Text.RegularExpressions;
+using System.Xml.Schema;
 using eeCCompiler.Interfaces;
+using eeCCompiler.Nodes;
 using eeCCompiler.Visitors;
 using eeCCompiler.Visitors.CCode;
 
@@ -11,18 +15,8 @@ namespace eeCCompiler
     {
         private static void Main(string[] args)
         {
-            //var testingList = new DefaultCCode();
-            //var s = testingList.GetIncludes();
-            //s += testingList.GenerateListTypeHeader("int");
-            ////s += testingList.GenerateListTypeHeader("myTest");
-            //s += testingList.GenerateListTypeCode("int");
-            ////s += testingList.GenerateListTypeCode("myTest");
-            //s += testingList.IncludeMain(@"..\..\C_code\MainForTestingIntList.c");
-            //var test = new StreamWriter("testinglistcode.c");
-            //test.Write(s);
-            //test.Close();
-            //Environment.Exit(1);
-            var parser = new MyParser(); //Derp
+
+            var parser = new MyParser();
             var result = parser.Parse(new StreamReader("HelloWorld.eec"));
             var syntax = result ? "The syntax is correct!" : "There are errors in the syntax";
             Console.WriteLine(syntax);
@@ -42,6 +36,16 @@ namespace eeCCompiler
             sr.Close();
             //Console.Write(cCodeVisitor.CCode);
             Console.ReadKey();
+        }
+
+        private static bool ValidateIdentifier(char charactor)
+        {
+            return ValidateFirstChar(charactor) || (charactor >= '0' && charactor <= '9');
+        }
+
+        private static bool ValidateFirstChar(char charactor)
+        {
+            return (charactor >= 'A' && charactor <= 'Z') || (charactor >= 'a' && charactor <= 'z') || (charactor == '_');
         }
     }
 }
