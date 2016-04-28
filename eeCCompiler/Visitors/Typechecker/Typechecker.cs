@@ -59,7 +59,7 @@ namespace eeCCompiler.Visitors
                 preBodyIdentifiers.Add(val.Key, val.Value);
             }
             var preStructDefFunctions = new Dictionary<string, Function>();
-            foreach (var val in preStructDefFunctions)
+            foreach (var val in Funcs)
             {
                 preStructDefFunctions.Add(val.Key, val.Value);
             }
@@ -79,7 +79,10 @@ namespace eeCCompiler.Visitors
             if (!(structDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq))
                 Errors.Add("The " + structDecleration.AssignmentOperator.Symbol + " can not be used on a struct");
             if (!(Identifiers.ContainsKey(structDecleration.Identifier.Id)))
-                Identifiers.Add(structDecleration.Identifier.Id, new StructValue(Structs[structDecleration.StructIdentifier.Id]));
+            {
+                if (Structs.ContainsKey(structDecleration.StructIdentifier.Id)) 
+                    Identifiers.Add(structDecleration.Identifier.Id, new StructValue(Structs[structDecleration.StructIdentifier.Id]));
+            }
             else if (!(Identifiers[structDecleration.Identifier.Id] is StructValue))
                 Errors.Add(structDecleration.Identifier.Id + " is not of type " + structDecleration.StructIdentifier.Id);
             else if (!((Identifiers[structDecleration.Identifier.Id] as StructValue).Struct.Identifier.Id == Structs[structDecleration.StructIdentifier.Id].Identifier.Id))
