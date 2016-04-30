@@ -196,6 +196,15 @@ namespace eeCCompiler.Visitors
 
                 return OprChecker(value1, value2, expressionParenOpExpr.Operator, expressionType);
             }
+            else if (expression is ExpressionExprOpExpr)
+            {
+                var expressionParenOpExpr = expression as ExpressionExprOpExpr;
+
+                var value1 = CheckExpression(expressionParenOpExpr.ExpressionParen);
+                var value2 = CheckExpression(expressionParenOpExpr.Expression);
+
+                return OprChecker(value1, value2, expressionParenOpExpr.Operator, expressionType);
+            }
             #endregion
 
             #region FuncCall
@@ -323,13 +332,22 @@ namespace eeCCompiler.Visitors
         public bool NumChecker(IValue value, Operator opr)
         {
             return value is NumValue &&
-                   !(opr.Symbol == Indexes.Indexes.SymbolIndex.Plus ||
+                     (opr.Symbol == Indexes.Indexes.SymbolIndex.Plus ||
                      opr.Symbol == Indexes.Indexes.SymbolIndex.Minus ||
                      opr.Symbol == Indexes.Indexes.SymbolIndex.Div ||
                      opr.Symbol == Indexes.Indexes.SymbolIndex.Times ||
                      opr.Symbol == Indexes.Indexes.SymbolIndex.Mod);
         }
-
+        public bool BoolNumChecker(IValue value, Operator opr)
+        {
+            return value is NumValue &&
+                (opr.Symbol == Indexes.Indexes.SymbolIndex.Eqeq ||
+                 opr.Symbol == Indexes.Indexes.SymbolIndex.Exclameq ||
+                 opr.Symbol == Indexes.Indexes.SymbolIndex.Lt ||
+                 opr.Symbol == Indexes.Indexes.SymbolIndex.Lteq ||
+                 opr.Symbol == Indexes.Indexes.SymbolIndex.Gt ||
+                 opr.Symbol == Indexes.Indexes.SymbolIndex.Gteq);
+        }
         public bool BoolChecker(IValue value, Operator opr)
         {
             return value is BoolValue &&
@@ -393,17 +411,16 @@ namespace eeCCompiler.Visitors
                 //Hvis begge værdier ikke er ens accepteres det ikke i vores grammatik
                 _typechecker.Errors.Add(expressionType.Name + " with " + value1.GetType().Name + " and " + value2.GetType().Name);
 
-            else if (BoolChecker(value1, opr)) //Checker om en lovlig operator bliver brugt i bool opr bool
+            else if (value1 is BoolValue && BoolChecker(value1, opr)) //Checker om en lovlig operator bliver brugt i bool opr bool
                 _typechecker.Errors.Add(expressionType.Name + " wrong operator tried " + value1.GetType().Name + " " + opr.Symbol +
                                         " " + value2.GetType().Name);
 
-            else if (NumChecker(value1, opr)) //Checker om bool operator bliver brugt i num opr num
-                return new BoolValue(true);
-            //Værdi ubetydelig men hvis vi har num opr num så evaluere det til en bool, hvis ikke en af ovenstående operatore.
+            else if (value1 is BoolValue && !BoolChecker(value1, opr))
+                return value1;
 
             else if (value1 is StringValue &&
-                     (opr.Symbol == Indexes.Indexes.SymbolIndex.Exclameq ||
-                      opr.Symbol == Indexes.Indexes.SymbolIndex.Eqeq))
+                    (opr.Symbol == Indexes.Indexes.SymbolIndex.Exclameq ||
+                     opr.Symbol == Indexes.Indexes.SymbolIndex.Eqeq))
                 return new BoolValue(true);
             //Værdi ubetydelig men hvis vi har string opr string så evaluere det til en bool, hvis en af ovenstående operatore.
 
@@ -413,6 +430,19 @@ namespace eeCCompiler.Visitors
                        opr.Symbol == Indexes.Indexes.SymbolIndex.Plus))
                 _typechecker.Errors.Add(expressionType.Name + " wrong operator tried " + value1.GetType().Name + " " + opr.Symbol +
                                         " " + value2.GetType().Name);
+
+            if (!(NumChecker(value1, opr) || BoolNumChecker(value1, opr)))
+                _typechecker.Errors.Add(expressionType.Name + " wrong operator tried " + value1.GetType().Name + " " + opr.Symbol +
+                        " " + value2.GetType().Name);
+
+            else if (NumChecker(value1, opr)) //Checker om num operator bliver brugt i num opr num
+                return value1;
+
+            else if (BoolNumChecker(value1, opr))
+                return new BoolValue(true);
+            //Værdi ubetydelig men hvis vi har num opr num så evaluere det til en bool, hvis ikke en af ovenstående operatore.
+
+           
             return value1;
         }
 
@@ -529,6 +559,7 @@ namespace eeCCompiler.Visitors
 
         public void NakedFuncCallChecker(Refrence refrence)
         {
+            refrence.IsFuncCall = true;
             if (_typechecker.Identifiers.ContainsKey(refrence.StructRefrence.ToString()))
             {
                 if (_typechecker.Identifiers[refrence.StructRefrence.ToString()] is StructValue)
