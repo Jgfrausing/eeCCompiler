@@ -25,9 +25,9 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(VarDecleration vardecl)
         {
-            var cancer = vardecl.Expression;
-            ReplaceValues(ref cancer);
-            vardecl.Expression = cancer;
+            var vardeclExpr = vardecl.Expression;
+            ReplaceValues(ref vardeclExpr);
+            vardecl.Expression = vardeclExpr;
             GlobalExpr = vardecl.Expression;
             IExpression temp = vardecl.Expression;
             while (level < 6)
@@ -142,9 +142,9 @@ namespace eeCCompiler.Visitors
                 ExprParens.Add(expressionParenOpExpr.ExpressionParen, val);
                 expression = new ExpressionValOpExpr(expressionParenOpExpr.Expression, expressionParenOpExpr.Operator, val);
 
-                var cancer = (expression as ExpressionValOpExpr).Expression;
-                ReplaceValues(ref cancer);
-                (expression as ExpressionValOpExpr).Expression = cancer;
+                var exprExpr = (expression as ExpressionValOpExpr).Expression;
+                ReplaceValues(ref exprExpr);
+                (expression as ExpressionValOpExpr).Expression = exprExpr;
             }
             #region ExpressionParen
             else if (expression is ExpressionParen)
@@ -154,29 +154,28 @@ namespace eeCCompiler.Visitors
 
                 
 
-                var cancer = (expression as ExpressionParen).Expression;
-                ReplaceValues(ref cancer);
+                var exprExpr = (expression as ExpressionParen).Expression;
+                ReplaceValues(ref exprExpr);
 
 
-                GlobalExpr = cancer;
+                GlobalExpr = exprExpr;
                 while (level < 6)
                 {
-                    PrecedenceFixer(ref cancer, 0);
+                    PrecedenceFixer(ref exprExpr, 0);
                     level++;
                 }
                 level = 0;
 
                 foreach (var ValueExprParen in ExprParens)
                 {
-                    ReplaceValue(cancer, ValueExprParen.Value, ref cancer, ValueExprParen.Key);
+                    ReplaceValue(exprExpr, ValueExprParen.Value, ref exprExpr, ValueExprParen.Key);
                 }
 
-                (expression as ExpressionParen).Expression = cancer;
+                (expression as ExpressionParen).Expression = exprExpr;
                 var val = _expressionChecker.CheckExpression(expressionParen.Expression);
                 ExprParens.Add(expressionParen, val);
 
                 expression = new ExpressionVal(val);
-                //(expression as ExpressionParen).Expression = expressionParen;
             }
             #endregion
 
@@ -187,24 +186,24 @@ namespace eeCCompiler.Visitors
 
 
 
-                var cancer = (expression as ExpressionNegate).Expression;
-                ReplaceValues(ref cancer);
+                var exprExpr = (expression as ExpressionNegate).Expression;
+                ReplaceValues(ref exprExpr);
 
 
-                GlobalExpr = cancer;
+                GlobalExpr = exprExpr;
                 while (level < 6)
                 {
-                    PrecedenceFixer(ref cancer, 0);
+                    PrecedenceFixer(ref exprExpr, 0);
                     level++;
                 }
                 level = 0;
 
                 foreach (var ValueExprParen in ExprParens)
                 {
-                    ReplaceValue(cancer, ValueExprParen.Value, ref cancer, ValueExprParen.Key);
+                    ReplaceValue(exprExpr, ValueExprParen.Value, ref exprExpr, ValueExprParen.Key);
                 }
 
-                (expression as ExpressionNegate).Expression = cancer;
+                (expression as ExpressionNegate).Expression = exprExpr;
                 var val = _expressionChecker.CheckExpression(expressionNegate.Expression);
                 ExprParens.Add(expressionNegate, val);
 
@@ -215,18 +214,18 @@ namespace eeCCompiler.Visitors
             #region ExpressionMinus
             else if (expression is ExpressionMinus)
             {
-                var cancer = (expression as ExpressionMinus).Expression;
-                ReplaceValues(ref cancer);
-                (expression as ExpressionMinus).Expression = cancer;
+                var exprExpr = (expression as ExpressionMinus).Expression;
+                ReplaceValues(ref exprExpr);
+                (expression as ExpressionMinus).Expression = exprExpr;
             }
             #endregion
 
             #region ExpressionValOpExpr
             else if (expression is ExpressionValOpExpr)
             {
-                var cancer = (expression as ExpressionValOpExpr).Expression;
-                ReplaceValues(ref cancer);
-                (expression as ExpressionValOpExpr).Expression = cancer;
+                var exprExpr = (expression as ExpressionValOpExpr).Expression;
+                ReplaceValues(ref exprExpr);
+                (expression as ExpressionValOpExpr).Expression = exprExpr;
             }
             #endregion
         }
@@ -250,9 +249,9 @@ namespace eeCCompiler.Visitors
             }
             else if (expr is ExpressionExprOpExpr)
             {
-                var derpface = expr as ExpressionExprOpExpr;
-                ReplaceValue(derpface.Expression, val, ref expr, exprParen);
-                ReplaceValue(derpface.ExpressionParen, val, ref expr, exprParen);
+                var expressionExprOpExpr = expr as ExpressionExprOpExpr;
+                ReplaceValue(expressionExprOpExpr.Expression, val, ref expr, exprParen);
+                ReplaceValue(expressionExprOpExpr.ExpressionParen, val, ref expr, exprParen);
             }
             else if (expr is ExpressionVal)
             {
@@ -278,9 +277,9 @@ namespace eeCCompiler.Visitors
             }
             else if (expr is ExpressionParenOpExpr)
             {
-                var derpface = expr as ExpressionParenOpExpr;
-                ReplaceValue(derpface.Expression, val, ref expr, exprParen);
-                ReplaceValue(derpface.ExpressionParen, val, ref expr, exprParen);
+                var expressionParenOpExpr = expr as ExpressionParenOpExpr;
+                ReplaceValue(expressionParenOpExpr.Expression, val, ref expr, exprParen);
+                ReplaceValue(expressionParenOpExpr.ExpressionParen, val, ref expr, exprParen);
             }
         }
         public IExpression ExprWalker(int ExprNumber)
