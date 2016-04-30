@@ -13,14 +13,14 @@ namespace eeCCompiler.Visitors
         public IExpression GlobalExpr { get; set; }
         public ExpressionChecker _expressionChecker;
         public int level { get; set; }
-        public Dictionary<IValue, IExpression> ExprParens;
+        public Dictionary<IExpression, IValue> ExprParens;
 
 
         public Precedence()
         {
             _expressionChecker = new ExpressionChecker(new Typechecker(new List<string>()));
             level = 0;
-            ExprParens = new Dictionary<IValue, IExpression>();
+            ExprParens = new Dictionary<IExpression, IValue>();
         }
 
         public override void Visit(VarDecleration vardecl)
@@ -39,7 +39,7 @@ namespace eeCCompiler.Visitors
 
             foreach (var ValueExprParen in ExprParens)
             {
-                ReplaceValue(temp, ValueExprParen.Key, temp, ValueExprParen.Value);
+                ReplaceValue(temp, ValueExprParen.Value, ref temp, ValueExprParen.Key);
             }
             vardecl.Expression = temp;
         }
@@ -139,7 +139,7 @@ namespace eeCCompiler.Visitors
             {
                 var expressionParenOpExpr = expression as ExpressionParenOpExpr;
                 var val = _expressionChecker.CheckExpression(expressionParenOpExpr.ExpressionParen);
-                ExprParens.Add(val, expressionParenOpExpr.ExpressionParen);
+                ExprParens.Add(expressionParenOpExpr.ExpressionParen, val);
                 expression = new ExpressionValOpExpr(expressionParenOpExpr.Expression, expressionParenOpExpr.Operator, val);
 
                 var cancer = (expression as ExpressionValOpExpr).Expression;
@@ -149,18 +149,66 @@ namespace eeCCompiler.Visitors
             #region ExpressionParen
             else if (expression is ExpressionParen)
             {
+
+                var expressionParen = (expression as ExpressionParen);
+
+                
+
                 var cancer = (expression as ExpressionParen).Expression;
                 ReplaceValues(ref cancer);
+
+
+                GlobalExpr = cancer;
+                while (level < 6)
+                {
+                    PrecedenceFixer(ref cancer, 0);
+                    level++;
+                }
+                level = 0;
+
+                foreach (var ValueExprParen in ExprParens)
+                {
+                    ReplaceValue(cancer, ValueExprParen.Value, ref cancer, ValueExprParen.Key);
+                }
+
                 (expression as ExpressionParen).Expression = cancer;
+                var val = _expressionChecker.CheckExpression(expressionParen.Expression);
+                ExprParens.Add(expressionParen, val);
+
+                expression = new ExpressionVal(val);
+                //(expression as ExpressionParen).Expression = expressionParen;
             }
             #endregion
 
             #region ExpressionNegate
             else if (expression is ExpressionNegate)
             {
+                var expressionNegate = (expression as ExpressionNegate);
+
+
+
                 var cancer = (expression as ExpressionNegate).Expression;
                 ReplaceValues(ref cancer);
+
+
+                GlobalExpr = cancer;
+                while (level < 6)
+                {
+                    PrecedenceFixer(ref cancer, 0);
+                    level++;
+                }
+                level = 0;
+
+                foreach (var ValueExprParen in ExprParens)
+                {
+                    ReplaceValue(cancer, ValueExprParen.Value, ref cancer, ValueExprParen.Key);
+                }
+
                 (expression as ExpressionNegate).Expression = cancer;
+                var val = _expressionChecker.CheckExpression(expressionNegate.Expression);
+                ExprParens.Add(expressionNegate, val);
+
+                expression = new ExpressionVal(val);
             }
             #endregion
 
@@ -182,7 +230,7 @@ namespace eeCCompiler.Visitors
             }
             #endregion
         }
-        public void ReplaceValue(IExpression expr, IValue val, IExpression Parent, IExpression exprParen)
+        public void ReplaceValue(IExpression expr, IValue val, ref IExpression Parent, IExpression exprParen)
         {
             if (expr is ExpressionValOpExpr)
             {
@@ -203,8 +251,8 @@ namespace eeCCompiler.Visitors
             else if (expr is ExpressionExprOpExpr)
             {
                 var derpface = expr as ExpressionExprOpExpr;
-                ReplaceValue(derpface.Expression, val, expr, exprParen);
-                ReplaceValue(derpface.ExpressionParen, val, expr, exprParen);
+                ReplaceValue(derpface.Expression, val, ref expr, exprParen);
+                ReplaceValue(derpface.ExpressionParen, val, ref expr, exprParen);
             }
             else if (expr is ExpressionVal)
             {
@@ -222,13 +270,17 @@ namespace eeCCompiler.Visitors
                     {
                         (Parent as ExpressionParenOpExpr).Expression = (exprParen);
                     }
+                    else if (Parent is ExpressionVal)
+                    {
+                        Parent = exprParen;
+                    }
                 }
             }
             else if (expr is ExpressionParenOpExpr)
             {
                 var derpface = expr as ExpressionParenOpExpr;
-                ReplaceValue(derpface.Expression, val, expr, exprParen);
-                ReplaceValue(derpface.ExpressionParen, val, expr, exprParen);
+                ReplaceValue(derpface.Expression, val, ref expr, exprParen);
+                ReplaceValue(derpface.ExpressionParen, val, ref expr, exprParen);
             }
         }
         public IExpression ExprWalker(int ExprNumber)
