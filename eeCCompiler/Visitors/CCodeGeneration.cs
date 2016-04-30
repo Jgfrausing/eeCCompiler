@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Policy;
@@ -16,13 +16,15 @@ namespace eeCCompiler.Visitors
         private string _code { get; set; }
         private readonly DefaultCCode _defaultCCode = new DefaultCCode();
         private readonly Stack<List<Identifier>> _heapIdentifiers = new Stack<List<Identifier>>();
+        public int tempCVariable { get; set; }
 
         public string CCode => _header + _code;
 
         private Root _root;
 
-        public void Visit(Root root)    
+        public void Visit(Root root)
         {
+            tempCVariable = 0;
             _header += _defaultCCode.GetIncludes();
             _root = root;
             root.Includes.Accept(this);
@@ -261,6 +263,10 @@ namespace eeCCompiler.Visitors
             string opr = "OPERATOR!!!";
             switch (operate.Symbol)
             {
+
+                case Indexes.Indexes.SymbolIndex.Plus:
+                    opr = "+";
+                    break;
                 case Indexes.Indexes.SymbolIndex.Eqeq:
                     opr = "==";
                     break;
@@ -323,26 +329,15 @@ namespace eeCCompiler.Visitors
             #region Print
             if (funcCall.Identifier.Id == "program_print")
             {
-                foreach (var element in ((funcCall.Expressions[0] as ExpressionVal).Value as StringValue).Elements)
-                {
-                    CreateFunctions(element, "standard_print");
-                    if (element is StringValue)
-                    {
-                         if ((element as StringValue).Value != "")
-                            _code += $"(\"{(element as StringValue).Value}\");";
-                    }
-                    else if (element is TypeId)
-                    {
-                        _code += $"({(element as TypeId).Identifier});";
-                    }
-                }
+                 var parameter = (funcCall.Expressions[0] as ExpressionVal).Value as Identifier;
+                _code += $"standard_printString({parameter.Id});";
             }
-                #endregion
+            #endregion
             #region Convert
             else if (funcCall.Identifier.Id == "program_convertStringToBool" 
                 || funcCall.Identifier.Id == "program_convertStringToNum")
             {
-                _code += $"{funcCall.Identifier}({funcCall.Expressions[0]}, &{funcCall.Expressions})";
+                _code += $"{funcCall.Identifier}({funcCall.Expressions[0]}, &{(funcCall.Expressions[1] as RefId).Identifier})";
             }
             else if (funcCall.Identifier.Id == "program_convertBoolToString" 
                 || funcCall.Identifier.Id == "program_convertNumToString")
@@ -361,37 +356,62 @@ namespace eeCCompiler.Visitors
                     funcCall.Expressions[i].Accept(this);
                 }
                 _code += ")";
+                if (funcCall.IsBodyPart)
+                    _code += ";";
             }
-            if (funcCall.IsBodyPart)
-                _code += ";";
             #endregion
         }
 
-        private void CreateFunctions(IStringPart element, string stdprt)
-        {
-            if (element is StringValue)
-            {
-                if ((element as StringValue).Value != "")
-                    _code += $"{stdprt}Chars";
-            }
-            else if (element is TypeId)
-            {
-                var typeId = (element as TypeId);
-                var type = typeId.ValueType as eeCCompiler.Nodes.Type;
-                switch (type.ValueType)
-                {
-                    case "string":
-                        _code += $"{stdprt}String";
-                        break;
-                    case "num":
-                        _code += $"{stdprt}Num";
-                        break;
-                    case "bool":
-                        _code += $"{stdprt}Bool";
-                        break;
-                }
-            }
-        }
+        //private void SetSingleStringParameter(IStringPart element, ref bool hasVariable)
+        //{
+        //    if (element is StringValue)
+        //    {
+        //        //if (!hasVariable)
+        //        //{
+        //        //    _code += $"\"{(element as StringValue).Value}\")";
+        //        //    hasVariable = true;
+        //        //}
+        //    }
+        //    else 
+        //    if (element is TypeId)
+        //    {
+        //        _code += $"({(element as TypeId).Identifier})";
+        //    }
+        //}
+
+        //private void CreateFunctions(IStringPart element, string stdprt, ref bool hasVariable)
+        //{
+        //    if (element is StringValue)
+        //    {
+        //        if (!hasVariable)
+        //        {
+        //            _code += $"string_handle *_{tempCVariable}  =  string_new();";
+        //        }
+
+        //        _code += $"standard_appendChars(_{tempCVariable}, \"{(element as StringValue).Value}\");";
+        //        //_code += $"{stdprt}String(_{tempCVariable})";
+
+        //        //_code += $"{stdprt}Chars";
+
+        //    }
+        //    else if (element is TypeId)
+        //    {
+        //        var typeId = (element as TypeId);
+        //        var type = typeId.ValueType as eeCCompiler.Nodes.Type;
+        //        switch (type.ValueType)
+        //        {
+        //            case "string":
+        //                _code += $"{stdprt}String";
+        //                break;
+        //            case "num":
+        //                _code += $"{stdprt}Num";
+        //                break;
+        //            case "bool":
+        //                _code += $"{stdprt}Bool";
+        //                break;
+        //        }
+        //    }
+        //}
 
         public void Visit(FunctionDeclarations functionDeclarations)
         {
@@ -404,6 +424,28 @@ namespace eeCCompiler.Visitors
 
         public void Visit(FunctionDeclaration functionDeclaration)
         {
+            var list = new List<Identifier>();
+            foreach (var refrence in functionDeclaration.Parameters.TypeIds.Where(x => x.Ref))
+            {
+                list.Add(refrence.TypeId.Identifier);
+            }
+            var visit = new RefrenceIdentifiers(list);
+            functionDeclaration.Body.Accept(visit);
+
+            foreach (var refTypeId in functionDeclaration.Parameters.TypeIds)
+            {
+                switch (refTypeId.TypeId.ValueType.ToString())
+                {
+                    case "num":
+                    case "bool":
+                        break;
+                    default:
+                        refTypeId.Ref = true;
+                        break;
+                }
+                //refTypeId.TypeId.Identifier.Id
+            }
+
             CreatePrototype(functionDeclaration);
             functionDeclaration.TypeId.Accept(this);
             _code += "(";
@@ -442,9 +484,11 @@ namespace eeCCompiler.Visitors
                 referece.StructRefrence.Accept(this);
                 _code += "->";
             }
+            if (referece.Identifier is FuncCall && true) { }
 
             if (referece.Identifier is FuncCall)
-             (referece.Identifier as FuncCall).Expressions.Insert(0, new Identifier(referece.StructRefrence.ToString()));
+                (referece.Identifier as FuncCall).Expressions.Insert(0, new Identifier(referece.StructRefrence.ToString()));
+
             referece.Identifier.Accept(this);
         }
 
@@ -457,46 +501,11 @@ namespace eeCCompiler.Visitors
         {
             if (varDecl.Type.ValueType == "string")
             {
-                #region Eq
                 if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
-                {
-                    if (varDecl.IsFirstUse)
-                    {
-                        _code += GetValueType(varDecl.Type) + $" *{varDecl.Identifier}  =  string_new();\n";
-                    }
-                    else
-                    {
-                        _code += $"string_clear({varDecl.Identifier.Id})";
-                    }
-                    var element = ((varDecl.Expression as ExpressionVal).Value as StringValue).Elements[0];
-                    CreateFunctions(element, "standard_append");
-                    if (element is StringValue)
-                    {
-                        if ((element as StringValue).Value != "")
-                            _code += $"({varDecl.Identifier},\"{(element as StringValue).Value}\");";
-                    }
-                    else if (element is TypeId)
-                    {
-                        _code += $"({varDecl.Identifier},{(element as TypeId).Identifier});";
-                    }
-                }
-                #endregion
-                #region Pluseq
+                    CreateNewString(varDecl);
+
                 else if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Pluseq)
-                {
-                    var element = ((varDecl.Expression as ExpressionVal).Value as StringValue).Elements[0];
-                    CreateFunctions(element, "standard_append");
-                    if (element is StringValue)
-                    {
-                        if ((element as StringValue).Value != "")
-                            _code += $"({varDecl.Identifier},\"{(element as StringValue).Value}\");";
-                    }
-                    else if (element is TypeId)
-                    {
-                        _code += $"({varDecl.Identifier},{(element as TypeId).Identifier})";
-                    }
-                }
-                #endregion
+                    AppendToString(((varDecl.Expression as ExpressionVal).Value as StringValue).Elements, varDecl.Identifier);
             }
             else
             {
@@ -508,6 +517,60 @@ namespace eeCCompiler.Visitors
                 varDecl.Expression.Accept(this);
                 _code += ";";
             }
+        }
+
+        private void AppendToString(List<IStringPart> parameter, Identifier varIdentifier)//VarDecleration varDecl)
+        {
+            //var parameter = ((varDecl.Expression as ExpressionVal).Value as StringValue).Elements;
+            for (int i = 0; i < parameter.Count; i++)
+            {
+                var element = parameter[i];
+                //CreateFunctions(element, "standard_append");
+                var stdprt = "standard_append";
+                if (element is StringValue)
+                {
+                    _code += $"{stdprt}Chars";
+                }
+                else if (element is TypeId)
+                {
+                    var typeId = (element as TypeId);
+                    var type = typeId.ValueType as eeCCompiler.Nodes.Type;
+                    switch (type.ValueType)
+                    {
+                        case "string":
+                            _code += $"{stdprt}String";
+                            break;
+                        case "num":
+                            _code += $"{stdprt}Num";
+                            break;
+                        case "bool":
+                            _code += $"{stdprt}Bool";
+                            break;
+                    }
+                }
+                if (element is StringValue)
+                {
+                    _code += $"({varIdentifier},\"{(element as StringValue).Value}\")";
+                }
+                else if (element is TypeId)
+                {
+                    _code += $"({varIdentifier},{(element as TypeId).Identifier})";
+                }
+                _code += ";";
+            }
+        }
+
+        private void CreateNewString(VarDecleration varDecl)
+        {
+            if (varDecl.IsFirstUse)
+            {
+                _code += GetValueType(varDecl.Type) + $" *{varDecl.Identifier}  =  string_new();\n";
+            }
+            else
+            {
+                _code += $"string_clear({varDecl.Identifier.Id});";
+            }
+            AppendToString(((varDecl.Expression as ExpressionVal).Value as StringValue).Elements, varDecl.Identifier);
         }
 
         private void getString(IExpression expression)
@@ -644,7 +707,7 @@ namespace eeCCompiler.Visitors
 
         public void Visit(RefId refId)
         {
-            _code += $" ref {refId.Identifier} ";
+            _code += $" &{refId.Identifier} ";
         }
 
         public void Visit(RefTypeId refTypeId)

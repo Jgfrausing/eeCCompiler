@@ -29,7 +29,7 @@ int program_convertStringToNum(string_handle * input, double *output){
 	{
 		str[i] = string_get(i, input);
 	}
-	int result = sscanf(str, "%lf", &output);	
+	int result = sscanf(str, "%lf", output);	
 	free(str);
 	return result;
 }
@@ -40,7 +40,7 @@ int program_convertStringToBool(string_handle * input, int *output){
 		str[i] = string_get(i, input);
 	}
 
-	int result = sscanf(str, "%d", &output);	
+	int result = sscanf(str, "%d", output);	
 	free(str);
 	return result;
 }

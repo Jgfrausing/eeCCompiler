@@ -20,4 +20,20 @@ namespace eeCCompiler.Visitors
             }
         }
     }
+    class RefrenceIdentifiers : Visitor
+    {
+        public List<Identifier> Identifiers { get; set; }
+        public RefrenceIdentifiers(List<Identifier> identifiers)
+        {
+            Identifiers = identifiers;
+        }
+
+        public override void Visit(Identifier identifier)
+        {
+            if (Identifiers.Contains(identifier))
+            {
+                identifier.Id = "*" + identifier.Id;
+            }
+        }
+    }
 }

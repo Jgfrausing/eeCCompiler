@@ -155,8 +155,9 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(RefId expressionParenOpExpr)
         {
-            throw new System.NotImplementedException();
-        }
+          //  throw new System.NotImplementedException();
+          //  throw new System.NotImplementedException();
+         }
 
         public virtual void Visit(RefTypeId expressionParenOpExpr)
         {
@@ -175,7 +176,7 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(TypeIdList expressionParenOpExpr)
         {
-            throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
         }
 
         public virtual void Visit(IdIndex expressionParenOpExpr)

@@ -304,7 +304,7 @@ namespace eeCCompiler.Visitors
                     else if (_typechecker.Identifiers[typeId.Identifier.Id] is StringValue)
                         (typeId.ValueType as eeCCompiler.Nodes.Type).ValueType = "string";
                     else if (_typechecker.Identifiers[typeId.Identifier.Id] is BoolValue)
-                        (typeId.ValueType as eeCCompiler.Nodes.Type).ValueType = "string";
+                        (typeId.ValueType as eeCCompiler.Nodes.Type).ValueType = "bool";
                     else
                         _typechecker.Errors.Add("A " + _typechecker.Identifiers[typeId.Identifier.Id].GetType().Name + " can no be used in a string");
                 }   
