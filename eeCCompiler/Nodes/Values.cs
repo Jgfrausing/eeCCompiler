@@ -21,11 +21,11 @@ namespace eeCCompiler.Nodes
 
         public override string ToString()
         {
-            return Value.ToString();
+            return Value ? "1" : "0";   
         }
     }
 
-    public class StringValue : AbstractSyntaxTree, IValue, IConstantPart, IExpression, IStringPart, IEnumerable
+    public class StringValue : AbstractSyntaxTree, IValue, IConstantPart, IExpression, IStringPart
     {
         public StringValue(string value)
         {
@@ -43,11 +43,6 @@ namespace eeCCompiler.Nodes
         public override string ToString()
         {
             return Value;
-        }
-
-        public IEnumerator GetEnumerator()
-        {
-            throw new System.NotImplementedException();
         }
     }
 

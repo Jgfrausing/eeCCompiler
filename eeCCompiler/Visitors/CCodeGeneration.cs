@@ -320,37 +320,37 @@ namespace eeCCompiler.Visitors
 
         public void Visit(FuncCall funcCall)
         {
+            #region Print
             if (funcCall.Identifier.Id == "program_print")
             {
-                foreach (var element in (funcCall.Expressions[0] as StringValue).Elements)
+                foreach (var element in ((funcCall.Expressions[0] as ExpressionVal).Value as StringValue).Elements)
                 {
-                    _code += "standard_print";
+                    CreateFunctions(element, "standard_print");
                     if (element is StringValue)
                     {
-                        _code += $"Chars(\"{(element as StringValue).Value}\")";
+                         if ((element as StringValue).Value != "")
+                            _code += $"(\"{(element as StringValue).Value}\");";
                     }
                     else if (element is TypeId)
                     {
-                        
+                        _code += $"({(element as TypeId).Identifier});";
                     }
                 }
             }
-            else if (funcCall.Identifier.Id == "program_convertStringToBool")
+                #endregion
+            #region Convert
+            else if (funcCall.Identifier.Id == "program_convertStringToBool" 
+                || funcCall.Identifier.Id == "program_convertStringToNum")
             {
-                Regex.Match(@"{variable} text \{ikke variable\}", @"{|}");
+                _code += $"{funcCall.Identifier}({funcCall.Expressions[0]}, &{funcCall.Expressions})";
             }
-            else if (funcCall.Identifier.Id == "program_convertStringToNum")
+            else if (funcCall.Identifier.Id == "program_convertBoolToString" 
+                || funcCall.Identifier.Id == "program_convertNumToString")
             {
-
+                _code += $"{funcCall.Identifier}({funcCall.Expressions[0]}, {(funcCall.Expressions[1] as RefId).Identifier})";
             }
-            else if (funcCall.Identifier.Id == "program_convertBoolToString")
-            {
-
-            }
-            else if (funcCall.Identifier.Id == "program_convertNumToString")
-            {
-                _code += $"{funcCall.Identifier}({funcCall.Expressions[0]}, {funcCall.Expressions[1]})";
-            }
+            #endregion
+            #region User functions
             else
             {
                 _code += $"{funcCall.Identifier}(";
@@ -364,12 +364,33 @@ namespace eeCCompiler.Visitors
             }
             if (funcCall.IsBodyPart)
                 _code += ";";
+            #endregion
         }
 
-        private void ConvertPrintFunction(FuncCall funcCall)
+        private void CreateFunctions(IStringPart element, string stdprt)
         {
-            
-            var parameter = (funcCall.Expressions[0] as ExpressionVal).Value as StringValue;
+            if (element is StringValue)
+            {
+                if ((element as StringValue).Value != "")
+                    _code += $"{stdprt}Chars";
+            }
+            else if (element is TypeId)
+            {
+                var typeId = (element as TypeId);
+                var type = typeId.ValueType as eeCCompiler.Nodes.Type;
+                switch (type.ValueType)
+                {
+                    case "string":
+                        _code += $"{stdprt}String";
+                        break;
+                    case "num":
+                        _code += $"{stdprt}Num";
+                        break;
+                    case "bool":
+                        _code += $"{stdprt}Bool";
+                        break;
+                }
+            }
         }
 
         public void Visit(FunctionDeclarations functionDeclarations)
@@ -421,7 +442,7 @@ namespace eeCCompiler.Visitors
                 referece.StructRefrence.Accept(this);
                 _code += "->";
             }
-            //_code += referece.FuncsStruct + "_";
+
             if (referece.Identifier is FuncCall)
              (referece.Identifier as FuncCall).Expressions.Insert(0, new Identifier(referece.StructRefrence.ToString()));
             referece.Identifier.Accept(this);
@@ -436,16 +457,46 @@ namespace eeCCompiler.Visitors
         {
             if (varDecl.Type.ValueType == "string")
             {
+                #region Eq
                 if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
                 {
                     if (varDecl.IsFirstUse)
-                        _code += GetValueType(varDecl.Type) + " *";
-                    _code += $"{varDecl.Identifier.Id} = standard_createString({varDecl.Expression});";
+                    {
+                        _code += GetValueType(varDecl.Type) + $" *{varDecl.Identifier}  =  string_new();\n";
+                    }
+                    else
+                    {
+                        _code += $"string_clear({varDecl.Identifier.Id})";
+                    }
+                    var element = ((varDecl.Expression as ExpressionVal).Value as StringValue).Elements[0];
+                    CreateFunctions(element, "standard_append");
+                    if (element is StringValue)
+                    {
+                        if ((element as StringValue).Value != "")
+                            _code += $"({varDecl.Identifier},\"{(element as StringValue).Value}\");";
+                    }
+                    else if (element is TypeId)
+                    {
+                        _code += $"({varDecl.Identifier},{(element as TypeId).Identifier});";
+                    }
                 }
+                #endregion
+                #region Pluseq
                 else if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Pluseq)
                 {
-                    getString(varDecl.Expression);
+                    var element = ((varDecl.Expression as ExpressionVal).Value as StringValue).Elements[0];
+                    CreateFunctions(element, "standard_append");
+                    if (element is StringValue)
+                    {
+                        if ((element as StringValue).Value != "")
+                            _code += $"({varDecl.Identifier},\"{(element as StringValue).Value}\");";
+                    }
+                    else if (element is TypeId)
+                    {
+                        _code += $"({varDecl.Identifier},{(element as TypeId).Identifier})";
+                    }
                 }
+                #endregion
             }
             else
             {

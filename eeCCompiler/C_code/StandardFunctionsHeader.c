@@ -5,6 +5,7 @@ int program_convertStringToBool(string_handle * input, int *output);
 void standard_printNum(double input);
 void standard_printBool(int input);
 void standard_printString(string_handle * input);
+void standard_printChars(char input[]);
 string_handle * standard_createString(char input[]);
 void standard_appendChars(string_handle * head, char input[]);
 void standard_appendString(string_handle * head, string_handle * input);

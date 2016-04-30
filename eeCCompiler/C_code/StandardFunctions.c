@@ -66,6 +66,10 @@ void standard_printString(string_handle * input){
 	}
 }
 
+void standard_printChars(char input[]){
+	printf("%s", input);
+}
+
 string_handle * standard_createString(char input[]){
     string_handle *myString = string_new();
     for (int i = 0; input[i] != '\0'; ++i)
@@ -78,15 +82,26 @@ string_handle * standard_createString(char input[]){
 
 void standard_appendChars(string_handle * head, char input[]){
 	string_handle *myInputString = standard_createString(input);
-	head->size += myInputString->size;
-	head->last->next = myInputString->first;
-	head->last = myInputString->last;
+	standard_appendString(head, myInputString);
+    free(myInputString);
 }
 
 void standard_appendString(string_handle * head, string_handle * input){
-	head->size += input->size;
-	head->last->next = input->first;
-	head->last = input->last;
+    if(head->size == 0){
+        head->last = input->last;
+        head->first = input->first;
+    }
+    else{
+		head->last->next = input->first;
+		head->last = input->last;
+    }
+
+    head->size += input->size;
+
+
+	//head->size += input->size;
+	//head->last->next = input->first;
+	//head->last = input->last;
 }
 
 void standard_appendNum(string_handle * head, double input){

@@ -268,7 +268,8 @@ namespace eeCCompiler.Visitors
                     }
                     else if (!isIdentifier)
                     {
-                        (stringParts[stringParts.Count - 1] as StringValue).Value += charactor;
+                        if(charactor != '"')
+                            (stringParts[stringParts.Count - 1] as StringValue).Value += charactor;
                     }
                     else
                     {
