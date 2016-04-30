@@ -130,4 +130,27 @@ namespace eeCCompiler.Nodes
             return $"{ExpressionParen} {Operator} {Expression}";
         }
     }
+    public class ExpressionExprOpExpr : AbstractSyntaxTree, IExpression
+    {
+        public ExpressionExprOpExpr(IExpression expression, Operator _operator, IExpression expressionParen)
+        {
+            ExpressionParen = expressionParen;
+            Operator = _operator;
+            Expression = expression;
+        }
+
+        public IExpression ExpressionParen { get; set; }
+        public Operator Operator { get; set; }
+        public IExpression Expression { get; set; }
+
+        public override void Accept(IEecVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+
+        public override string ToString()
+        {
+            return $"{ExpressionParen} {Operator} {Expression}";
+        }
+    }
 }

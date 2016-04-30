@@ -28,7 +28,7 @@ namespace eeCCompiler
 
 
 
-            parser.Root.Accept(new PrecedenceVisitor());
+            parser.Root.Accept(new Precedence());
             parser.Root.Accept(new Typechecker(errors));
             errors.ForEach(x => Console.WriteLine(x));
             var cCodeVisitor = new CCodeGeneration();

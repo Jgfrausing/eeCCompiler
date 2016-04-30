@@ -50,5 +50,6 @@ namespace eeCCompiler.Visitors
         void Visit(TypeIdList expressionParenOpExpr);
         void Visit(IdIndex expressionParenOpExpr);
         void Visit(VarInStructDecleration expressionParenOpExpr);
+        void Visit(ExpressionExprOpExpr expressionExprOpExpr);
     }
 }

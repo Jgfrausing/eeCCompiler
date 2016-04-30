@@ -1,4 +1,5 @@
-﻿using eeCCompiler.Interfaces;
+﻿using System;
+using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
 
 namespace eeCCompiler.Visitors
@@ -138,6 +139,11 @@ namespace eeCCompiler.Visitors
             }
         }
 
+        public void Visit(ExpressionExprOpExpr expressionExprOpExpr)
+        {
+            throw new NotImplementedException();
+        }
+
         public virtual void Visit(ListIndex expressionParenOpExpr)
         {
             throw new System.NotImplementedException();
@@ -213,7 +219,7 @@ namespace eeCCompiler.Visitors
         {
         }
 
-        public virtual void Visit(Type type)
+        public virtual void Visit(Nodes.Type type)
         {
         }
 
