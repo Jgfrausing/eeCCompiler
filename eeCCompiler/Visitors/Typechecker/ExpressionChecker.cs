@@ -569,6 +569,7 @@ namespace eeCCompiler.Visitors
                         refid = (refid as Refrence).Identifier;
                     }
                     (refid as FuncCall).IsBodyPart = true;
+
                     var value = StructRefrenceChecker(refrence, (_typechecker.Identifiers[refrence.StructRefrence.ToString()] as StructValue).Struct.Identifier.Id, refrence);
                 }
 
@@ -703,8 +704,10 @@ namespace eeCCompiler.Visitors
 
                     if (funcCall.Expressions[i] is RefId)
                     {
-                        if (_typechecker.Identifiers.ContainsKey((funcCall.Expressions[i] as RefId).Identifier.Id))
+                        if (_typechecker.Identifiers.ContainsKey((funcCall.Expressions[i] as RefId).Identifier.Id)) {
+                            (funcCall.Expressions[i] as RefId).Type.ValueType = CheckValueType(_typechecker.Identifiers[(funcCall.Expressions[i] as RefId).Identifier.Id]);
                             type1 = _typechecker.Identifiers[(funcCall.Expressions[i] as RefId).Identifier.Id].GetType().ToString();
+                        }
                         else
                         {
                             _typechecker.Errors.Add((funcCall.Expressions[i] as RefId).Identifier.Id + " does not exist at the call of " + funcCall.Identifier.Id); 
