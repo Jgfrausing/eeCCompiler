@@ -365,6 +365,8 @@ namespace eeCCompiler.Visitors
                 return "string";
             else if (value is BoolValue)
                 return "bool";
+            else if (value is StructValue)
+                return (value as StructValue).Struct.Identifier.Id;
             else return "404 type not found";
 
         }
