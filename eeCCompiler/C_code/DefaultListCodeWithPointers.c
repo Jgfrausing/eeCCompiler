@@ -157,9 +157,9 @@ void {name}_set(int index, {type} *value, {name}_handle * head){
     {name}_element * current = source->first;
     for (int i = 0; i < source->size; ++i)
     {
-        {name}_element * element = {name}_newElement(current->element);
+        {name}_element * element = {name}_newElement(&current->element);
         current = current->next;
-        {name}_add(element->element, destination);
+        {name}_add(&element->element, destination);
     }
     return destination;
 }

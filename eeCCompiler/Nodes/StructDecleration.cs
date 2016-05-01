@@ -22,5 +22,10 @@ namespace eeCCompiler.Nodes
         {
             visitor.Visit(this);
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is StructDecleration && (obj as StructDecleration).Identifier.Equals(Identifier);
+        }
     }
 }

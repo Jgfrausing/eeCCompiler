@@ -31,10 +31,9 @@ namespace eeCCompiler.Visitors
             root.ConstantDefinitions.Accept(this);
             _header +=_code;
             _code = "";
+            SortStructDefinitions(root.StructDefinitions);
             root.StructDefinitions.Accept(this);
-            
-
-            /////////
+           
             //_header += _defaultCCode.GenerateListTypeHeader("numlist", "double", false);
             //_header += _defaultCCode.GenerateListTypeHeader("boollist", "int", false);
             _header += _defaultCCode.GenerateListTypeHeader("string", "char", false);
@@ -56,6 +55,12 @@ namespace eeCCompiler.Visitors
             root.FunctionDeclarations.Accept(this);
             _code += "void main()";
             root.Program.Accept(this);
+        }
+
+        private void SortStructDefinitions(StructDefinitions structDefinitions)
+        {
+            var sorter = new StructDefinitionSorter();
+            sorter.Sort(structDefinitions.Definitions);
         }
 
         public void Visit(Body body)
@@ -183,13 +188,8 @@ namespace eeCCompiler.Visitors
 
         public void Visit(StructDecleration structDecleration)
         {
-            var myStruct = _root.StructDefinitions.Definitions.FirstOrDefault(x => x.Identifier.ToString() == structDecleration.StructIdentifier.ToString());
-            foreach (var varDecl in myStruct.StructParts.StructPartList)
-            {
-                if (varDecl is VarDecleration && !structDecleration.VarDeclerations.VarDeclerationList.Contains(varDecl))
-                    structDecleration.VarDeclerations.VarDeclerationList.Add(varDecl as VarDecleration);
-            }
-            _code += $"{structDecleration.StructIdentifier} *{structDecleration.Identifier} = malloc(sizeof({structDecleration.Identifier}));\n";
+            RetreveVariabels(structDecleration);
+            _code += $"{structDecleration.StructIdentifier} *{structDecleration.Identifier} = malloc(sizeof({structDecleration.StructIdentifier}));\n";
             _heapIdentifiers.Peek().Add(structDecleration.Identifier);
             foreach (var varDecl in structDecleration.VarDeclerations.VarDeclerationList)
             {
@@ -197,6 +197,21 @@ namespace eeCCompiler.Visitors
                 varDecl.AssignmentOperator.Accept(this);
                 varDecl.Expression.Accept(this);
                 _code += ";\n";
+            }
+
+        }
+
+        private void RetreveVariabels(StructDecleration structDecleration)
+        {
+            var myStruct = _root.StructDefinitions.Definitions.FirstOrDefault(x => x.Identifier.ToString() == structDecleration.StructIdentifier.ToString());
+            foreach (var varDecl in myStruct.StructParts.StructPartList)
+            {
+                if (varDecl is VarDecleration && !structDecleration.VarDeclerations.VarDeclerationList.Contains(varDecl))
+                    structDecleration.VarDeclerations.VarDeclerationList.Add(varDecl as VarDecleration);
+                else
+                {
+                    RetreveVariabels(varDecl as StructDecleration);
+                }
             }
         }
 
@@ -323,8 +338,13 @@ namespace eeCCompiler.Visitors
             #region Print
             if (funcCall.Identifier.Id == "program_print")
             {
-                 var parameter = (funcCall.Expressions[0] as ExpressionVal).Value as Identifier;
-                _code += $"standard_printString({parameter.Id});";
+                var parameter = (funcCall.Expressions[0] as ExpressionVal).Value;
+                _code += $"standard_";
+                GetCFuncType("print", new Type("!Not implemented!"));
+                _code += "(";
+                CreateRefrence(parameter);
+                _code += $")";
+
             }
             #endregion
             #region Convert
@@ -355,11 +375,33 @@ namespace eeCCompiler.Visitors
                     funcCall.Expressions[i].Accept(this);
                 }
                 _code += ")";
-                if (funcCall.IsBodyPart)
-                    _code += ";";
             }
             #endregion
+            if (funcCall.IsBodyPart)
+                _code += ";";
         }
+
+        private void CreateRefrence(IValue parameter)
+        {
+            if (parameter is Identifier)
+            {
+                _code += $"{(parameter as Identifier).Id}";
+            }
+            else if (parameter is Refrence)
+            {
+                if ((parameter as Refrence).Identifier is Refrence)
+                {
+                    _code += $"{(((parameter as Refrence).Identifier as Refrence).StructRefrence as Identifier).Id}.";
+                    CreateRefrence(((parameter as Refrence).Identifier as Refrence));
+                }
+                else if ((parameter as Refrence).Identifier is Identifier)
+                {
+                    _code += $"{((parameter as Refrence).Identifier as Identifier).Id}";
+                }
+                
+            }
+        }
+
         private void RenameFunction(FuncCall funcCall)
         {
             funcCall.Identifier.Id = $"string_{funcCall.Identifier}";
@@ -534,18 +576,7 @@ namespace eeCCompiler.Visitors
                 {
                     var typeId = (element as TypeId);
                     var type = typeId.ValueType as eeCCompiler.Nodes.Type;
-                    switch (type.ValueType)
-                    {
-                        case "string":
-                            _code += $"{stdprt}String";
-                            break;
-                        case "num":
-                            _code += $"{stdprt}Num";
-                            break;
-                        case "bool":
-                            _code += $"{stdprt}Bool";
-                            break;
-                    }
+                    GetCFuncType(stdprt, type);
                 }
                 if (element is StringValue)
                 {
@@ -556,6 +587,22 @@ namespace eeCCompiler.Visitors
                     _code += $"({varIdentifier},{(element as TypeId).Identifier})";
                 }
                 _code += ";";
+            }
+        }
+
+        private void GetCFuncType(string stdprt, Type type)
+        {
+            switch (type.ValueType)
+            {
+                case "string":
+                    _code += $"{stdprt}String";
+                    break;
+                case "num":
+                    _code += $"{stdprt}Num";
+                    break;
+                case "bool":
+                    _code += $"{stdprt}Bool";
+                    break;
             }
         }
 
@@ -595,6 +642,8 @@ namespace eeCCompiler.Visitors
             {
                 if (structPart is VarDecleration)
                     _code += $"{GetValueType((structPart as VarDecleration).Type)} {(structPart as VarDecleration).Identifier};";
+                else if (structPart is StructDecleration)
+                    _code += $"{GetValueType((structPart as StructDecleration).StructIdentifier)} {(structPart as StructDecleration).Identifier};";
             }
             _code += "\n};\n";
         }
@@ -621,12 +670,12 @@ namespace eeCCompiler.Visitors
             foreach (var structDefinition in structDefinitions.Definitions)
             {
                 var list = new List<Identifier>();
-                foreach (var varDecl in structDefinition.StructParts.StructPartList)
+                foreach (var structPart in structDefinition.StructParts.StructPartList)
                 {
-                    if ((varDecl is VarDecleration)) list.Add((varDecl as VarDecleration).Identifier);
+                    if ((structPart is VarDecleration)) list.Add((structPart as VarDecleration).Identifier);
+                    if ((structPart is StructDecleration)) list.Add((structPart as StructDecleration).Identifier);
                 }
                 var StructFuncVisitor = new StructFunctionIdentifiers(list);
-
                 foreach (var structPart in structDefinition.StructParts.StructPartList)
                 {
                     if (structPart is FunctionDeclaration)

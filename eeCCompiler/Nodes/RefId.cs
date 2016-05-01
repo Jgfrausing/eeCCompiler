@@ -8,6 +8,7 @@ namespace eeCCompiler.Nodes
         public RefId(Identifier identifier)
         {
             Identifier = identifier;
+            Type = new Type("Not set in typechecker");
         }
         public Identifier Identifier { get; set; }
         public Type Type { get; set; }

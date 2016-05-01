@@ -1,3 +1,7 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Visitors;
 
@@ -5,6 +9,7 @@ namespace eeCCompiler.Nodes
 {
     public class StructDefinition : AbstractSyntaxTree
     {
+
         public StructDefinition(StructParts structParts, Identifier identifier)
         {
             Identifier = identifier;
@@ -17,6 +22,11 @@ namespace eeCCompiler.Nodes
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is StructDefinition && (obj as StructDefinition).Identifier.Id == Identifier.Id;
         }
     }
 }
