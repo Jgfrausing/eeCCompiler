@@ -25,23 +25,54 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(VarDecleration vardecl)
         {
-            var vardeclExpr = vardecl.Expression;
-            ReplaceValues(ref vardeclExpr);
-            vardecl.Expression = vardeclExpr;
-            GlobalExpr = vardecl.Expression;
-            IExpression temp = vardecl.Expression;
+            vardecl.Expression = FullPrecedenceFix(vardecl.Expression);
+            ExprParens.Clear();
+        }
+
+        public override void Visit(IfStatement ifstatement)
+        {
+            ifstatement.Expression = FullPrecedenceFix(ifstatement.Expression);
+            ExprParens.Clear();
+        }
+        public override void Visit(VarInStructDecleration varInStructDecleration)
+        {
+            varInStructDecleration.Expression = FullPrecedenceFix(varInStructDecleration.Expression);
+            ExprParens.Clear();
+        }
+        public override void Visit(RepeatExpr repeatExpr)
+        {
+            repeatExpr.Expression = FullPrecedenceFix(repeatExpr.Expression);
+            ExprParens.Clear();
+        }
+        public override void Visit(RepeatFor repeatFor)
+        {
+            repeatFor.Expression = FullPrecedenceFix(repeatFor.Expression);
+            ExprParens.Clear();
+
+            repeatFor.VarDecleration.Accept(this);
+        }
+        public override void Visit(Return eecReturn)
+        {
+            eecReturn.Expression = FullPrecedenceFix(eecReturn.Expression);
+            ExprParens.Clear();
+        }
+
+        public IExpression FullPrecedenceFix(IExpression expression)
+        {
+            ReplaceValues(ref expression);
+            GlobalExpr = expression;
             while (level < 6)
             {
-                PrecedenceFixer(ref temp, 0);
+                PrecedenceFixer(ref expression, 0);
                 level++;
             }
             level = 0;
 
             foreach (var ValueExprParen in ExprParens)
             {
-                ReplaceValue(temp, ValueExprParen.Value, ref temp, ValueExprParen.Key);
+                ReplaceValue(expression, ValueExprParen.Value, ref expression, ValueExprParen.Key);
             }
-            vardecl.Expression = temp;
+            return expression;
         }
 
         public void PrecedenceFixer(ref IExpression expression, int ExprNumber)
@@ -72,24 +103,6 @@ namespace eeCCompiler.Visitors
                         }
                     }
                 }
-            }
-            else if (expression is ExpressionParen)
-            {
-                IExpression temp = (expression as ExpressionParen).Expression;
-                PrecedenceFixer(ref temp, ++ExprNumber);
-                (expression as ExpressionParen).Expression = temp;
-            }
-            else if (expression is ExpressionNegate)
-            {
-                IExpression temp = (expression as ExpressionNegate).Expression;
-                PrecedenceFixer(ref temp, ++ExprNumber);
-                (expression as ExpressionNegate).Expression = temp;
-            }
-            else if (expression is ExpressionMinus)
-            {
-                IExpression temp = (expression as ExpressionMinus).Expression;
-                PrecedenceFixer(ref temp, ++ExprNumber);
-                (expression as ExpressionMinus).Expression = temp;
             }
             else if (expression is ExpressionExprOpExpr)
             {
@@ -155,23 +168,9 @@ namespace eeCCompiler.Visitors
                 
 
                 var exprExpr = (expression as ExpressionParen).Expression;
-                ReplaceValues(ref exprExpr);
 
+                (expression as ExpressionParen).Expression = FullPrecedenceFix(exprExpr);
 
-                GlobalExpr = exprExpr;
-                while (level < 6)
-                {
-                    PrecedenceFixer(ref exprExpr, 0);
-                    level++;
-                }
-                level = 0;
-
-                foreach (var ValueExprParen in ExprParens)
-                {
-                    ReplaceValue(exprExpr, ValueExprParen.Value, ref exprExpr, ValueExprParen.Key);
-                }
-
-                (expression as ExpressionParen).Expression = exprExpr;
                 var val = _expressionChecker.CheckExpression(expressionParen.Expression);
                 ExprParens.Add(expressionParen, val);
 
@@ -187,23 +186,8 @@ namespace eeCCompiler.Visitors
 
 
                 var exprExpr = (expression as ExpressionNegate).Expression;
-                ReplaceValues(ref exprExpr);
+                (expression as ExpressionNegate).Expression = FullPrecedenceFix(exprExpr);
 
-
-                GlobalExpr = exprExpr;
-                while (level < 6)
-                {
-                    PrecedenceFixer(ref exprExpr, 0);
-                    level++;
-                }
-                level = 0;
-
-                foreach (var ValueExprParen in ExprParens)
-                {
-                    ReplaceValue(exprExpr, ValueExprParen.Value, ref exprExpr, ValueExprParen.Key);
-                }
-
-                (expression as ExpressionNegate).Expression = exprExpr;
                 var val = _expressionChecker.CheckExpression(expressionNegate.Expression);
                 ExprParens.Add(expressionNegate, val);
 
