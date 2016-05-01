@@ -13,3 +13,4 @@ void {name}_reverse({name}_handle * head);
 void {name}_swap({name}_handle * head, int first, int second);
 void {name}_set(int index, {type} value, {name}_handle * head);
 void {name}_sort({name}_handle * head);
+{name}_handle * {name}_copy({name}_handle * source);

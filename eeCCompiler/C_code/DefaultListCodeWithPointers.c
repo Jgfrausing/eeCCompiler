@@ -151,3 +151,15 @@ void {name}_set(int index, {type} *value, {name}_handle * head){
     }
     current->element = *value;
 }
+
+{name}_handle * {name}_copy({name}_handle * source){
+    {name}_handle *destination = {name}_new();
+    {name}_element * current = source->first;
+    for (int i = 0; i < source->size; ++i)
+    {
+        {name}_element * element = {name}_newElement(current->element);
+        current = current->next;
+        {name}_add(element->element, destination);
+    }
+    return destination;
+}

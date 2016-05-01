@@ -10,6 +10,8 @@ namespace eeCCompiler.Nodes
             ValueType = type;
         }
 
+        public bool IsBasicType => ValueType == "num" || ValueType == "bool";
+
         public string ValueType { get; set; }
 
         public override void Accept(IEecVisitor visitor)

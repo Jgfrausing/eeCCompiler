@@ -109,15 +109,9 @@ namespace eeCCompiler.Visitors
         //MANDAGS ARBEJDE! HAVE FUN!
         public void Visit(ExpressionVal expressionVal)
         {
-            //if (expressionVal.Value is Refrence &&
-            //    (expressionVal.Value as Refrence).Identifier.ToString().Contains("("))
-            //{
-            //    (expressionVal.Value as Refrence).IsFuncCall = true; }
-
             if (expressionVal.Value is Refrence && (expressionVal.Value as Refrence).IsFuncCall)
             {
                 var reference = expressionVal.Value as Refrence;
-                 //_code += reference.FuncsStruct + "_";
                 string strucCallOrder = reference.StructRefrence.ToString();
                 while (!(reference.Identifier is FuncCall))
                 {
@@ -348,6 +342,11 @@ namespace eeCCompiler.Visitors
             #region User functions
             else
             {
+                if (funcCall.Identifier.Id == "copy")
+                {
+                    RenameFunction(funcCall);
+                }
+
                 _code += $"{funcCall.Identifier}(";
                 for (int i = 0; i < funcCall.Expressions.Count; i++)
                 {
@@ -361,57 +360,10 @@ namespace eeCCompiler.Visitors
             }
             #endregion
         }
-
-        //private void SetSingleStringParameter(IStringPart element, ref bool hasVariable)
-        //{
-        //    if (element is StringValue)
-        //    {
-        //        //if (!hasVariable)
-        //        //{
-        //        //    _code += $"\"{(element as StringValue).Value}\")";
-        //        //    hasVariable = true;
-        //        //}
-        //    }
-        //    else 
-        //    if (element is TypeId)
-        //    {
-        //        _code += $"({(element as TypeId).Identifier})";
-        //    }
-        //}
-
-        //private void CreateFunctions(IStringPart element, string stdprt, ref bool hasVariable)
-        //{
-        //    if (element is StringValue)
-        //    {
-        //        if (!hasVariable)
-        //        {
-        //            _code += $"string_handle *_{tempCVariable}  =  string_new();";
-        //        }
-
-        //        _code += $"standard_appendChars(_{tempCVariable}, \"{(element as StringValue).Value}\");";
-        //        //_code += $"{stdprt}String(_{tempCVariable})";
-
-        //        //_code += $"{stdprt}Chars";
-
-        //    }
-        //    else if (element is TypeId)
-        //    {
-        //        var typeId = (element as TypeId);
-        //        var type = typeId.ValueType as eeCCompiler.Nodes.Type;
-        //        switch (type.ValueType)
-        //        {
-        //            case "string":
-        //                _code += $"{stdprt}String";
-        //                break;
-        //            case "num":
-        //                _code += $"{stdprt}Num";
-        //                break;
-        //            case "bool":
-        //                _code += $"{stdprt}Bool";
-        //                break;
-        //        }
-        //    }
-        //}
+        private void RenameFunction(FuncCall funcCall)
+        {
+            funcCall.Identifier.Id = $"string_{funcCall.Identifier}";
+        }
 
         public void Visit(FunctionDeclarations functionDeclarations)
         {
@@ -424,13 +376,26 @@ namespace eeCCompiler.Visitors
 
         public void Visit(FunctionDeclaration functionDeclaration)
         {
-            var list = new List<Identifier>();
-            foreach (var refrence in functionDeclaration.Parameters.TypeIds.Where(x => x.Ref))
+            var refIdentifiers = new List<Identifier>();
+            var notRefIdentifiers = new List<Identifier>();
+
+            var refTypeIds = new List<RefTypeId>();
+            
+            foreach (var refrence in functionDeclaration.Parameters.TypeIds)
             {
-                list.Add(refrence.TypeId.Identifier);
+                refTypeIds.Add(refrence);
+                if (refrence.Ref)
+                    refIdentifiers.Add(refrence.TypeId.Identifier);
+                else
+                {
+                    notRefIdentifiers.Add(refrence.TypeId.Identifier);
+                }
             }
-            var visit = new RefrenceIdentifiers(list);
-            functionDeclaration.Body.Accept(visit);
+            var refIdentifierVisitor = new RefrenceIdentifiers(refIdentifiers);
+            functionDeclaration.Body.Accept(refIdentifierVisitor);
+
+            var renamingIdentifiersVisitor = new RenamePassByValueStructIdentifiers(notRefIdentifiers);
+            functionDeclaration.Body.Accept(renamingIdentifiersVisitor);
 
             foreach (var refTypeId in functionDeclaration.Parameters.TypeIds)
             {
@@ -440,6 +405,23 @@ namespace eeCCompiler.Visitors
                     case "bool":
                         break;
                     default:
+                        if (!refTypeId.Ref)
+                        {
+                            var funcCall =
+                                new FuncCall(new List<IExprListElement>()
+                                {
+                                    new Identifier(refTypeId.TypeId.Identifier.Id)
+                                }, 
+                                new Identifier("copy"));
+                            funcCall.ListType = new Type(refTypeId.TypeId.ValueType.ToString());
+                            var copy = new VarDecleration(funcCall, new AssignmentOperator(Indexes.Indexes.SymbolIndex.Eq),
+                                    new Identifier("_" + refTypeId.TypeId.Identifier.Id)
+                                    );
+                            copy.IsFirstUse = true;
+                            copy.Type = new Type(refTypeId.TypeId.ValueType.ToString());
+                            functionDeclaration.Body.Bodyparts.Insert(0, copy);
+                        }
+                            
                         refTypeId.Ref = true;
                         break;
                 }
@@ -450,9 +432,17 @@ namespace eeCCompiler.Visitors
             functionDeclaration.TypeId.Accept(this);
             _code += "(";
             functionDeclaration.Parameters.Accept(this);
-            _code += ")";
-            functionDeclaration.Body.Accept(this);
-            _code += "\n";
+            _code += "){";
+            foreach (var refTypeId in functionDeclaration.Parameters.TypeIds.Where(x => !x.Ref))
+            {
+                _code += $"{refTypeId.TypeId.ValueType}_handle * ={refTypeId.TypeId.ValueType}_copy({refTypeId.TypeId.Identifier});\n";
+            }
+            foreach (var bodypart in functionDeclaration.Body.Bodyparts)//functionDeclaration.Body.Accept(this);
+            {
+                bodypart.Accept(this);
+            }
+            
+            _code += "}\n";
         }
 
         private void CreatePrototype(FunctionDeclaration functionDeclaration)
@@ -479,16 +469,23 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Refrence referece)
         {
+            referece.IsFuncCall = true;
             if (!referece.IsFuncCall)
             {
                 referece.StructRefrence.Accept(this);
                 _code += "->";
             }
-            if (referece.Identifier is FuncCall && true) { }
-
             if (referece.Identifier is FuncCall)
-                (referece.Identifier as FuncCall).Expressions.Insert(0, new Identifier(referece.StructRefrence.ToString()));
-
+            {
+                var funcCall = referece.Identifier as FuncCall;
+                funcCall.ListType = (new eeCCompiler.Nodes.Type("string"));
+                funcCall.IsBodyPart = true;
+                if (funcCall.IsListFunction)
+                {
+                    funcCall.Identifier.Id = funcCall.ListType.ValueType + "_" + funcCall.Identifier.Id;
+                }
+                funcCall.Expressions.Insert(0, new Identifier(referece.StructRefrence.ToString()));
+            }
             referece.Identifier.Accept(this);
         }
 
@@ -499,7 +496,7 @@ namespace eeCCompiler.Visitors
 
         public void Visit(VarDecleration varDecl)
         {
-            if (varDecl.Type.ValueType == "string")
+            if (varDecl.Type.ValueType == "string" && !(varDecl.Expression is FuncCall) )
             {
                 if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
                     CreateNewString(varDecl);
@@ -511,6 +508,8 @@ namespace eeCCompiler.Visitors
             {
                 if (varDecl.IsFirstUse)
                     _code += GetValueType(varDecl.Type) + " ";
+                if (!varDecl.Type.IsBasicType)
+                    _code += "*";
                 _code += $"{varDecl.Identifier.Id} ";
                 varDecl.AssignmentOperator.Accept(this);
                 _code += " ";
@@ -707,7 +706,9 @@ namespace eeCCompiler.Visitors
 
         public void Visit(RefId refId)
         {
-            _code += $" &{refId.Identifier} ";
+            if(refId.Type.IsBasicType)
+                _code += " &";
+            _code += $" {refId.Identifier} ";
         }
 
         public void Visit(RefTypeId refTypeId)
@@ -755,6 +756,13 @@ namespace eeCCompiler.Visitors
             _code += " ";
             varInStructDecleration.Expression.Accept(this);
             _code += ";";
+        }
+
+        public void Visit(ExpressionExprOpExpr expressionExprOpExpr)
+        {
+            expressionExprOpExpr.ExpressionParen.Accept(this);
+            expressionExprOpExpr.Operator.Accept(this);
+            expressionExprOpExpr.Expression.Accept(this);
         }
     }
 }

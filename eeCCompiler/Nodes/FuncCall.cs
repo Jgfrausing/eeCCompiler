@@ -14,7 +14,11 @@ namespace eeCCompiler.Nodes
 
         public Identifier Identifier { get; set; }
         public List<IExprListElement> Expressions { get; set; }
+
+        public bool IsListFunction => ListType != null;
+
         public bool IsBodyPart { get; set; }
+        public eeCCompiler.Nodes.Type ListType { get; set; }
 
         public override void Accept(IEecVisitor visitor)
         {
