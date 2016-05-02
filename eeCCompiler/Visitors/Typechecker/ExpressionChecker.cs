@@ -424,8 +424,10 @@ namespace eeCCompiler.Visitors
 
             else if (value1 is StringValue &&
                     (opr.Symbol == Indexes.Indexes.SymbolIndex.Exclameq ||
-                     opr.Symbol == Indexes.Indexes.SymbolIndex.Eqeq))
+                     opr.Symbol == Indexes.Indexes.SymbolIndex.Eqeq)) {
+                opr.IsStringOpr = true;
                 return new BoolValue(true);
+            }
             //Værdi ubetydelig men hvis vi har string opr string så evaluere det til en bool, hvis en af ovenstående operatore.
 
             else if (value1 is StringValue &&

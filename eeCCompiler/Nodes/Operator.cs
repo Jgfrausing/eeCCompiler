@@ -5,6 +5,7 @@ namespace eeCCompiler.Nodes
 {
     public class Operator : AbstractSyntaxTree
     {
+        public bool IsStringOpr { get; set; }
         public Operator(Indexes.Indexes.SymbolIndex symbol)
         {
             Symbol = symbol;
