@@ -19,15 +19,15 @@ namespace eeCCompiler.Visitors
         }
         public override void Visit(ExpressionVal expressionVal)
         {
-            StringReplacer(expressionVal.Value);
+            expressionVal.Value = StringReplacer(expressionVal.Value);
         }
         public override void Visit(ExpressionValOpExpr expressionValOpExpr)
         {
-            StringReplacer(expressionValOpExpr.Value);
+            expressionValOpExpr.Value = StringReplacer(expressionValOpExpr.Value);
             expressionValOpExpr.Expression.Accept(this);
         }
 
-        public void StringReplacer(IValue value)
+        public IValue StringReplacer(IValue value)
         {
             if (value is StringValue)
             {
@@ -36,6 +36,7 @@ namespace eeCCompiler.Visitors
                 StringDict.Add(value as Identifier, stringValue);
                 VariableName++;
             }
+            return value;
         }
     }
 }
