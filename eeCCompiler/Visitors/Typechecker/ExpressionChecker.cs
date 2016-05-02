@@ -41,6 +41,7 @@ namespace eeCCompiler.Visitors
                         {
                             if (refrence.Identifier is FuncCall)
                             {
+                                refrence.IsFuncCall = true;
                                 if ((refrence.Identifier as FuncCall).Identifier.Id == "count")
                                     value = new NumValue(2.0);
                                 else
