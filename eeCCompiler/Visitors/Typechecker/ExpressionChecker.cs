@@ -55,7 +55,6 @@ namespace eeCCompiler.Visitors
                                 value = new UnInitialisedVariable();
                             }
                         }
-
                     }
                     else
                     {
@@ -514,7 +513,7 @@ namespace eeCCompiler.Visitors
                             }
                             else
                             {
-                                _typechecker.Errors.Add("Expected list but got a " + value.GetType().ToString());
+                                _typechecker.Errors.Add("Expected a list but got a " + value.GetType().ToString());
                             }
                             valueFound = true;
                             break;
@@ -591,7 +590,7 @@ namespace eeCCompiler.Visitors
                     }
                     else
                     {
-                        _typechecker.Errors.Add("Lists do not have any values associated to them, please use a function instead");
+                        _typechecker.Errors.Add("Lists do not have any values associated, please use a function instead");
                     }
                 }
             }
@@ -606,7 +605,7 @@ namespace eeCCompiler.Visitors
                 if (funcCall.Expressions.Count == 1)
                 {
                     if (!(CheckExpression(funcCall.Expressions[0] as IExpression).GetType().ToString() == listValue.Value.GetType().ToString())) //Kan jeg det !!JONATAN DA FUQ!!
-                        _typechecker.Errors.Add("List is of type " + listValue.GetType().ToString() + " but a " + (funcCall.Expressions[0] as IExpression).GetType().ToString() + " was tried to be added");
+                        _typechecker.Errors.Add("List is of type " + listValue.GetType().ToString() + " but a " + (funcCall.Expressions[0] as IExpression).GetType().ToString() + " was tried added");
                 }
                 else
                     _typechecker.Errors.Add("Only one element can be added to a list at a time");
@@ -620,10 +619,10 @@ namespace eeCCompiler.Visitors
                         _typechecker.Errors.Add("You can only insert at a num index");
                     }//Kan jeg det !!JONATAN DA FUQ!!
                     else if (!(CheckExpression(funcCall.Expressions[1] as IExpression).GetType().ToString() == listValue.Value.GetType().ToString()))
-                        _typechecker.Errors.Add("List is of type " + listValue.GetType().ToString() + " but a " + (funcCall.Expressions[1] as IExpression).GetType().ToString() + " was tried to be added");
+                        _typechecker.Errors.Add("List is of type " + listValue.GetType().ToString() + " but a " + (funcCall.Expressions[1] as IExpression).GetType().ToString() + " was tried added");
                 }
                 else
-                    _typechecker.Errors.Add("Too many parameters for a list insert");
+                    _typechecker.Errors.Add("Too many parameters for a list insert. Insert takes two parameters: an index and an element");
             }
             else if (funcCall.Identifier.Id == "remove")
             {
@@ -638,25 +637,25 @@ namespace eeCCompiler.Visitors
             else if (funcCall.Identifier.Id == "clear")
             {
                 if (funcCall.Expressions.Count > 0)
-                    _typechecker.Errors.Add("clear() does not take in parameters");
+                    _typechecker.Errors.Add("clear() does not take any parameters");
             }
             else if (funcCall.Identifier.Id == "count")
             {
                 if (funcCall.Expressions.Count > 0)
-                    _typechecker.Errors.Add("count() does not take in parameters");
+                    _typechecker.Errors.Add("count() does not take any parameters");
             }
             else if (funcCall.Identifier.Id == "reverse")
             {
                 if (funcCall.Expressions.Count > 0)
-                    _typechecker.Errors.Add("reverse() does not take in parameters");
+                    _typechecker.Errors.Add("reverse() does not take any parameters");
             }
             else if (funcCall.Identifier.Id == "sort")
             {
                 if (funcCall.Expressions.Count > 0)
-                    _typechecker.Errors.Add("sort() does not take in parameters");
+                    _typechecker.Errors.Add("sort() does not take any parameters");
             }
             else
-                _typechecker.Errors.Add("unknown list function " + funcCall.Identifier.ToString());
+                _typechecker.Errors.Add("Unknown list function: " + funcCall.Identifier.ToString());
         }
 
         public bool IfChecker(IValue value, IfStatement ifStatement)
@@ -694,7 +693,7 @@ namespace eeCCompiler.Visitors
                     string type2 = CheckExpression((bp as Return).Expression).GetType().Name;
                     returnFound = true;
                     if (type1 != type2)
-                        _typechecker.Errors.Add("return value of " + "!!!FunktionsNavnHer!!!" + " is not valid");
+                        _typechecker.Errors.Add("Return value of " + "!!!FunktionsNavnHer!!!" + " is not valid");
                 }
             }
             _typechecker.Identifiers = preBodyIdentifiers;
