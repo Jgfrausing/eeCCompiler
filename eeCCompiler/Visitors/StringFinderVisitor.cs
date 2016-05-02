@@ -9,15 +9,34 @@ namespace eeCCompiler.Visitors
 {
     class StringFinderVisitor : Visitor
     {
-        public List<StringValue> StringList { get; set; }
-
-        public StringFinderVisitor()
+        public Queue<StringValue> StringQueue { get; set; }
+        public int VariableName { get; set; }
+        public StringFinderVisitor(int variableName)
         {
-            StringList = new List<StringValue>();
+            StringQueue = new Queue<StringValue>();
+            VariableName = variableName;
+        }
+        public override void Visit(ExpressionVal expressionVal)
+        {
+            base.Visit(expressionVal);
+            if (expressionVal.Value is StringValue)
+            { 
+                expressionVal.Value = new Identifier("_" + VariableName.ToString());
+                VariableName++;
+            }
+        }
+        public override void Visit(ExpressionValOpExpr expressionValOpExpr)
+        {
+            base.Visit(expressionValOpExpr);
+            if (expressionValOpExpr.Value is StringValue)
+            {
+                expressionValOpExpr.Value = new Identifier("_" + VariableName.ToString());
+                VariableName++;
+            }
         }
         public override void Visit(StringValue stringValue)
         {
-            StringList.Add(stringValue);
+            StringQueue.Enqueue(stringValue);
         }
     }
 }
