@@ -103,6 +103,7 @@
     <Compile Include="Visitors\CCode\DefaultCCode.cs" />
     <Compile Include="Visitors\ExprCheck.cs" />
     <Compile Include="Visitors\Precedence.cs" />
+    <Compile Include="Visitors\StringFinderVisitor.cs" />
     <Compile Include="Visitors\Typechecker\ExpressionChecker.cs" />
     <Compile Include="Visitors\IEecVisitor.cs" />
     <Compile Include="Visitors\PrecedenceVisitor.cs" />
