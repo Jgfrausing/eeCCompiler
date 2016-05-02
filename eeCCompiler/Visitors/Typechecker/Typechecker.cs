@@ -164,7 +164,6 @@ namespace eeCCompiler.Visitors
 
             varDecleration.AssignmentOperator.Accept(this);
             var value = _expressionChecker.CheckExpression(varDecleration.Expression);
-            varDecleration.Type.ValueType = _expressionChecker.CheckValueType(value);
 
             if (value is UnInitialisedVariable)
             {
@@ -173,10 +172,11 @@ namespace eeCCompiler.Visitors
             else if (Identifiers[varDecleration.Identifier.Id] is Identifier)
             {
                 if (value is StructValue)
-                    varDecleration.Type.ValueType = (value as StructValue).Struct.Identifier.Id;
+                    (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType = (value as StructValue).Struct.Identifier.Id;
                 else
-                    varDecleration.Type.ValueType = _expressionChecker.CheckValueType(value);
+                    (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType = _expressionChecker.CheckValueType(value);
                 Identifiers[varDecleration.Identifier.Id] = value;
+                
             }
             else if (Identifiers[varDecleration.Identifier.Id].GetType().Name == value.GetType().Name)
             {
