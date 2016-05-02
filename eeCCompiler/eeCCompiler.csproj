@@ -101,6 +101,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Visitors\CCodeGeneration.cs" />
     <Compile Include="Visitors\CCode\DefaultCCode.cs" />
+    <Compile Include="Visitors\Copy.cs" />
     <Compile Include="Visitors\ExprCheck.cs" />
     <Compile Include="Visitors\Precedence.cs" />
     <Compile Include="Visitors\StringFinderVisitor.cs" />
