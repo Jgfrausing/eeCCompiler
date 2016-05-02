@@ -25,20 +25,23 @@ namespace eeCCompiler
             ////Console.WriteLine("::::::::::::::::::");
             ////parser.Root.Accept(new Treeprint());
             ////Console.WriteLine("::::::::::::::::::");
+            if (result)
+            {
+                parser.Root.Accept(new Precedence());
+                parser.Root.Accept(new Typechecker(errors));
+                errors.ForEach(x => Console.WriteLine(x));
+                if (errors.Count == 0)
+                {
+                    var cCodeVisitor = new CCodeGeneration();
+                    cCodeVisitor.Visit(parser.Root);
 
-
-
-            parser.Root.Accept(new Precedence());
-            parser.Root.Accept(new Typechecker(errors));
-            errors.ForEach(x => Console.WriteLine(x));
-            var cCodeVisitor = new CCodeGeneration();
-            cCodeVisitor.Visit(parser.Root);
-
-            var sr = new StreamWriter("code.c");
-            sr.Write(cCodeVisitor.CCode);
-            sr.Close();
-            //Console.Write(cCodeVisitor.CCode);
-            Console.ReadKey();
+                    var sr = new StreamWriter("code.c");
+                    sr.Write(cCodeVisitor.CCode);
+                    sr.Close();
+                }
+            }
+                //Console.Write(cCodeVisitor.CCode);
+                Console.ReadKey();
         }
     }
 }
