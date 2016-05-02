@@ -9,15 +9,15 @@ namespace eeCCompiler.Visitors
 {
     class StringFinderVisitor : Visitor
     {
-        public Queue<StringValue> StringQueue { get; set; }
+        public List<StringValue> StringList { get; set; }
 
         public StringFinderVisitor()
         {
-            StringQueue = new Queue<StringValue>();
+            StringList = new List<StringValue>();
         }
         public override void Visit(StringValue stringValue)
         {
-            StringQueue.Enqueue(stringValue);
+            StringList.Add(stringValue);
         }
     }
 }
