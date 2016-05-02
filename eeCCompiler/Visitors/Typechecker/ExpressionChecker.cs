@@ -259,7 +259,7 @@ namespace eeCCompiler.Visitors
                     }
                     if (charactor == '{')
                     {
-                        stringParts.Add(new TypeId(new Identifier(""), new eeCCompiler.Nodes.Type("I dont fucking know!")));
+                        stringParts.Add(new TypeId(new Identifier(""), new eeCCompiler.Nodes.Type(" ")));
                         isIdentifier = true;
                         firstChar = true;
                     }
