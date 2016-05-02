@@ -97,6 +97,8 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(ExpressionValOpExpr expressionValOpExpr)
         {
+            if (expressionValOpExpr.Value is StringValue)
+                _expressionChecker.StringConverter(expressionValOpExpr.Value as StringValue);
             _expressionChecker.CheckExpression(expressionValOpExpr);
         }
 
