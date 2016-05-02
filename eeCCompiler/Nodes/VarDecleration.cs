@@ -10,11 +10,9 @@ namespace eeCCompiler.Nodes
             Identifier = identifier;
             AssignmentOperator = assignmentOperator;
             Expression = expression;
-            Type = new Type("Not set in typechecker");
         }
 
         public bool IsFirstUse { get; set; }
-        public Type Type { get; set; }
         public Identifier Identifier { get; set; }
         public AssignmentOperator AssignmentOperator { get; set; }
         public IExpression Expression { get; set; }
@@ -37,10 +35,8 @@ namespace eeCCompiler.Nodes
             Refrence = refrence;
             AssignmentOperator = assignmentOperator;
             Expression = expression;
-            Type = new Type("Not set in typechecker");
         }
 
-        public Type Type { get; set; }
         public Refrence Refrence { get; set; }
         public AssignmentOperator AssignmentOperator { get; set; }
         public IExpression Expression { get; set; }

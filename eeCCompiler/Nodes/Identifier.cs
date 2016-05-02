@@ -5,9 +5,11 @@ namespace eeCCompiler.Nodes
 {
     public class Identifier : AbstractSyntaxTree, IValue, IStructRefrence, IType, IExpression, IIdentifier
     {
+        public Type Type { get; set; }
         public Identifier(string id)
         {
             Id = id;
+            Type = new Type("not set in typechecker");
         }
 
         public string Id { get; set; }
