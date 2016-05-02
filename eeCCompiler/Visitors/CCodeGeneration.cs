@@ -15,7 +15,7 @@ namespace eeCCompiler.Visitors
         private string _header { get; set; }
         private string _code { get; set; }
         private readonly DefaultCCode _defaultCCode = new DefaultCCode();
-        private readonly Stack<List<Identifier>> _heapIdentifiers = new Stack<List<Identifier>>();
+        private readonly Stack<List<Identifier>> _heapIdentifiers = new Stack<List<Identifier>>(); // clear lister først
         public int tempCVariable { get; set; }
 
         public string CCode => _header + _code;
@@ -107,12 +107,35 @@ namespace eeCCompiler.Visitors
 
         public void Visit(IfStatement ifStatement)
         {
+            var stringCreater = new StringFinderVisitor(tempCVariable);
+            PreExpressionStringCreater(stringCreater, ifStatement);
+
             _code += "if(";
             ifStatement.Expression.Accept(this);
             _code += ")";
             ifStatement.Body.Accept(this);
             if (ifStatement.ElseStatement is IfStatement)
                 _code += "else ";
+            PostExpressionStringCreater(stringCreater);
+        }
+
+        private void PreExpressionStringCreater(StringFinderVisitor stringCreater, IfStatement ifStatement)
+        {
+            stringCreater.Visit(ifStatement);
+            foreach (var stringValue in stringCreater.StringDict)
+            {
+                _code += $"string_handle *{stringValue.Key.Id} = string_new();\n";
+                AppendToString(stringValue.Value.Elements, new Identifier(stringValue.Key.Id));
+            }
+        }
+
+        private void PostExpressionStringCreater(StringFinderVisitor stringCreater)
+        {
+            foreach (var stringValue in stringCreater.StringDict)
+            {
+                _code += $"string_clear({stringValue.Key.Id});free({stringValue.Key.Id});";
+            }
+            tempCVariable = stringCreater.VariableName;
         }
 
         public void Visit(ExpressionNegate expressionNegate)
@@ -458,10 +481,12 @@ namespace eeCCompiler.Visitors
                     default:
                         if (!refTypeId.Ref)
                         {
+                            var identifier = new Identifier(refTypeId.TypeId.Identifier.Id);
+                            identifier.Type.ValueType = refTypeId.TypeId.Identifier.Type.ValueType;
                             var funcCall =
                                 new FuncCall(new List<IExprListElement>()
                                 {
-                                    new Identifier(refTypeId.TypeId.Identifier.Id)
+                                    identifier
                                 }, 
                                 new Identifier("copy"));
                             funcCall.ListType = new Type(refTypeId.TypeId.ValueType.ToString());
@@ -469,7 +494,6 @@ namespace eeCCompiler.Visitors
                                     new Identifier("_" + refTypeId.TypeId.Identifier.Id)
                                     );
                             copy.IsFirstUse = true;
-                            copy.Type = new Type(refTypeId.TypeId.ValueType.ToString());
                             functionDeclaration.Body.Bodyparts.Insert(0, copy);
                         }
                             
@@ -547,7 +571,7 @@ namespace eeCCompiler.Visitors
 
         public void Visit(VarDecleration varDecl)
         {
-            if (varDecl.Type.ValueType == "string" && !(varDecl.Expression is FuncCall) )
+            if (varDecl.Identifier.Type.ValueType == "string" && !(varDecl.Expression is FuncCall) )
             {
                 if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
                     CreateNewString(varDecl);
@@ -558,8 +582,8 @@ namespace eeCCompiler.Visitors
             else
             {
                 if (varDecl.IsFirstUse)
-                    _code += GetValueType(varDecl.Type) + " ";
-                if (!varDecl.Type.IsBasicType)
+                    _code += GetValueType(varDecl.Identifier.Type) + " ";
+                if (!varDecl.Identifier.Type.IsBasicType)
                     _code += "*";
                 _code += $"{varDecl.Identifier.Id} ";
                 varDecl.AssignmentOperator.Accept(this);
@@ -619,7 +643,7 @@ namespace eeCCompiler.Visitors
         {
             if (varDecl.IsFirstUse)
             {
-                _code += GetValueType(varDecl.Type) + $" *{varDecl.Identifier}  =  string_new();\n";
+                _code += GetValueType(varDecl.Identifier.Type) + $" *{varDecl.Identifier}  =  string_new();\n";
             }
             else
             {
@@ -650,7 +674,7 @@ namespace eeCCompiler.Visitors
             foreach (var structPart in structDef.StructParts.StructPartList)
             {
                 if (structPart is VarDecleration)
-                    _code += $"{GetValueType((structPart as VarDecleration).Type)} {(structPart as VarDecleration).Identifier};";
+                    _code += $"{GetValueType((structPart as VarDecleration).Identifier.Type)} {(structPart as VarDecleration).Identifier};";
                 else if (structPart is StructDecleration)
                     _code += $"{GetValueType((structPart as StructDecleration).StructIdentifier)} {(structPart as StructDecleration).Identifier};";
             }
