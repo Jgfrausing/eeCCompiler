@@ -31,8 +31,17 @@ namespace eeCCompiler.Visitors
             root.ConstantDefinitions.Accept(this);
             _header +=_code;
             _code = "";
-            SortStructDefinitions(root.StructDefinitions);
-            root.StructDefinitions.Accept(this);
+            try
+            {
+                SortStructDefinitions(root.StructDefinitions);
+                root.StructDefinitions.Accept(this);
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.ReadKey();
+                Environment.Exit(1);
+            }
            
             //_header += _defaultCCode.GenerateListTypeHeader("numlist", "double", false);
             //_header += _defaultCCode.GenerateListTypeHeader("boollist", "int", false);

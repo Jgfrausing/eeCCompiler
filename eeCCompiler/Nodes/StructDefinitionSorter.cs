@@ -22,6 +22,23 @@ namespace eeCCompiler.Nodes
                 }
                     
             }
+            for (int i = n-1; i >= 0; i--)
+            {
+                for (int j = i; j >= 0; j--)
+                {
+                    if (structDefinitions[j].StructParts.StructPartList.Exists(x => x is StructDecleration && (x as StructDecleration).StructIdentifier.Equals(structDefinitions[i].Identifier)))
+                    {
+                        if (i == j)
+                        {
+                            throw new ArgumentException($"The definition of structs is not possible, since struct of type {structDefinitions[i].Identifier} has an instance of itself.");
+                        }
+                        else
+                        {
+                            throw new ArgumentException($"The creation of structs is not possible, since multiple structs creates an endless circular construction.");
+                        }
+                    }
+                }
+            }
         }
 
         private void Swap(List<StructDefinition> structDefinitions, int i, int j)
@@ -72,7 +89,7 @@ namespace eeCCompiler.Nodes
             else if (!yHasX && !xHasY)
                 returnValue = 0;
             else
-                throw new NotSupportedException();
+                throw new ArgumentException($"Struct of type {first.Identifier} and struct of type {second.Identifier} constructs an endless circular construction.");
 
             return returnValue;
         }
