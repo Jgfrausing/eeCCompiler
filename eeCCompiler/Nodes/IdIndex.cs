@@ -17,7 +17,5 @@ namespace eeCCompiler.Nodes
         {
             visitor.Visit(this);
         }
-
-        public Type Type { get; set; }
     }
 }

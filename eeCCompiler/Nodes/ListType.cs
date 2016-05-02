@@ -22,7 +22,5 @@ namespace eeCCompiler.Nodes
         {
             return Type.ToString();
         }
-
-        Type IExpression.Type { get; set; }
     }
 }

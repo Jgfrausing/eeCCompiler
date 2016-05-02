@@ -21,8 +21,6 @@ namespace eeCCompiler.Nodes
         {
             return Value.ToString();
         }
-
-        public Type Type { get; set; }
     }
 
     public class ExpressionValOpExpr : AbstractSyntaxTree, IExpression
@@ -47,8 +45,6 @@ namespace eeCCompiler.Nodes
         {
             return $"{Value} {Operator} {Expression}";
         }
-
-        public Type Type { get; set; }
     }
 
     public class ExpressionNegate : AbstractSyntaxTree, IExpression
@@ -69,8 +65,6 @@ namespace eeCCompiler.Nodes
         {
             return $"{Expression}";
         }
-
-        public Type Type { get; set; }
     }
 
     public class ExpressionMinus : AbstractSyntaxTree, IExpression
@@ -91,8 +85,6 @@ namespace eeCCompiler.Nodes
         {
             return $"{Expression}";
         }
-
-        public Type Type { get; set; }
     }
 
     public class ExpressionParen : AbstractSyntaxTree, IExpression
@@ -113,8 +105,6 @@ namespace eeCCompiler.Nodes
         {
             return "(" + Expression + ")";
         }
-
-        public Type Type { get; set; }
     }
 
     public class ExpressionParenOpExpr : AbstractSyntaxTree, IExpression
@@ -139,8 +129,6 @@ namespace eeCCompiler.Nodes
         {
             return $"{ExpressionParen} {Operator} {Expression}";
         }
-
-        public Type Type { get; set; }
     }
     public class ExpressionExprOpExpr : AbstractSyntaxTree, IExpression
     {
@@ -164,7 +152,5 @@ namespace eeCCompiler.Nodes
         {
             return $"{ExpressionParen} {Operator} {Expression}";
         }
-
-        public Type Type { get; set; }
     }
 }
