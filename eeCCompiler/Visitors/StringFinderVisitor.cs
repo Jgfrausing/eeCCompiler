@@ -4,39 +4,38 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Visitors
 {
     class StringFinderVisitor : Visitor
     {
-        public Queue<StringValue> StringQueue { get; set; }
+        public Dictionary<Identifier, StringValue> StringDict { get; set; }
         public int VariableName { get; set; }
         public StringFinderVisitor(int variableName)
         {
-            StringQueue = new Queue<StringValue>();
+            StringDict = new Dictionary<Identifier, StringValue>();
             VariableName = variableName;
         }
         public override void Visit(ExpressionVal expressionVal)
         {
-            base.Visit(expressionVal);
-            if (expressionVal.Value is StringValue)
-            { 
-                expressionVal.Value = new Identifier("_" + VariableName.ToString());
-                VariableName++;
-            }
+            StringReplacer(expressionVal.Value);
         }
         public override void Visit(ExpressionValOpExpr expressionValOpExpr)
         {
-            base.Visit(expressionValOpExpr);
-            if (expressionValOpExpr.Value is StringValue)
+            StringReplacer(expressionValOpExpr.Value);
+            expressionValOpExpr.Expression.Accept(this);
+        }
+
+        public void StringReplacer(IValue value)
+        {
+            if (value is StringValue)
             {
-                expressionValOpExpr.Value = new Identifier("_" + VariableName.ToString());
+                var stringValue = value as StringValue;
+                value = new Identifier("_" + VariableName.ToString());
+                StringDict.Add(value as Identifier, stringValue);
                 VariableName++;
             }
-        }
-        public override void Visit(StringValue stringValue)
-        {
-            StringQueue.Enqueue(stringValue);
         }
     }
 }
