@@ -154,6 +154,8 @@ namespace eeCCompiler.Visitors
             #region ExpressionValOpExpr
             else if (expression is ExpressionValOpExpr)
             {
+                if ((expression as ExpressionValOpExpr).Value is StringValue)
+                    StringConverter((expression as ExpressionValOpExpr).Value as StringValue);
                 var expressionValOpExpr = expression as ExpressionValOpExpr;
                 IValue value1 = null;
                 if (expressionValOpExpr.Value is Refrence)
