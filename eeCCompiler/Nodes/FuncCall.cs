@@ -34,5 +34,7 @@ namespace eeCCompiler.Nodes
             }
             return $"{Identifier}({s})";
         }
+
+        public Type Type { get; set; }
     }
 }

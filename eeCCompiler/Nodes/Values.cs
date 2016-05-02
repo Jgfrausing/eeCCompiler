@@ -23,6 +23,8 @@ namespace eeCCompiler.Nodes
         {
             return Value ? "1" : "0";   
         }
+
+        public Type Type { get; set; }
     }
 
     public class StringValue : AbstractSyntaxTree, IValue, IConstantPart, IExpression, IStringPart
@@ -44,6 +46,8 @@ namespace eeCCompiler.Nodes
         {
             return Value;
         }
+
+        public Type Type { get; set; }
     }
 
     public class NumValue : AbstractSyntaxTree, IValue, IConstantPart, IExpression
@@ -64,5 +68,7 @@ namespace eeCCompiler.Nodes
         {
             return Value.ToString();
         }
+
+        public Type Type { get; set; }
     }
 }
