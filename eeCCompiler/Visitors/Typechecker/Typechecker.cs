@@ -194,8 +194,13 @@ namespace eeCCompiler.Visitors
 
             varDecleration.AssignmentOperator.Accept(this);
             var value = _expressionChecker.CheckExpression(varDecleration.Expression);
-            (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType = _expressionChecker.CheckValueType(value);
-
+            
+            if (Identifiers[varDecleration.Identifier.Id] is Identifier)
+                (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType = _expressionChecker.CheckValueType(value);
+            else
+            {
+                varDecleration.Identifier.Type.ValueType = _expressionChecker.CheckValueType(value);
+            }
             if (value is UnInitialisedVariable)
             {
                 Errors.Add("Identifier " + varDecleration.Identifier.Id + " was not assigned a value");
