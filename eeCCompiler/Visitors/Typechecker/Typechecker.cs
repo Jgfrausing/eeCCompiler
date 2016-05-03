@@ -173,7 +173,11 @@ namespace eeCCompiler.Visitors
             {
                 if (value is StructValue)
                     (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType = (value as StructValue).Struct.Identifier.Id;
-                else
+                else if (value is ListValue)
+                {
+                    (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType = _expressionChecker.CheckValueType(value);
+                    (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.IsListValue = true;
+                }
                     (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType = _expressionChecker.CheckValueType(value);
                 Identifiers[varDecleration.Identifier.Id] = value;
                 
