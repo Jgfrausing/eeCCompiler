@@ -30,7 +30,7 @@ namespace eeCCompiler
                 parser.Root.Accept(new Precedence());
                 parser.Root.Accept(new Typechecker(errors));
                 errors.ForEach(x => Console.WriteLine(x));
-                if (errors.Count == 0)
+                //  if (errors.Count == 0)
                 {
                     var cCodeVisitor = new CCodeGeneration();
                     cCodeVisitor.Visit(parser.Root);

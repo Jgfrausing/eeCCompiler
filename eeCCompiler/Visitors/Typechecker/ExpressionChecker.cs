@@ -360,7 +360,8 @@ namespace eeCCompiler.Visitors
                      opr.Symbol == Indexes.Indexes.SymbolIndex.Or);
         }
 
-        public string CheckValueType(IValue value)
+        public string CheckValueType(IValue value) 
+            //Problemet er, at returværdien her bliver brugt til at sætte en type, men typen bliver ikke brugt. Derfor bliver IsListValue ikke gemt! 
         {
             if (value is NumValue)
                 return "num";
@@ -371,9 +372,19 @@ namespace eeCCompiler.Visitors
             else if (value is StructValue)
                 return (value as StructValue).Struct.Identifier.Id;
             else if (value is ListValue)
-                return (value as ListValue).Type.Type.ToString()+"[]";
+                //return (value as ListValue).Type.Type.ToString()+"[]";
+            {
+                if (((value as ListValue).Type.Type is eeCCompiler.Nodes.Type))
+                    ((value as ListValue).Type.Type as eeCCompiler.Nodes.Type).IsListValue = true;
+                else if (((value as ListValue).Type.Type is Identifier))
+                    ((value as ListValue).Type.Type as Identifier).Type.IsListValue = true;
+                else
+                {
+                    var a = (value as ListValue).Type.Type.GetType();
+                }
+                return (value as ListValue).Type.Type.ToString();
+            }
             else return "404 type not found";
-
         }
 
         public IValue TypeChecker(string Type)
@@ -715,6 +726,8 @@ namespace eeCCompiler.Visitors
                     {
                         if (_typechecker.Identifiers.ContainsKey((funcCall.Expressions[i] as RefId).Identifier.Id)) {
                             (funcCall.Expressions[i] as RefId).Type.ValueType = CheckValueType(_typechecker.Identifiers[(funcCall.Expressions[i] as RefId).Identifier.Id]);
+                            if (_typechecker.Identifiers[(funcCall.Expressions[i] as RefId).Identifier.Id] is ListType)
+                                    (funcCall.Expressions[i] as RefId).Identifier.Type.IsListValue = true;
                             type1 = _typechecker.Identifiers[(funcCall.Expressions[i] as RefId).Identifier.Id].GetType().ToString();
                         }
                         else

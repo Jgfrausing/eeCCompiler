@@ -11,8 +11,9 @@ namespace eeCCompiler.Nodes
         }
 
         public bool IsBasicType => ValueType == "num" || ValueType == "bool";
-
+        public bool IsListValue { get; set; }
         public string ValueType { get; set; }
+        
 
         public override void Accept(IEecVisitor visitor)
         {
