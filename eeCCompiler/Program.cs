@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Timers;
 using System.Xml.Schema;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
@@ -20,11 +24,6 @@ namespace eeCCompiler
             var syntax = result ? "The syntax is correct!" : "There are errors in the syntax";
             Console.WriteLine(syntax);
             var errors = new List<string>();
-            //var identifiers = new Dictionary<string, IValue>();
-            ////parser.Root.Accept(new PrettyPrinter());
-            ////Console.WriteLine("::::::::::::::::::");
-            ////parser.Root.Accept(new Treeprint());
-            ////Console.WriteLine("::::::::::::::::::");
             if (result)
             {
                 parser.Root.Accept(new Precedence());
@@ -40,8 +39,37 @@ namespace eeCCompiler
                     sr.Close();
                 }
             }
-                //Console.Write(cCodeVisitor.CCode);
-                Console.ReadKey();
+            Console.WriteLine("Compile c code? (y/n)");
+            int answer = 0;
+            while (true)
+            {
+                var input = Console.ReadKey();
+                if (input.Key == ConsoleKey.Y)
+                {
+                    answer = 1;
+                    break;
+                }
+                else if (input.Key == ConsoleKey.N)
+                    break;
+                else
+                {
+                    Console.Write("\b \b");
+                }
+            }
+            if (answer == 1)
+            {
+                string codeName = "code";
+                string codePath = @"..\..\bin\Debug\";
+                string compilerPath = @"..\..\C_code\C compiler\bin\gcc";
+                string compileArguments = $" {codePath}{codeName}.c -o {codePath}{codeName}.exe"; // Example of arguments
+                string runArguments = $"/C start cmd /k {codePath}{codeName}.exe";
+                Process p = new Process() {StartInfo = new ProcessStartInfo(compilerPath, compileArguments)};
+                p.Start();
+                while (!p.HasExited)
+                {
+                }
+                Process.Start("CMD.exe", runArguments);
+            }
         }
     }
 }
