@@ -80,14 +80,40 @@ namespace eeCCompiler.Visitors
                 Errors.Add("The " + structDecleration.AssignmentOperator.Symbol + " can not be used on a struct");
             if (!(Identifiers.ContainsKey(structDecleration.Identifier.Id)))
             {
-                if (Structs.ContainsKey(structDecleration.StructIdentifier.Id)) 
+                if (Structs.ContainsKey(structDecleration.StructIdentifier.Id))
+                {
                     Identifiers.Add(structDecleration.Identifier.Id, new StructValue(Structs[structDecleration.StructIdentifier.Id]));
+                    Dictionary<string, IValue> structVariables = new Dictionary<string, IValue>();
+                    foreach (var structPart in Structs[structDecleration.StructIdentifier.Id].StructParts.StructPartList)
+                    {
+                        if (structPart is VarDecleration)
+                        {
+                            structVariables.Add((structPart as VarDecleration).Identifier.Id, _expressionChecker.CheckExpression((structPart as VarDecleration).Expression));
+                        }
+                    }
+
+                    foreach (var varDecl in structDecleration.VarDeclerations.VarDeclerationList)
+                    {
+                        if (structVariables.ContainsKey(varDecl.Identifier.Id))
+                        {
+                            if (!(structVariables[varDecl.Identifier.Id].GetType().ToString() == _expressionChecker.CheckExpression(varDecl.Expression).GetType().ToString()))
+                                Errors.Add("value of struct variable " + varDecl.Identifier.Id + " is not of same type as expression");
+                        }
+                        else
+                            Errors.Add("struct " + structDecleration.StructIdentifier.Id + " does not contain a variable called " + varDecl.Identifier.Id);
+                    }
+                }
+                else
+                    Errors.Add(structDecleration.StructIdentifier.Id + " struct was not declared but was used in program");
             }
             else if (!(Identifiers[structDecleration.Identifier.Id] is StructValue))
                 Errors.Add(structDecleration.Identifier.Id + " is not of type " + structDecleration.StructIdentifier.Id);
             else if (!((Identifiers[structDecleration.Identifier.Id] as StructValue).Struct.Identifier.Id == Structs[structDecleration.StructIdentifier.Id].Identifier.Id))
                 Errors.Add(structDecleration.Identifier.Id + " is not of type " + structDecleration.StructIdentifier.Id);
-           // base.Visit(structDecleration);
+
+
+
+
         }
 
         public override void Visit(ExpressionNegate expressionNegate)
@@ -231,6 +257,13 @@ namespace eeCCompiler.Visitors
                     Identifiers.Add(parameter.TypeId.Identifier.Id, _expressionChecker.TypeChecker(parameter.TypeId.ValueType.ToString()));
                 }
                 bool returnFound;
+                foreach (var bodyPart in functionDeclaration.Body.Bodyparts)
+                {
+                    if (bodyPart is VarDecleration)
+                    {
+                        Identifiers.Add((bodyPart as VarDecleration).Identifier.Id, _expressionChecker.CheckExpression((bodyPart as VarDecleration).Expression));
+                    }
+                }
                 IValue Value = _expressionChecker.TypeChecker(functionDeclaration.TypeId.ValueType.ToString());
                 if (functionDeclaration.TypeId.ValueType.ToString() == "void")
                     returnFound = true;

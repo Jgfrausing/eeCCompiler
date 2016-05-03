@@ -32,7 +32,14 @@ namespace eeCCompiler.Visitors
                     var refrence = (exp.Value as Refrence);
                     if (_typechecker.Identifiers.ContainsKey(refrence.StructRefrence.ToString()))
                     {
-                        if (_typechecker.Identifiers[refrence.StructRefrence.ToString()] is StructValue)
+                        var structRefrence = _typechecker.Identifiers[refrence.StructRefrence.ToString()];
+                        if (structRefrence is ListValue && refrence.StructRefrence is IdIndex)
+                        {
+                            var structType = CheckValueType((structRefrence as ListValue).Value);
+                            value = StructRefrenceChecker(refrence, structType, refrence);
+                            exp.Value = refrence;
+                        }
+                        else if (_typechecker.Identifiers[refrence.StructRefrence.ToString()] is StructValue)
                         {
                             var structType = (_typechecker.Identifiers[refrence.StructRefrence.ToString()] as StructValue).Struct.Identifier.Id;
                             value = StructRefrenceChecker(refrence, structType, refrence);
@@ -621,8 +628,10 @@ namespace eeCCompiler.Visitors
                     if (!(CheckExpression(funcCall.Expressions[0] as IExpression).GetType().ToString() == listValue.Value.GetType().ToString())) //Kan jeg det !!JONATAN DA FUQ!!
                         _typechecker.Errors.Add("List is of type " + listValue.GetType().ToString() + " but a " + (funcCall.Expressions[0] as IExpression).GetType().ToString() + " was tried added");
                 }
-                else
+                else if (funcCall.Expressions.Count>1)
                     _typechecker.Errors.Add("Only one element can be added to a list at a time");
+                else
+                    _typechecker.Errors.Add("Add takes one parameter");
             }
             else if (funcCall.Identifier.Id == "insert")
             {
@@ -635,8 +644,10 @@ namespace eeCCompiler.Visitors
                     else if (!(CheckExpression(funcCall.Expressions[1] as IExpression).GetType().ToString() == listValue.Value.GetType().ToString()))
                         _typechecker.Errors.Add("List is of type " + listValue.GetType().ToString() + " but a " + (funcCall.Expressions[1] as IExpression).GetType().ToString() + " was tried added");
                 }
-                else
+                else if (funcCall.Expressions.Count>2)
                     _typechecker.Errors.Add("Too many parameters for a list insert. Insert takes two parameters: an index and an element");
+                else
+                    _typechecker.Errors.Add("Insert takes two parameters");
             }
             else if (funcCall.Identifier.Id == "remove")
             {
