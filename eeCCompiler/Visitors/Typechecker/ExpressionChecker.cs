@@ -725,7 +725,7 @@ namespace eeCCompiler.Visitors
                     {
                         if (_typechecker.Identifiers.ContainsKey((funcCall.Expressions[i] as RefId).Identifier.Id)) {
                             (funcCall.Expressions[i] as RefId).Type.ValueType = CheckValueType(_typechecker.Identifiers[(funcCall.Expressions[i] as RefId).Identifier.Id]);
-                            if (_typechecker.Identifiers[(funcCall.Expressions[i] as RefId).Identifier.Id] is ListType)
+                            if (_typechecker.Identifiers[(funcCall.Expressions[i] as RefId).Identifier.Id] is ListValue)
                                     (funcCall.Expressions[i] as RefId).Identifier.Type.IsListValue = true;
                             type1 = _typechecker.Identifiers[(funcCall.Expressions[i] as RefId).Identifier.Id].GetType().ToString();
                         }
