@@ -32,7 +32,8 @@ namespace eeCCompiler.Visitors
                     var refrence = (exp.Value as Refrence);
                     if (_typechecker.Identifiers.ContainsKey(refrence.StructRefrence.ToString()))
                     {
-                        if (_typechecker.Identifiers[refrence.StructRefrence.ToString()] is StructValue) {
+                        if (_typechecker.Identifiers[refrence.StructRefrence.ToString()] is StructValue)
+                        {
                             var structType = (_typechecker.Identifiers[refrence.StructRefrence.ToString()] as StructValue).Struct.Identifier.Id;
                             value = StructRefrenceChecker(refrence, structType, refrence);
                             exp.Value = refrence;
@@ -46,7 +47,7 @@ namespace eeCCompiler.Visitors
                                     value = new NumValue(2.0);
                                 else
                                     value = new UnInitialisedVariable();
-
+                                //refrence.StructRefrence
                                 ListFuncChecker(refrence.Identifier as FuncCall, _typechecker.Identifiers[refrence.StructRefrence.ToString()] as ListValue);
                             }
                             else
@@ -597,6 +598,8 @@ namespace eeCCompiler.Visitors
                     if (refrence.Identifier is FuncCall)
                     {
                         (refrence.Identifier as FuncCall).IsBodyPart = true;
+                        (refrence.Identifier as FuncCall).Identifier.Type.ValueType =
+                            CheckValueType(_typechecker.Identifiers[(refrence.StructRefrence.ToString())]);
                         ListFuncChecker((refrence.Identifier as FuncCall), _typechecker.Identifiers[refrence.StructRefrence.ToString()] as ListValue);
                     }
                     else
