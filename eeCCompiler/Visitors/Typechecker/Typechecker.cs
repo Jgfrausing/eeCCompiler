@@ -90,6 +90,10 @@ namespace eeCCompiler.Visitors
                         {
                             structVariables.Add((structPart as VarDecleration).Identifier.Id, _expressionChecker.CheckExpression((structPart as VarDecleration).Expression));
                         }
+                        else if (structPart is StructDecleration)
+                        {
+                            structVariables.Add((structPart as StructDecleration).Identifier.Id, new UnInitialisedVariable());
+                        }
                     }
 
                     foreach (var varDecl in structDecleration.VarDeclerations.VarDeclerationList)
@@ -190,6 +194,7 @@ namespace eeCCompiler.Visitors
 
             varDecleration.AssignmentOperator.Accept(this);
             var value = _expressionChecker.CheckExpression(varDecleration.Expression);
+            (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType = _expressionChecker.CheckValueType(value);
 
             if (value is UnInitialisedVariable)
             {
@@ -204,7 +209,6 @@ namespace eeCCompiler.Visitors
                     (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType = _expressionChecker.CheckValueType(value);
                     (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.IsListValue = true;
                 }
-                    (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType = _expressionChecker.CheckValueType(value);
                 Identifiers[varDecleration.Identifier.Id] = value;
                 
             }
