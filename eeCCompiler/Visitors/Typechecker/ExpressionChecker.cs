@@ -36,7 +36,9 @@ namespace eeCCompiler.Visitors
                         if (structRefrence is ListValue && refrence.StructRefrence is IdIndex)
                         {
                             var structType = CheckValueType((structRefrence as ListValue).Value);
+                            (refrence.StructRefrence as IdIndex).Identifier.Type.ValueType = structType;
                             value = StructRefrenceChecker(refrence, structType, refrence);
+                             
                             exp.Value = refrence;
                         }
                         else if (_typechecker.Identifiers[refrence.StructRefrence.ToString()] is StructValue)
@@ -44,6 +46,7 @@ namespace eeCCompiler.Visitors
                             var structType = (_typechecker.Identifiers[refrence.StructRefrence.ToString()] as StructValue).Struct.Identifier.Id;
                             value = StructRefrenceChecker(refrence, structType, refrence);
                             exp.Value = refrence;
+                            
                         }
                         else
                         {
