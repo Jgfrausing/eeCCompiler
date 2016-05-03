@@ -718,7 +718,7 @@ namespace eeCCompiler.Visitors
                 bool parametersCorrect = true;
                 for (int i = 0; i < funcDecl.Parameters.TypeIds.Count; i++)
                 {
-                    string type1 = "", type2 = "";
+                    IValue type1, type2;
                     bool refBool = false;
 
                     if (funcCall.Expressions[i] is RefId)
@@ -727,21 +727,32 @@ namespace eeCCompiler.Visitors
                             (funcCall.Expressions[i] as RefId).Type.ValueType = CheckValueType(_typechecker.Identifiers[(funcCall.Expressions[i] as RefId).Identifier.Id]);
                             if (_typechecker.Identifiers[(funcCall.Expressions[i] as RefId).Identifier.Id] is ListValue)
                                     (funcCall.Expressions[i] as RefId).Identifier.Type.IsListValue = true;
-                            type1 = _typechecker.Identifiers[(funcCall.Expressions[i] as RefId).Identifier.Id].GetType().ToString();
+                            type1 = _typechecker.Identifiers[(funcCall.Expressions[i] as RefId).Identifier.Id];
                         }
                         else
                         {
                             _typechecker.Errors.Add((funcCall.Expressions[i] as RefId).Identifier.Id + " does not exist at the call of " + funcCall.Identifier.Id); 
-                            type1 = "Uninitialized value";
+                            type1 = new UnInitialisedVariable();
                         }
                         refBool = true;
                     }
                     else
-                        type1 = CheckExpression(funcCall.Expressions[i] as IExpression).GetType().ToString();
+                        type1 = CheckExpression(funcCall.Expressions[i] as IExpression);
 
-                    type2 = TypeChecker(funcDecl.Parameters.TypeIds[i].TypeId.ValueType.ToString()).GetType().ToString();
+                    CheckValueType(funcDecl.Parameters.TypeIds[i].TypeId.Identifier);
+                    if (funcDecl.Parameters.TypeIds[i].TypeId.ValueType is ListType)
+                    {
+                        type2 = new ListValue(funcDecl.Parameters.TypeIds[i].TypeId.ValueType as ListType, TypeChecker(funcDecl.Parameters.TypeIds[i].TypeId.ValueType.ToString()));
+                    }
+                    else
+                        type2 = TypeChecker(funcDecl.Parameters.TypeIds[i].TypeId.ValueType.ToString());
+                    if (type1 is ListValue && type2 is ListValue)
+                    {
+                        parametersCorrect = (type1 as ListValue).Value.GetType().ToString() == (type2 as ListValue).Value.GetType().ToString() &&
+                            (type1 as ListValue).Type.Dimentions == (type1 as ListValue).Type.Dimentions;
 
-                    if (!(type1 == type2 && (funcDecl.Parameters.TypeIds[i].Ref == refBool) || type1 == "Uninitialized value"))
+                    }
+                    else if (!(type1.GetType().ToString() == type2.GetType().ToString() && (funcDecl.Parameters.TypeIds[i].Ref == refBool) || !(type1 is UnInitialisedVariable)))
                         parametersCorrect = false;
                 }
                 if (!parametersCorrect)
