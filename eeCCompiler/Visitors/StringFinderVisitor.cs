@@ -27,6 +27,39 @@ namespace eeCCompiler.Visitors
             expressionValOpExpr.Expression.Accept(this);
         }
 
+        public override void Visit(IfStatement ifStatement)
+        {
+            ifStatement.Expression.Accept(this);
+        }
+
+        public override void Visit(VarDecleration varDecl)
+        {
+            varDecl.Expression.Accept(this);
+        }
+
+        public override void Visit(Return returnNode)
+        {
+            returnNode.Expression.Accept(this);
+        }
+
+        public override void Visit(FuncCall funcCall)
+        {
+            foreach (var parameter in funcCall.Expressions)
+            {
+                parameter.Accept(this);
+            }
+        }
+
+        public override void Visit(RepeatFor repeatFor)
+        {
+            repeatFor.Expression.Accept(this);
+        }
+
+        public override void Visit(RepeatExpr repeatExpr)
+        {
+            repeatExpr.Expression.Accept(this);
+        }
+
         public IValue StringReplacer(IValue value)
         {
             if (value is StringValue)
@@ -38,5 +71,7 @@ namespace eeCCompiler.Visitors
             }
             return value;
         }
+
+        
     }
 }

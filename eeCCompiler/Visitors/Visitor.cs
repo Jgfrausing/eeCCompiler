@@ -146,17 +146,14 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(ListIndex expressionParenOpExpr)
         {
-            throw new System.NotImplementedException();
         }
 
         public virtual void Visit(Ref expressionParenOpExpr)
         {
-            throw new System.NotImplementedException();
         }
 
         public virtual void Visit(ListType expressionParenOpExpr)
         {
-            throw new System.NotImplementedException();
         }
 
         public virtual void Visit(RefId expressionParenOpExpr)
@@ -167,12 +164,10 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(RefTypeId expressionParenOpExpr)
         {
-            throw new System.NotImplementedException();
         }
 
         public virtual void Visit(ListDimentions expressionParenOpExpr)
         {
-            throw new System.NotImplementedException();
         }
 
         public virtual void Visit(TypeId expressionParenOpExpr)
@@ -187,7 +182,6 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(IdIndex expressionParenOpExpr)
         {
-            throw new System.NotImplementedException();
         }
 
         public virtual void Visit(VarInStructDecleration varInStructDecleration)

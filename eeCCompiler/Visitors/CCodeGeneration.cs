@@ -117,9 +117,9 @@ namespace eeCCompiler.Visitors
             PostExpressionStringCreater(stringCreater);
         }
 
-        private void PreExpressionStringCreater(StringFinderVisitor stringCreater, INodeElement ifStatement)
+        private void PreExpressionStringCreater(StringFinderVisitor stringCreater, INodeElement node)
         {
-            ifStatement.Accept(stringCreater);
+            node.Accept(stringCreater);
             foreach (var stringValue in stringCreater.StringDict)
             {
                 _code += $"string_handle *{stringValue.Key.Id} = string_new();\n";
@@ -290,27 +290,31 @@ namespace eeCCompiler.Visitors
         private void RetreveVariabels(StructDecleration structDecleration)
         {
             var myStruct = _root.StructDefinitions.Definitions.FirstOrDefault(x => x.Identifier.ToString() == structDecleration.StructIdentifier.ToString());
+
             foreach (var varDecl in myStruct.StructParts.StructPartList)
             {
                 if (varDecl is VarDecleration && !structDecleration.VarDeclerations.VarDeclerationList.Contains(varDecl))
                     structDecleration.VarDeclerations.VarDeclerationList.Add(varDecl as VarDecleration);
-                else if (varDecl is StructDecleration)
-                {
-                    RetreveVariabels(varDecl as StructDecleration);
-                }
             }
         }
 
         public void Visit(RepeatExpr repeatExpr)
         {
+            var stringCreater = new StringFinderVisitor(tempCVariable);
+            PreExpressionStringCreater(stringCreater, repeatExpr);
+            
             _code += "while (";
             repeatExpr.Expression.Accept(this);
             _code += ")";
             repeatExpr.Body.Accept(this);
+            PostExpressionStringCreater(stringCreater);
         }
 
         public void Visit(RepeatFor repeatFor)
         {
+            var stringCreater = new StringFinderVisitor(tempCVariable);
+            PreExpressionStringCreater(stringCreater, repeatFor);
+            
             _code += "for (" + repeatFor.VarDecleration.Identifier + " = ";
             repeatFor.VarDecleration.Expression.Accept(this);
             _code += ";";
@@ -319,6 +323,7 @@ namespace eeCCompiler.Visitors
             repeatFor.Direction.Accept(this);
             _code += ")";
             repeatFor.Body.Accept(this);
+            PostExpressionStringCreater(stringCreater);
         }
 
         public void Visit(Type type)
@@ -405,7 +410,7 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Identifier identifier)
         {
-            _code += $" {identifier} ";
+            _code += $"{identifier}";
         }
 
         public void Visit(BoolValue boolValue)
@@ -421,13 +426,15 @@ namespace eeCCompiler.Visitors
 
         public void Visit(FuncCall funcCall)
         {
-            //PreExpressionStringCreater();
+            var stringCreater = new StringFinderVisitor(tempCVariable);
+            PreExpressionStringCreater(stringCreater, funcCall);
+
             #region Print
             if (funcCall.Identifier.Id == "program_print")
             {
                 var parameter = (funcCall.Expressions[0] as ExpressionVal).Value;
                 _code += $"standard_printString";
-                GetCFuncType("print", new Type("!Not implemented!"));
+                //GetCFuncType("print", new Type("!Not implemented!"));
                 _code += "(";
                 CreateRefrence(parameter);
                 _code += $")";
@@ -447,17 +454,20 @@ namespace eeCCompiler.Visitors
             #endregion
             #region ListFunctions
 
-            if (funcCall.Identifier.Id == "count")
+            else if (funcCall.Identifier.Id == "count")
             {
                 _code += $"{funcCall.Expressions[0]}->size";
             }
             else if (funcCall.Identifier.Id == "add")
             {
-                _code += $"";
+                _code += $"{(funcCall.Expressions[0] as Identifier).Type.ValueType}" +
+                    $"list_add(&{((funcCall.Expressions[1] as ExpressionVal). Value as Identifier).Id}, &{(funcCall.Expressions[0] as Identifier).Id})";
             }
             else if (funcCall.Identifier.Id == "insert")
-            {
-                _code += $"";
+            { //void clist_insert(int index, clist_handle * head, c *inputElement);
+                _code += $"{(funcCall.Expressions[0] as Identifier).Type.ValueType}list_insert(";
+                funcCall.Expressions[1].Accept(this);
+                _code += $", &{(funcCall.Expressions[0] as Identifier).Id}, &{((funcCall.Expressions[2] as ExpressionVal).Value as Identifier).Id})";
             }
             else if (funcCall.Identifier.Id == "remove")
             {
@@ -496,6 +506,7 @@ namespace eeCCompiler.Visitors
             #endregion
             if (funcCall.IsBodyPart)
                 _code += ";";
+            PostExpressionStringCreater(stringCreater);
         }
 
         private void CreateRefrence(IValue parameter)
@@ -622,24 +633,26 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Return returnNode)
         {
+            var stringCreater = new StringFinderVisitor(tempCVariable);
+            PreExpressionStringCreater(stringCreater, returnNode);
+            
             _code += "return ";
             returnNode.Expression.Accept(this);
             _code += ";";
+
+            PostExpressionStringCreater(stringCreater);
         }
 
         public void Visit(Refrence referece)
         {
-            referece.IsFuncCall = true;
             if (!referece.IsFuncCall)
             {
                 referece.StructRefrence.Accept(this);
-                _code += "->";
+                _code += ".";
             }
             if (referece.Identifier is FuncCall)
             {
                 var funcCall = referece.Identifier as FuncCall;
-                funcCall.ListType = (new eeCCompiler.Nodes.Type("string"));
-                funcCall.IsBodyPart = true;
                 if (funcCall.IsListFunction)
                 {
                     funcCall.Identifier.Id = funcCall.ListType.ValueType + "_" + funcCall.Identifier.Id;
@@ -656,10 +669,18 @@ namespace eeCCompiler.Visitors
 
         public void Visit(VarDecleration varDecl)
         {
+            var stringCreater = new StringFinderVisitor(tempCVariable);
+            PreExpressionStringCreater(stringCreater, varDecl);
+            
             if (varDecl.Identifier.Type.IsListValue)
             {
-                _code +=
-                    $"{varDecl.Identifier.Type.ValueType}list_handle * {varDecl.Identifier.Id} = {varDecl.Identifier.Type.ValueType}list";
+                if (varDecl.IsFirstUse)
+                {
+                    _code += varDecl.Identifier.Type.ValueType;
+
+                    _code += "list_handle ";
+                }
+                _code += varDecl.Identifier + " = " + varDecl.Identifier.Type.ValueType + "list";
                 if (varDecl.Expression is ExpressionVal && (varDecl.Expression as ExpressionVal).Value is Identifier)
                 {
                     _code += $"_copy({(varDecl.Expression as ExpressionVal).Value as Identifier});";
@@ -684,9 +705,19 @@ namespace eeCCompiler.Visitors
                 _code += $"{varDecl.Identifier.Id} ";
                 varDecl.AssignmentOperator.Accept(this);
                 _code += " ";
-                varDecl.Expression.Accept(this);
+                if (!varDecl.Identifier.Type.IsBasicType)
+                {
+                    _code += $"{varDecl.Identifier.Type.ValueType}_copy(&";
+                    varDecl.Expression.Accept(this);
+                    _code += ")";
+                }
+                else
+                { 
+                    varDecl.Expression.Accept(this);
+                }
                 _code += ";";
             }
+            PostExpressionStringCreater(stringCreater);
         }
 
         private void AppendToString(List<IStringPart> parameter, Identifier varIdentifier)//VarDecleration varDecl)
@@ -933,9 +964,7 @@ namespace eeCCompiler.Visitors
         public void Visit(VarInStructDecleration varInStructDecleration)
         {
             varInStructDecleration.Refrence.Accept(this);
-            _code += " ";
             varInStructDecleration.AssignmentOperator.Accept(this);
-            _code += " ";
             varInStructDecleration.Expression.Accept(this);
             _code += ";";
         }
