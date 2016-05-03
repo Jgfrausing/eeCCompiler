@@ -30,12 +30,6 @@ namespace eeCCompiler.Visitors
         public override void Visit(IfStatement ifStatement)
         {
             ifStatement.Expression.Accept(this);
-            ifStatement.ElseStatement.Accept(this);
-        }
-
-        public override void Visit(ElseStatement elseStatement)
-        {
-
         }
 
         public override void Visit(VarDecleration varDecl)

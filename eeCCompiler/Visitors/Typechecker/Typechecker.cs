@@ -161,7 +161,7 @@ namespace eeCCompiler.Visitors
         public override void Visit(VarInStructDecleration varInStructDecleration)
         {
             IValue value1 = null;
-            if ((varInStructDecleration.Refrence.StructRefrence is Identifier) && Identifiers.ContainsKey((varInStructDecleration.Refrence.StructRefrence as Identifier).Id))
+            if (Identifiers.ContainsKey((varInStructDecleration.Refrence.StructRefrence as Identifier).Id))
             {
                 if (Identifiers[(varInStructDecleration.Refrence.StructRefrence as Identifier).Id] is StructValue)
                 { 
