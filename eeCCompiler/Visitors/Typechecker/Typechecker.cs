@@ -92,7 +92,7 @@ namespace eeCCompiler.Visitors
                         }
                         else if (structPart is StructDecleration)
                         {
-                            structVariables.Add((structPart as StructDecleration).Identifier.Id, new UnInitialisedVariable());
+                            structVariables.Add((structPart as StructDecleration).Identifier.Id,new StructValue(Structs[(structPart as StructDecleration).StructIdentifier.Id]));
                         }
                     }
 
@@ -100,7 +100,15 @@ namespace eeCCompiler.Visitors
                     {
                         if (structVariables.ContainsKey(varDecl.Identifier.Id))
                         {
-                            if (!(structVariables[varDecl.Identifier.Id].GetType().ToString() == _expressionChecker.CheckExpression(varDecl.Expression).GetType().ToString()))
+                            var expressionVariable = _expressionChecker.CheckExpression(varDecl.Expression);
+                            if (expressionVariable is StructValue)
+                            {
+                                var exprStructIden = (expressionVariable as StructValue).Struct.Identifier.Id;
+                                var declStructIden = (structVariables[varDecl.Identifier.Id] as StructValue).Struct.Identifier.Id;
+                                if (exprStructIden != declStructIden)
+                                    Errors.Add("value of struct variable " + varDecl.Identifier.Id + " is not of same type as expression");
+                            }
+                            else if (!(structVariables[varDecl.Identifier.Id].GetType().ToString() == _expressionChecker.CheckExpression(varDecl.Expression).GetType().ToString()))
                                 Errors.Add("value of struct variable " + varDecl.Identifier.Id + " is not of same type as expression");
                         }
                         else

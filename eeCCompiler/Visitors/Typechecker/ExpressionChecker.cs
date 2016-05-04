@@ -60,6 +60,18 @@ namespace eeCCompiler.Visitors
                                 //refrence.StructRefrence
                                 ListFuncChecker(refrence.Identifier as FuncCall, _typechecker.Identifiers[refrence.StructRefrence.ToString()] as ListValue);
                             }
+                            else if (refrence.Identifier is IdIndex)
+                            {
+                                var derpface = _typechecker.Identifiers[refrence.StructRefrence.ToString()];
+                                IValue val;
+                                foreach (var varDecl in (derpface as StructValue).Struct.StructParts.StructPartList)
+                                {
+                                    if (varDecl is VarDecleration && (varDecl as VarDecleration).Identifier.Id == (refrence.Identifier as IdIndex).Identifier.Id)
+                                        val = CheckExpression((varDecl as VarDecleration).Expression);
+
+                                }
+                                var listIden = (refrence.Identifier as IdIndex); // identifier på liste
+                            }
                             else
                             {
                                 _typechecker.Errors.Add("Lists do not contain any fields"); 
@@ -545,7 +557,7 @@ namespace eeCCompiler.Visitors
             }
             else
             {
-                foreach (var structpart in _typechecker.Structs[structType].StructParts.StructPartList)
+                foreach (var structpart  in _typechecker.Structs[structType].StructParts.StructPartList)
                 {
                     if (structpart is StructDecleration)
                     {
@@ -576,6 +588,12 @@ namespace eeCCompiler.Visitors
                                     else
                                         value = new UnInitialisedVariable();
                                     ListFuncChecker(funcCall, CheckExpression(varDecl.Expression) as ListValue);
+                                }
+                                else
+                                {
+                                    value = StructRefrenceChecker(listRefrence, ((CheckExpression(varDecl.Expression) as ListValue).Type.Type as Identifier).Id, exp);
+                                    valueFound = true;
+                                    break;
                                 }
                             }
                         }
