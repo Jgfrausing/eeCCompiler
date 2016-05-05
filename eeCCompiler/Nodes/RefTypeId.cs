@@ -10,6 +10,7 @@ namespace eeCCompiler.Nodes
             TypeId = typeId;
             Ref = _ref.IsRefrence;
         }
+
         public TypeId TypeId { get; set; }
         public bool Ref { get; set; }
 

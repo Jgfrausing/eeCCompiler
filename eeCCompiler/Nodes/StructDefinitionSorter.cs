@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace eeCCompiler.Nodes
 {
@@ -9,33 +7,35 @@ namespace eeCCompiler.Nodes
     {
         public void Sort(List<StructDefinition> structDefinitions)
         {
-            int n = structDefinitions.Count;
+            var n = structDefinitions.Count;
 
-            for (int i = 0; i < n; i++)
+            for (var i = 0; i < n; i++)
             {
-                for (int j = i+1; j < n; j++)
+                for (var j = i + 1; j < n; j++)
                 {
                     if (Compare(structDefinitions[i], structDefinitions[j]) == 1)
                     {
                         Swap(structDefinitions, i, j);
                     }
                 }
-                    
             }
-            for (int i = n-1; i >= 0; i--)
+            for (var i = n - 1; i >= 0; i--)
             {
-                for (int j = i; j >= 0; j--)
+                for (var j = i; j >= 0; j--)
                 {
-                    if (structDefinitions[j].StructParts.StructPartList.Exists(x => x is StructDecleration && (x as StructDecleration).StructIdentifier.Equals(structDefinitions[i].Identifier)))
+                    if (
+                        structDefinitions[j].StructParts.StructPartList.Exists(
+                            x =>
+                                x is StructDecleration &&
+                                (x as StructDecleration).StructIdentifier.Equals(structDefinitions[i].Identifier)))
                     {
                         if (i == j)
                         {
-                            throw new ArgumentException($"The definition of structs is not possible, since struct of type {structDefinitions[i].Identifier} has an instance of itself.");
+                            throw new ArgumentException(
+                                $"The definition of structs is not possible, since struct of type {structDefinitions[i].Identifier} has an instance of itself.");
                         }
-                        else
-                        {
-                            throw new ArgumentException($"The creation of structs is not possible, since multiple structs creates an endless circular construction.");
-                        }
+                        throw new ArgumentException(
+                            $"The creation of structs is not possible, since multiple structs creates an endless circular construction.");
                     }
                 }
             }
@@ -56,9 +56,17 @@ namespace eeCCompiler.Nodes
             var yHasX = false;
             var xHasY = false;
 
-            if(second.StructParts.StructPartList.Exists(structDcl => structDcl is StructDecleration && (structDcl as StructDecleration).StructIdentifier.Equals(first.Identifier)))
+            if (
+                second.StructParts.StructPartList.Exists(
+                    structDcl =>
+                        structDcl is StructDecleration &&
+                        (structDcl as StructDecleration).StructIdentifier.Equals(first.Identifier)))
                 yHasX = true;
-            if (first.StructParts.StructPartList.Exists(structDcl => structDcl is StructDecleration && (structDcl as StructDecleration).StructIdentifier.Equals(second.Identifier)))
+            if (
+                first.StructParts.StructPartList.Exists(
+                    structDcl =>
+                        structDcl is StructDecleration &&
+                        (structDcl as StructDecleration).StructIdentifier.Equals(second.Identifier)))
                 xHasY = true;
 
             int returnValue;
@@ -70,7 +78,8 @@ namespace eeCCompiler.Nodes
             else if (!yHasX && !xHasY)
                 returnValue = 0;
             else
-                throw new ArgumentException($"Struct of type {first.Identifier} and struct of type {second.Identifier} constructs an endless circular construction.");
+                throw new ArgumentException(
+                    $"Struct of type {first.Identifier} and struct of type {second.Identifier} constructs an endless circular construction.");
 
             return returnValue;
         }

@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
-using eeCCompiler.Interfaces;
 
 namespace eeCCompiler.Visitors
 {
-    class ExprCheck : Visitor
+    internal class ExprCheck : Visitor
     {
         public IValue Value { get; set; }
 
@@ -16,17 +11,35 @@ namespace eeCCompiler.Visitors
         {
             var newChecker = new ExprCheck();
             exprParen.Expression.Accept(newChecker);
-            this.Value = newChecker.Value;
+            Value = newChecker.Value;
         }
+
         public override void Visit(ExpressionVal expressionVal)
         {
-
         }
-        public override void Visit(ExpressionValOpExpr expressionValOpExpr) { }
-        public override void Visit(ExpressionParenOpExpr expressionParenOpExpr) { }
-        public override void Visit(ExpressionNegate expressionNegate) { }
-        public override void Visit(ExpressionMinus expressionVal) { }
-        public override void Visit(FuncCall expressionVal) { }
-        public override void Visit(ListType listType) { }
+
+        public override void Visit(ExpressionValOpExpr expressionValOpExpr)
+        {
+        }
+
+        public override void Visit(ExpressionParenOpExpr expressionParenOpExpr)
+        {
+        }
+
+        public override void Visit(ExpressionNegate expressionNegate)
+        {
+        }
+
+        public override void Visit(ExpressionMinus expressionVal)
+        {
+        }
+
+        public override void Visit(FuncCall expressionVal)
+        {
+        }
+
+        public override void Visit(ListType listType)
+        {
+        }
     }
 }

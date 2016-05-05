@@ -1,5 +1,4 @@
-﻿using eeCCompiler.Interfaces;
-using eeCCompiler.Visitors;
+﻿using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
 {

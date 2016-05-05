@@ -1,15 +1,15 @@
-﻿using eeCCompiler.Interfaces;
-using eeCCompiler.Visitors;
+﻿using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
 {
     public class Operator : AbstractSyntaxTree
     {
-        public bool IsStringOpr { get; set; }
         public Operator(Indexes.Indexes.SymbolIndex symbol)
         {
             Symbol = symbol;
         }
+
+        public bool IsStringOpr { get; set; }
 
         public Indexes.Indexes.SymbolIndex Symbol { get; set; }
 

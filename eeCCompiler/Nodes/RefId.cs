@@ -10,8 +10,10 @@ namespace eeCCompiler.Nodes
             Identifier = identifier;
             Type = new Type("Not set in typechecker");
         }
+
         public Identifier Identifier { get; set; }
         public Type Type { get; set; }
+
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);

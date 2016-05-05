@@ -10,6 +10,7 @@ namespace eeCCompiler.Nodes
             ListIndex = listIndex;
             Identifier = identifier;
         }
+
         public Identifier Identifier { get; set; }
         public ListIndex ListIndex { get; set; }
 
@@ -17,6 +18,7 @@ namespace eeCCompiler.Nodes
         {
             visitor.Visit(this);
         }
+
         public override string ToString()
         {
             return Identifier.Id;

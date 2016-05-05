@@ -1,4 +1,3 @@
-using eeCCompiler.Interfaces;
 using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
@@ -9,7 +8,9 @@ namespace eeCCompiler.Nodes
         {
             IsRefrence = isRefrence;
         }
+
         public bool IsRefrence { get; set; }
+
         public override void Accept(IEecVisitor visitor)
         {
             visitor.Visit(this);

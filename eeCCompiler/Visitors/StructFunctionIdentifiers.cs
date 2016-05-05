@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using eeCCompiler.Nodes;
 
 namespace eeCCompiler.Visitors
 {
-    class StructFunctionIdentifiers : Visitor
+    internal class StructFunctionIdentifiers : Visitor
     {
-        public List<Identifier> Identifiers { get; set; }
         public StructFunctionIdentifiers(List<Identifier> identifiers)
         {
             Identifiers = identifiers;
         }
+
+        public List<Identifier> Identifiers { get; set; }
 
         public override void Visit(Identifier identifier)
         {
@@ -20,13 +20,15 @@ namespace eeCCompiler.Visitors
             }
         }
     }
-    class RefrenceIdentifiers : Visitor
+
+    internal class RefrenceIdentifiers : Visitor
     {
-        public List<Identifier> Identifiers { get; set; }
         public RefrenceIdentifiers(List<Identifier> identifiers)
         {
             Identifiers = identifiers;
         }
+
+        public List<Identifier> Identifiers { get; set; }
 
         public override void Visit(Identifier identifier)
         {
@@ -36,13 +38,15 @@ namespace eeCCompiler.Visitors
             }
         }
     }
-    class RenamePassByValueStructIdentifiers : Visitor
+
+    internal class RenamePassByValueStructIdentifiers : Visitor
     {
-        public List<Identifier> Identifiers { get; set; }
         public RenamePassByValueStructIdentifiers(List<Identifier> identifiers)
         {
             Identifiers = identifiers;
         }
+
+        public List<Identifier> Identifiers { get; set; }
 
         public override void Visit(Identifier identifier)
         {

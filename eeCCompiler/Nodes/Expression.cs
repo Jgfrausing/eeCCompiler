@@ -130,6 +130,7 @@ namespace eeCCompiler.Nodes
             return $"{ExpressionParen} {Operator} {Expression}";
         }
     }
+
     public class ExpressionExprOpExpr : AbstractSyntaxTree, IExpression
     {
         public ExpressionExprOpExpr(IExpression expression, Operator _operator, IExpression expressionParen)

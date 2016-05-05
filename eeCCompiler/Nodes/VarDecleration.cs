@@ -24,7 +24,9 @@ namespace eeCCompiler.Nodes
 
         public override bool Equals(object obj) //Vurderer om de har samme identifier
         {
-            return obj is VarDecleration ? (obj as VarDecleration).Identifier.ToString() == Identifier.ToString() : false;
+            return obj is VarDecleration
+                ? (obj as VarDecleration).Identifier.ToString() == Identifier.ToString()
+                : false;
         }
     }
 

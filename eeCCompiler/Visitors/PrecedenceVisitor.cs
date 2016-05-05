@@ -1,32 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
 
 namespace eeCCompiler.Visitors
 {
-    class PrecedenceVisitor : Visitor
+    internal class PrecedenceVisitor : Visitor
     {
         public ExpressionChecker _expressionChecker;
-        public IExpression Org { get; set; }
-        public int level { get; set; }
-        public Dictionary<IValue, IExpression> IvalIExprDict; 
+        public Dictionary<IValue, IExpression> IvalIExprDict;
+
         public PrecedenceVisitor()
         {
             _expressionChecker = new ExpressionChecker(new Typechecker(new List<string>()));
             level = 0;
             IvalIExprDict = new Dictionary<IValue, IExpression>();
         }
+
+        public IExpression Org { get; set; }
+        public int level { get; set; }
+
         public override void Visit(VarDecleration vardecl)
         {
             var cancer = vardecl.Expression;
             ReplaceValues(ref cancer);
             vardecl.Expression = cancer;
             Org = vardecl.Expression;
-            IExpression temp = vardecl.Expression;
+            var temp = vardecl.Expression;
             while (level < 6)
             {
                 PrecedenceFix2(ref temp, 0);
@@ -40,11 +39,11 @@ namespace eeCCompiler.Visitors
             }
             vardecl.Expression = temp;
         }
+
         public override void Visit(ExpressionValOpExpr expressionValOpExpr)
         {
             if (LevelFinder(expressionValOpExpr.Operator.Symbol) == level)
             {
-
             }
         }
 
@@ -53,33 +52,31 @@ namespace eeCCompiler.Visitors
             if (symbol == Indexes.Indexes.SymbolIndex.Times || symbol == Indexes.Indexes.SymbolIndex.Div ||
                 symbol == Indexes.Indexes.SymbolIndex.Mod)
                 return 5;
-            else if (symbol == Indexes.Indexes.SymbolIndex.Plus || symbol == Indexes.Indexes.SymbolIndex.Minus)
+            if (symbol == Indexes.Indexes.SymbolIndex.Plus || symbol == Indexes.Indexes.SymbolIndex.Minus)
                 return 4;
-            else if (symbol == Indexes.Indexes.SymbolIndex.Lt || symbol == Indexes.Indexes.SymbolIndex.Gt
+            if (symbol == Indexes.Indexes.SymbolIndex.Lt || symbol == Indexes.Indexes.SymbolIndex.Gt
                 || symbol == Indexes.Indexes.SymbolIndex.Gteq || symbol == Indexes.Indexes.SymbolIndex.Lteq)
                 return 3;
-            else if (symbol == Indexes.Indexes.SymbolIndex.Eqeq || symbol == Indexes.Indexes.SymbolIndex.Exclameq)
+            if (symbol == Indexes.Indexes.SymbolIndex.Eqeq || symbol == Indexes.Indexes.SymbolIndex.Exclameq)
                 return 2;
-            else if (symbol == Indexes.Indexes.SymbolIndex.And)
+            if (symbol == Indexes.Indexes.SymbolIndex.And)
                 return 1;
-            else //Kun Or tilbage
-                return 0;
+            return 0;
         }
-
 
 
         public void PrecedenceFix2(ref IExpression expression, int ExprNumber)
         {
-
             if (expression is ExpressionValOpExpr)
             {
                 if (expression is ExpressionValOpExpr)
                 {
-                    ExpressionValOpExpr expressionValOpExpr = expression as ExpressionValOpExpr;
+                    var expressionValOpExpr = expression as ExpressionValOpExpr;
 
                     while (expressionValOpExpr.Expression is ExpressionValOpExpr)
                     {
-                        if (LevelFinder((expressionValOpExpr.Expression as ExpressionValOpExpr).Operator.Symbol) == level)
+                        if (LevelFinder((expressionValOpExpr.Expression as ExpressionValOpExpr).Operator.Symbol) ==
+                            level)
                         {
                             var Symbol = (expressionValOpExpr.Expression as ExpressionValOpExpr).Operator.Symbol;
                             var rightside = (expressionValOpExpr.Expression as ExpressionValOpExpr).Expression;
@@ -102,19 +99,19 @@ namespace eeCCompiler.Visitors
             }
             else if (expression is ExpressionParen)
             {
-                IExpression temp = (expression as ExpressionParen).Expression;
+                var temp = (expression as ExpressionParen).Expression;
                 PrecedenceFix2(ref temp, ++ExprNumber);
                 (expression as ExpressionParen).Expression = temp;
             }
             else if (expression is ExpressionNegate)
             {
-                IExpression temp = (expression as ExpressionNegate).Expression;
+                var temp = (expression as ExpressionNegate).Expression;
                 PrecedenceFix2(ref temp, ++ExprNumber);
                 (expression as ExpressionNegate).Expression = temp;
             }
             else if (expression is ExpressionMinus)
             {
-                IExpression temp = (expression as ExpressionMinus).Expression;
+                var temp = (expression as ExpressionMinus).Expression;
                 PrecedenceFix2(ref temp, ++ExprNumber);
                 (expression as ExpressionMinus).Expression = temp;
             }
@@ -122,7 +119,7 @@ namespace eeCCompiler.Visitors
             {
                 var ExpressionChecker = new PrecedenceVisitor();
                 ExpressionChecker.Org = (expression as ExpressionExprOpExpr).ExpressionParen;
-                IExpression temp1 = (expression as ExpressionExprOpExpr).ExpressionParen;
+                var temp1 = (expression as ExpressionExprOpExpr).ExpressionParen;
                 while (ExpressionChecker.level < 6)
                 {
                     ExpressionChecker.PrecedenceFix2(ref temp1, 0);
@@ -132,14 +129,13 @@ namespace eeCCompiler.Visitors
 
                 var ExpressionParenChecker = new PrecedenceVisitor();
                 ExpressionParenChecker.Org = (expression as ExpressionExprOpExpr).Expression;
-                IExpression temp2 = (expression as ExpressionExprOpExpr).Expression;
+                var temp2 = (expression as ExpressionExprOpExpr).Expression;
                 while (ExpressionParenChecker.level < 6)
                 {
                     ExpressionParenChecker.PrecedenceFix2(ref temp2, 0);
                     ExpressionParenChecker.level++;
                 }
                 (expression as ExpressionExprOpExpr).Expression = ExpressionParenChecker.Org;
-                
             }
             //else if (expression is ExpressionParenOpExpr)
             //{
@@ -182,7 +178,6 @@ namespace eeCCompiler.Visitors
             //        //}
             //    }
             //}
-
         }
 
 
@@ -193,48 +188,55 @@ namespace eeCCompiler.Visitors
                 var expressionParenOpExpr = expression as ExpressionParenOpExpr;
                 var val = _expressionChecker.CheckExpression(expressionParenOpExpr.ExpressionParen);
                 IvalIExprDict.Add(val, expressionParenOpExpr.ExpressionParen);
-                expression = new ExpressionValOpExpr(expressionParenOpExpr.Expression, expressionParenOpExpr.Operator, val);
+                expression = new ExpressionValOpExpr(expressionParenOpExpr.Expression, expressionParenOpExpr.Operator,
+                    val);
 
                 var cancer = (expression as ExpressionValOpExpr).Expression;
                 ReplaceValues(ref cancer);
                 (expression as ExpressionValOpExpr).Expression = cancer;
             }
-            #region ExpressionParen
+                #region ExpressionParen
+
             else if (expression is ExpressionParen)
             {
                 var cancer = (expression as ExpressionParen).Expression;
                 ReplaceValues(ref cancer);
                 (expression as ExpressionParen).Expression = cancer;
             }
-            #endregion
+                #endregion
 
-            #region ExpressionNegate
+                #region ExpressionNegate
+
             else if (expression is ExpressionNegate)
             {
                 var cancer = (expression as ExpressionNegate).Expression;
                 ReplaceValues(ref cancer);
                 (expression as ExpressionNegate).Expression = cancer;
             }
-            #endregion
+                #endregion
 
-            #region ExpressionMinus
+                #region ExpressionMinus
+
             else if (expression is ExpressionMinus)
             {
                 var cancer = (expression as ExpressionMinus).Expression;
                 ReplaceValues(ref cancer);
                 (expression as ExpressionMinus).Expression = cancer;
             }
-            #endregion
+                #endregion
 
-            #region ExpressionValOpExpr
+                #region ExpressionValOpExpr
+
             else if (expression is ExpressionValOpExpr)
             {
                 var cancer = (expression as ExpressionValOpExpr).Expression;
                 ReplaceValues(ref cancer);
                 (expression as ExpressionValOpExpr).Expression = cancer;
             }
+
             #endregion
         }
+
         public void ReplaceValue(IExpression expr, IValue val, IExpression Parent, IExpression exprParen)
         {
             if (expr is ExpressionValOpExpr)
@@ -243,15 +245,16 @@ namespace eeCCompiler.Visitors
                 {
                     if (Parent is ExpressionValOpExpr)
                     {
-                        Parent = new ExpressionParenOpExpr((expr as ExpressionValOpExpr).Expression, (Parent as ExpressionValOpExpr).Operator, exprParen);
+                        Parent = new ExpressionParenOpExpr((expr as ExpressionValOpExpr).Expression,
+                            (Parent as ExpressionValOpExpr).Operator, exprParen);
                     }
                     else if (Parent is ExpressionExprOpExpr)
                     {
                         var Opr = ((Parent as ExpressionExprOpExpr).ExpressionParen as ExpressionValOpExpr).Operator;
-                        (Parent as ExpressionExprOpExpr).ExpressionParen = new ExpressionParenOpExpr((expr as ExpressionValOpExpr).Expression, Opr, exprParen);
+                        (Parent as ExpressionExprOpExpr).ExpressionParen =
+                            new ExpressionParenOpExpr((expr as ExpressionValOpExpr).Expression, Opr, exprParen);
                     }
                 }
-
             }
             else if (expr is ExpressionExprOpExpr)
             {
@@ -265,15 +268,16 @@ namespace eeCCompiler.Visitors
                 {
                     if (Parent is ExpressionValOpExpr)
                     {
-                        Parent = new ExpressionParenOpExpr((Parent as ExpressionValOpExpr).Expression, (Parent as ExpressionValOpExpr).Operator, exprParen);
+                        Parent = new ExpressionParenOpExpr((Parent as ExpressionValOpExpr).Expression,
+                            (Parent as ExpressionValOpExpr).Operator, exprParen);
                     }
                     else if (Parent is ExpressionExprOpExpr)
                     {
-                        (Parent as ExpressionExprOpExpr).Expression = (exprParen);
+                        (Parent as ExpressionExprOpExpr).Expression = exprParen;
                     }
                     else if (Parent is ExpressionParenOpExpr)
                     {
-                        (Parent as ExpressionParenOpExpr).Expression = (exprParen);
+                        (Parent as ExpressionParenOpExpr).Expression = exprParen;
                     }
                 }
             }
@@ -284,10 +288,11 @@ namespace eeCCompiler.Visitors
                 ReplaceValue(derpface.ExpressionParen, val, expr, exprParen);
             }
         }
+
         public IExpression ExprWalker(int ExprNumber)
         {
             var Walk = Org;
-            for (int i = 0; i < ExprNumber; i++)
+            for (var i = 0; i < ExprNumber; i++)
             {
                 if (Walk is ExpressionValOpExpr)
                 {
@@ -297,29 +302,30 @@ namespace eeCCompiler.Visitors
                 {
                     Walk = (Walk as ExpressionParenOpExpr).Expression;
                 }
-
             }
             if (Walk is ExpressionValOpExpr)
             {
                 if ((Walk as ExpressionValOpExpr).Expression is ExpressionValOpExpr)
-                    (Walk as ExpressionValOpExpr).Expression = new ExpressionVal(((Walk as ExpressionValOpExpr).Expression as ExpressionValOpExpr).Value);
+                    (Walk as ExpressionValOpExpr).Expression =
+                        new ExpressionVal(((Walk as ExpressionValOpExpr).Expression as ExpressionValOpExpr).Value);
             }
             return Walk;
         }
 
+        //                expression = new ExpressionParenOpExpr(expExpression.Expression, expExpression.Operator, exp2);
+        //                var exp2 = new ExpressionValOpExpr(new ExpressionVal(expExpression.Value), exp.Operator, exp.Value);
+        //                var expExpression = exp.Expression as ExpressionValOpExpr;
+        //            {
+        //            if (LevelFinder(exp.Operator.Symbol) == level)
+        //        {
+        //        if (exp.Expression is ExpressionValOpExpr)
+        //        var exp = expression as ExpressionValOpExpr;
+        //    {
+        //    if (expression is ExpressionValOpExpr)
+        //{
+
 
         //public void PrecedenceFixer(ref IExpression expression, int level)
-        //{
-        //    if (expression is ExpressionValOpExpr)
-        //    {
-        //        var exp = expression as ExpressionValOpExpr;
-        //        if (exp.Expression is ExpressionValOpExpr)
-        //        {
-        //            if (LevelFinder(exp.Operator.Symbol) == level)
-        //            {
-        //                var expExpression = exp.Expression as ExpressionValOpExpr;
-        //                var exp2 = new ExpressionValOpExpr(new ExpressionVal(expExpression.Value), exp.Operator, exp.Value);
-        //                expression = new ExpressionParenOpExpr(expExpression.Expression, expExpression.Operator, exp2);
         //                var temp = (expression as ExpressionParenOpExpr).Expression;
         //                PrecedenceFixer(ref temp, level);
         //                (expression as ExpressionParenOpExpr).Expression = temp;

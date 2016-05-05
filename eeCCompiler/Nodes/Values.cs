@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Visitors;
 
@@ -21,7 +20,7 @@ namespace eeCCompiler.Nodes
 
         public override string ToString()
         {
-            return Value ? "1" : "0";   
+            return Value ? "1" : "0";
         }
     }
 

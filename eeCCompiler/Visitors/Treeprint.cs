@@ -7,8 +7,8 @@ namespace eeCCompiler.Visitors
 {
     internal class Treeprint : Visitor
     {
-        private int _count;
         private const string Indenter = "  ";
+        private int _count;
 
         public override void Visit(Root root)
         {

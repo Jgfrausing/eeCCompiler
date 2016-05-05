@@ -18,7 +18,7 @@ namespace eeCCompiler.Nodes
         public bool IsListFunction => ListType != null;
 
         public bool IsBodyPart { get; set; }
-        public eeCCompiler.Nodes.Type ListType { get; set; }
+        public Type ListType { get; set; }
 
         public override void Accept(IEecVisitor visitor)
         {

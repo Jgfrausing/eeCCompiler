@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
-using Type = System.Type;
 
 namespace eeCCompiler.Visitors
 {
@@ -24,7 +22,18 @@ namespace eeCCompiler.Visitors
         public Dictionary<string, Function> Funcs { get; set; }
         public Dictionary<string, StructDefinition> Structs { get; set; }
 
+        public Dictionary<string, IValue> saveScope()
+        {
+            var preBodyIdentifiers = new Dictionary<string, IValue>();
+            foreach (var val in Identifiers)
+            {
+                preBodyIdentifiers.Add(val.Key, val.Value);
+            }
+            return preBodyIdentifiers;
+        }
+
         #region Visits
+
         public override void Visit(Root root)
         {
             root.Includes.Accept(this);
@@ -64,7 +73,9 @@ namespace eeCCompiler.Visitors
             foreach (var stpart in structDefinition.StructParts.StructPartList)
             {
                 if (stpart is FunctionDeclaration)
-                    (stpart as FunctionDeclaration).TypeId.Identifier.Id = structDefinition.Identifier.Id + "_" + (stpart as FunctionDeclaration).TypeId.Identifier.Id;
+                    (stpart as FunctionDeclaration).TypeId.Identifier.Id = structDefinition.Identifier.Id + "_" +
+                                                                           (stpart as FunctionDeclaration).TypeId
+                                                                               .Identifier.Id;
             }
             structDefinition.StructParts.Accept(this);
             Identifiers = preBodyIdentifiers;
@@ -75,25 +86,30 @@ namespace eeCCompiler.Visitors
         {
             if (!(structDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq))
                 Errors.Add("The " + structDecleration.AssignmentOperator.Symbol + " can not be used on a struct");
-            if (!(Identifiers.ContainsKey(structDecleration.Identifier.Id)))
+            if (!Identifiers.ContainsKey(structDecleration.Identifier.Id))
             {
                 structDecleration.Identifier.Accept(this);
                 if (Structs.ContainsKey(structDecleration.StructIdentifier.Id))
                 {
-                    Identifiers[structDecleration.Identifier.Id] = new StructValue(Structs[structDecleration.StructIdentifier.Id]);
-                    Dictionary<string, IValue> structVariables = new Dictionary<string, IValue>();
-                    foreach (var structPart in Structs[structDecleration.StructIdentifier.Id].StructParts.StructPartList)
+                    Identifiers[structDecleration.Identifier.Id] =
+                        new StructValue(Structs[structDecleration.StructIdentifier.Id]);
+                    var structVariables = new Dictionary<string, IValue>();
+                    foreach (var structPart in Structs[structDecleration.StructIdentifier.Id].StructParts.StructPartList
+                        )
                     {
                         if (structPart is VarDecleration)
                         {
-                            structVariables.Add((structPart as VarDecleration).Identifier.Id, _expressionChecker.CheckExpression((structPart as VarDecleration).Expression));
+                            structVariables.Add((structPart as VarDecleration).Identifier.Id,
+                                _expressionChecker.CheckExpression((structPart as VarDecleration).Expression));
                         }
                         else if (structPart is StructDecleration)
                         {
                             if (Structs.ContainsKey((structPart as StructDecleration).StructIdentifier.Id))
-                                structVariables.Add((structPart as StructDecleration).Identifier.Id, new StructValue(Structs[(structPart as StructDecleration).StructIdentifier.Id]));
+                                structVariables.Add((structPart as StructDecleration).Identifier.Id,
+                                    new StructValue(Structs[(structPart as StructDecleration).StructIdentifier.Id]));
                             else
-                                Errors.Add("struct " + (structPart as StructDecleration).StructIdentifier.Id + " was not declared but was used in program");
+                                Errors.Add("struct " + (structPart as StructDecleration).StructIdentifier.Id +
+                                           " was not declared but was used in program");
                         }
                     }
 
@@ -105,28 +121,34 @@ namespace eeCCompiler.Visitors
                             if (expressionVariable is StructValue)
                             {
                                 var exprStructIden = (expressionVariable as StructValue).Struct.Identifier.Id;
-                                var declStructIden = (structVariables[varDecl.Identifier.Id] as StructValue).Struct.Identifier.Id;
+                                var declStructIden =
+                                    (structVariables[varDecl.Identifier.Id] as StructValue).Struct.Identifier.Id;
                                 if (exprStructIden != declStructIden)
-                                    Errors.Add("value of struct variable " + varDecl.Identifier.Id + " is not of same type as expression");
+                                    Errors.Add("value of struct variable " + varDecl.Identifier.Id +
+                                               " is not of same type as expression");
                             }
-                            else if (!(structVariables[varDecl.Identifier.Id].GetType().ToString() == _expressionChecker.CheckExpression(varDecl.Expression).GetType().ToString()))
-                                Errors.Add("value of struct variable " + varDecl.Identifier.Id + " is not of same type as expression");
+                            else if (
+                                !(structVariables[varDecl.Identifier.Id].GetType().ToString() ==
+                                  _expressionChecker.CheckExpression(varDecl.Expression).GetType().ToString()))
+                                Errors.Add("value of struct variable " + varDecl.Identifier.Id +
+                                           " is not of same type as expression");
                         }
                         else
-                            Errors.Add("struct " + structDecleration.StructIdentifier.Id + " does not contain a variable called " + varDecl.Identifier.Id);
+                            Errors.Add("struct " + structDecleration.StructIdentifier.Id +
+                                       " does not contain a variable called " + varDecl.Identifier.Id);
                     }
                 }
                 else
-                    Errors.Add(structDecleration.StructIdentifier.Id + " struct was not declared but was used in program");
+                    Errors.Add(structDecleration.StructIdentifier.Id +
+                               " struct was not declared but was used in program");
             }
             else if (!(Identifiers[structDecleration.Identifier.Id] is StructValue))
                 Errors.Add(structDecleration.Identifier.Id + " is not of type " + structDecleration.StructIdentifier.Id);
-            else if (!((Identifiers[structDecleration.Identifier.Id] as StructValue).Struct.Identifier.Id == Structs[structDecleration.StructIdentifier.Id].Identifier.Id))
-                Errors.Add(structDecleration.Identifier.Id + " is not of type " + structDecleration.StructIdentifier.Id);
-
-
-
-
+            else if (
+                !((Identifiers[structDecleration.Identifier.Id] as StructValue).Struct.Identifier.Id ==
+                  Structs[structDecleration.StructIdentifier.Id].Identifier.Id))
+                Errors.Add(structDecleration.Identifier.Id + " is not of type " +
+                           structDecleration.StructIdentifier.Id);
         }
 
         public override void Visit(ExpressionNegate expressionNegate)
@@ -175,39 +197,46 @@ namespace eeCCompiler.Visitors
             if (Identifiers.ContainsKey((varInStructDecleration.Refrence.StructRefrence as Identifier).Id))
             {
                 if (Identifiers[(varInStructDecleration.Refrence.StructRefrence as Identifier).Id] is StructValue)
-                { 
-                    value1 = _expressionChecker.StructRefrenceChecker(varInStructDecleration.Refrence, 
-                        (Identifiers[(varInStructDecleration.Refrence.StructRefrence as Identifier).Id] as StructValue).Struct.Identifier.Id,
+                {
+                    value1 = _expressionChecker.StructRefrenceChecker(varInStructDecleration.Refrence,
+                        (Identifiers[(varInStructDecleration.Refrence.StructRefrence as Identifier).Id] as StructValue)
+                            .Struct.Identifier.Id,
                         varInStructDecleration.Refrence);
-                    if (value1.GetType().ToString() != _expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType().ToString())
+                    if (value1.GetType().ToString() !=
+                        _expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType().ToString())
                     {
-                        Errors.Add("Struct variable is of type" + value1.GetType().ToString() +  "and expression is of type " 
-                            + _expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType().ToString());
+                        Errors.Add("Struct variable is of type" + value1.GetType() + "and expression is of type "
+                                   + _expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType());
                     }
                     //Den skal ikke gøre noget hvis det er lykkes da vi er ligeglade med værdien.
                 }
                 else
-                    Errors.Add((varInStructDecleration.Refrence.StructRefrence as Identifier).Id + " is not of type struct");
+                    Errors.Add((varInStructDecleration.Refrence.StructRefrence as Identifier).Id +
+                               " is not of type struct");
             }
             else
             {
                 Errors.Add((varInStructDecleration.Refrence.StructRefrence as Identifier).Id + " does not exist");
             }
         }
+
         public override void Visit(VarDecleration varDecleration)
         {
             if (!Identifiers.ContainsKey(varDecleration.Identifier.Id))
                 varDecleration.IsFirstUse = true;
 
-            if (!(varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq) && varDecleration.IsFirstUse)
-                Errors.Add("The " + varDecleration.AssignmentOperator.Symbol + " can not be used on an uninitialised variable");
+            if (!(varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq) &&
+                varDecleration.IsFirstUse)
+                Errors.Add("The " + varDecleration.AssignmentOperator.Symbol +
+                           " can not be used on an uninitialised variable");
             varDecleration.Identifier.Accept(this);
 
             varDecleration.AssignmentOperator.Accept(this);
             var value = _expressionChecker.CheckExpression(varDecleration.Expression);
-            
+
             if (Identifiers[varDecleration.Identifier.Id] is Identifier)
-                (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType = _expressionChecker.CheckValueType(value);
+                (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType =
+                    _expressionChecker.CheckValueType(value);
             else
             {
                 varDecleration.Identifier.Type.ValueType = _expressionChecker.CheckValueType(value);
@@ -219,21 +248,23 @@ namespace eeCCompiler.Visitors
             else if (Identifiers[varDecleration.Identifier.Id] is Identifier)
             {
                 if (value is StructValue)
-                    (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType = (value as StructValue).Struct.Identifier.Id;
+                    (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType =
+                        (value as StructValue).Struct.Identifier.Id;
                 else if (value is ListValue)
                 {
-                    (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType = _expressionChecker.CheckValueType(value);
+                    (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType =
+                        _expressionChecker.CheckValueType(value);
                     (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.IsListValue = true;
                 }
                 Identifiers[varDecleration.Identifier.Id] = value;
-                
             }
             else if (Identifiers[varDecleration.Identifier.Id].GetType().Name == value.GetType().Name)
             {
                 if (Identifiers[varDecleration.Identifier.Id] is BoolValue &&
-                   !(varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq))
+                    !(varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq))
                     Errors.Add(varDecleration.AssignmentOperator.Symbol + " can not be used with two bool values");
-                else if (Identifiers[varDecleration.Identifier.Id] is StringValue && varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Minuseq)
+                else if (Identifiers[varDecleration.Identifier.Id] is StringValue &&
+                         varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Minuseq)
                     Errors.Add(varDecleration.AssignmentOperator.Symbol + " can not be used with two string values");
                 Identifiers[varDecleration.Identifier.Id] = value;
             }
@@ -249,6 +280,7 @@ namespace eeCCompiler.Visitors
             base.Visit(body);
             Identifiers = preBodyIdentifiers;
         }
+
         public override void Visit(FunctionDeclarations functionsDeclarations)
         {
             foreach (var decl in functionsDeclarations.FunctionDeclarationList)
@@ -257,16 +289,18 @@ namespace eeCCompiler.Visitors
                 decl.Accept(this);
             }
         }
+
         public override void Visit(FunctionDeclaration functionDeclaration)
         {
-            if (!(Funcs.ContainsKey(functionDeclaration.TypeId.Identifier.Id)))
+            if (!Funcs.ContainsKey(functionDeclaration.TypeId.Identifier.Id))
             {
                 var preBodyIdentifiers = saveScope();
                 foreach (var parameter in functionDeclaration.Parameters.TypeIds)
                 {
                     if (parameter.TypeId.ValueType.ToString() == "void")
                         Errors.Add("Parameter to function can not be of type void");
-                    Identifiers.Add(parameter.TypeId.Identifier.Id, _expressionChecker.TypeChecker(parameter.TypeId.ValueType.ToString()));
+                    Identifiers.Add(parameter.TypeId.Identifier.Id,
+                        _expressionChecker.TypeChecker(parameter.TypeId.ValueType.ToString()));
                 }
                 bool returnFound;
 
@@ -277,14 +311,16 @@ namespace eeCCompiler.Visitors
                         (bodyPart as VarDecleration).Accept(this);
                     }
                 }
-                IValue Value = _expressionChecker.TypeChecker(functionDeclaration.TypeId.ValueType.ToString());
+                var Value = _expressionChecker.TypeChecker(functionDeclaration.TypeId.ValueType.ToString());
                 if (functionDeclaration.TypeId.ValueType.ToString() == "void")
                     returnFound = true;
                 else
                     returnFound = _expressionChecker.ReturnChecker(Value, functionDeclaration.Body.Bodyparts);
                 if (returnFound == false)
                     Errors.Add("not all paths in " + functionDeclaration.TypeId.Identifier.Id + " return a value");
-                Funcs.Add(functionDeclaration.TypeId.Identifier.Id, new Function(functionDeclaration, _expressionChecker.TypeChecker(functionDeclaration.TypeId.ValueType.ToString())));
+                Funcs.Add(functionDeclaration.TypeId.Identifier.Id,
+                    new Function(functionDeclaration,
+                        _expressionChecker.TypeChecker(functionDeclaration.TypeId.ValueType.ToString())));
                 Identifiers = preBodyIdentifiers;
             }
             else
@@ -294,35 +330,40 @@ namespace eeCCompiler.Visitors
         public override void Visit(IfStatement ifStatement)
         {
             if (!(_expressionChecker.CheckExpression(ifStatement.Expression) is BoolValue))
-                Errors.Add("if statements expects bool but got " + _expressionChecker.CheckExpression(ifStatement.Expression).GetType().Name);
+                Errors.Add("if statements expects bool but got " +
+                           _expressionChecker.CheckExpression(ifStatement.Expression).GetType().Name);
             Visit(ifStatement.Body);
             Visit(ifStatement.ElseStatement);
         }
 
         public override void Visit(RepeatExpr repeatExpr)
         {
-
             if (!(_expressionChecker.CheckExpression(repeatExpr.Expression) is BoolValue))
-                Errors.Add("repeats expects a bool but got " + _expressionChecker.CheckExpression(repeatExpr.Expression).GetType().Name);
+                Errors.Add("repeats expects a bool but got " +
+                           _expressionChecker.CheckExpression(repeatExpr.Expression).GetType().Name);
             Visit(repeatExpr.Body);
         }
 
         public override void Visit(RepeatFor repeatFor)
         {
-            Dictionary<string, IValue> preRepeatIdentifiers = saveScope();
+            var preRepeatIdentifiers = saveScope();
             Visit(repeatFor.VarDecleration);
 
             if (!(Identifiers[repeatFor.VarDecleration.Identifier.Id] is NumValue))
-                Errors.Add(Identifiers[repeatFor.VarDecleration.Identifier.Id] + " was expected to be a num value, but was instead " + Identifiers[repeatFor.VarDecleration.Identifier.Id].GetType().Name);
+                Errors.Add(Identifiers[repeatFor.VarDecleration.Identifier.Id] +
+                           " was expected to be a num value, but was instead " +
+                           Identifiers[repeatFor.VarDecleration.Identifier.Id].GetType().Name);
             if (!(_expressionChecker.CheckExpression(repeatFor.Expression) is NumValue))
-                Errors.Add("Expected NumValue in repeat expression but got " + _expressionChecker.CheckExpression(repeatFor.Expression).GetType().Name);
+                Errors.Add("Expected NumValue in repeat expression but got " +
+                           _expressionChecker.CheckExpression(repeatFor.Expression).GetType().Name);
 
             Visit(repeatFor.Direction);
             Visit(repeatFor.Body);
             Identifiers = preRepeatIdentifiers;
         }
 
-        public override void Visit(Refrence refrence) //Bliver kun besøgt hvis refrence er en bodypart aka når vi har et funktionskald uden for en vardecl.
+        public override void Visit(Refrence refrence)
+            //Bliver kun besøgt hvis refrence er en bodypart aka når vi har et funktionskald uden for en vardecl.
         {
             _expressionChecker.NakedFuncCallChecker(refrence);
         }
@@ -331,9 +372,9 @@ namespace eeCCompiler.Visitors
         {
             funcCall.IsBodyPart = true;
             funcCall.Identifier.Id = "program_" + funcCall.Identifier.Id;
-            if (!(Funcs.ContainsKey(funcCall.Identifier.Id)))
+            if (!Funcs.ContainsKey(funcCall.Identifier.Id))
             {
-                string expressions = "";
+                var expressions = "";
                 funcCall.Expressions.ForEach(x => expressions += x.ToString() + ",");
                 if (expressions.Length > 0)
                     expressions = expressions.Remove(expressions.Length - 1, 1);
@@ -341,17 +382,9 @@ namespace eeCCompiler.Visitors
             }
             else
                 _expressionChecker.ParameterChecker(Funcs[funcCall.Identifier.Id].FuncDecl, funcCall);
-       }
-        #endregion
-        public Dictionary<string, IValue> saveScope()
-        {
-            var preBodyIdentifiers = new Dictionary<string, IValue>();
-            foreach (var val in Identifiers)
-            {
-                preBodyIdentifiers.Add(val.Key, val.Value);
-            }
-            return preBodyIdentifiers;
         }
+
+        #endregion
     }
 
     public class UnInitialisedVariable : IValue
@@ -361,18 +394,22 @@ namespace eeCCompiler.Visitors
             //Skal aldrig accepteres så bliver aldrig kaldt (y)
         }
     }
+
     public class StructValue : IValue
     {
         public StructValue(StructDefinition identifier)
         {
-            this.Struct = identifier;
+            Struct = identifier;
         }
+
         public StructDefinition Struct { get; set; }
+
         public void Accept(IEecVisitor visitor)
         {
             //Skal aldrig accepteres så bliver aldrig kaldt (y)
         }
     }
+
     public class Function : IValue
     {
         public Function(FunctionDeclaration func, IValue value)
@@ -380,13 +417,16 @@ namespace eeCCompiler.Visitors
             FuncDecl = func;
             Value = value;
         }
+
         public IValue Value { get; set; }
         public FunctionDeclaration FuncDecl { get; set; }
+
         public void Accept(IEecVisitor visitor)
         {
             //bliver aldrig kaldt
         }
     }
+
     public class ListValue : IValue
     {
         public ListValue(ListType listType, IValue value)
@@ -394,8 +434,10 @@ namespace eeCCompiler.Visitors
             Type = listType;
             Value = value;
         }
-        public ListType Type {get; set;}
+
+        public ListType Type { get; set; }
         public IValue Value { get; set; }
+
         public void Accept(IEecVisitor visitor)
         {
             //bliver aldrig kaldt

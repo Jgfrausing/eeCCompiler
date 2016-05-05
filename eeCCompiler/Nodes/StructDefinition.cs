@@ -1,15 +1,9 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using eeCCompiler.Interfaces;
 using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
 {
     public class StructDefinition : AbstractSyntaxTree
     {
-
         public StructDefinition(StructParts structParts, Identifier identifier)
         {
             Identifier = identifier;

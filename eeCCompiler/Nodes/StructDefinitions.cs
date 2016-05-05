@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using eeCCompiler.Interfaces;
+﻿using System.Collections.Generic;
 using eeCCompiler.Visitors;
 
 namespace eeCCompiler.Nodes
@@ -23,6 +21,5 @@ namespace eeCCompiler.Nodes
         {
             visitor.Visit(this);
         }
-
     }
 }

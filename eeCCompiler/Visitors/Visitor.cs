@@ -1,6 +1,4 @@
-﻿using System;
-using eeCCompiler.Interfaces;
-using eeCCompiler.Nodes;
+﻿using eeCCompiler.Nodes;
 
 namespace eeCCompiler.Visitors
 {
@@ -160,9 +158,9 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(RefId expressionParenOpExpr)
         {
-          //  throw new System.NotImplementedException();
-          //  throw new System.NotImplementedException();
-         }
+            //  throw new System.NotImplementedException();
+            //  throw new System.NotImplementedException();
+        }
 
         public virtual void Visit(RefTypeId expressionParenOpExpr)
         {
@@ -188,7 +186,7 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(VarInStructDecleration varInStructDecleration)
         {
-             //throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
         }
 
         public virtual void Visit(FunctionDeclaration functionDeclaration)
@@ -215,7 +213,7 @@ namespace eeCCompiler.Visitors
         {
         }
 
-        public virtual void Visit(Nodes.Type type)
+        public virtual void Visit(Type type)
         {
         }
 

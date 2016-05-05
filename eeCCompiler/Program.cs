@@ -2,16 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Timers;
-using System.Xml.Schema;
-using eeCCompiler.Interfaces;
-using eeCCompiler.Nodes;
 using eeCCompiler.Visitors;
-using eeCCompiler.Visitors.CCode;
 
 namespace eeCCompiler
 {
@@ -51,7 +42,7 @@ namespace eeCCompiler
                 }
             }
             Console.WriteLine("Compile c code? (y/n)");
-            int answer = 0;
+            var answer = 0;
             while (true)
             {
                 var input = Console.ReadKey();
@@ -60,21 +51,19 @@ namespace eeCCompiler
                     answer = 1;
                     break;
                 }
-                else if (input.Key == ConsoleKey.N)
+                if (input.Key == ConsoleKey.N)
                     break;
-                else
-                {
-                    Console.Write("\b \b");
-                }
+                Console.Write("\b \b");
             }
             if (answer == 1)
             {
-                string codeName = "code";
-                string codePath = @"..\..\bin\Debug\";
-                string compilerPath = @"..\..\C_code\C compiler\bin\gcc";
-                string compileArguments = $" {codePath}{codeName}.c -o {codePath}{codeName}.exe"; // Example of arguments
+                var codeName = "code";
+                var codePath = @"..\..\bin\Debug\";
+                var compilerPath = @"..\..\C_code\C compiler\bin\gcc";
+                string compileArguments = $" {codePath}{codeName}.c -o {codePath}{codeName}.exe";
+                    // Example of arguments
                 string runArguments = $"/C start cmd /k {codePath}{codeName}.exe";
-                Process p = new Process() {StartInfo = new ProcessStartInfo(compilerPath, compileArguments)};
+                var p = new Process {StartInfo = new ProcessStartInfo(compilerPath, compileArguments)};
                 p.Start();
                 while (!p.HasExited)
                 {

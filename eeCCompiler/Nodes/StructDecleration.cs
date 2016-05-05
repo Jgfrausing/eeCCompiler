@@ -5,7 +5,8 @@ namespace eeCCompiler.Nodes
 {
     public class StructDecleration : AbstractSyntaxTree, IBodypart, IStructPart
     {
-        public StructDecleration(VarDeclerations varDeclerations, Identifier structIdentifier, AssignmentOperator assignmentOperator, Identifier identifier)
+        public StructDecleration(VarDeclerations varDeclerations, Identifier structIdentifier,
+            AssignmentOperator assignmentOperator, Identifier identifier)
         {
             Identifier = identifier;
             AssignmentOperator = assignmentOperator;

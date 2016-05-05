@@ -1,26 +1,25 @@
-﻿using eeCCompiler.Nodes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using eeCCompiler.Interfaces;
+using eeCCompiler.Nodes;
 
 namespace eeCCompiler.Visitors
 {
-    class StringFinderVisitor : Visitor
+    internal class StringFinderVisitor : Visitor
     {
-        public Dictionary<Identifier, StringValue> StringDict { get; set; }
-        public int VariableName { get; set; }
         public StringFinderVisitor(int variableName)
         {
             StringDict = new Dictionary<Identifier, StringValue>();
             VariableName = variableName;
         }
+
+        public Dictionary<Identifier, StringValue> StringDict { get; set; }
+        public int VariableName { get; set; }
+
         public override void Visit(ExpressionVal expressionVal)
         {
             expressionVal.Value = StringReplacer(expressionVal.Value);
         }
+
         public override void Visit(ExpressionValOpExpr expressionValOpExpr)
         {
             expressionValOpExpr.Value = StringReplacer(expressionValOpExpr.Value);
@@ -35,7 +34,6 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(ElseStatement elseStatement)
         {
-            
         }
 
         public override void Visit(VarDecleration varDecl)
@@ -71,13 +69,11 @@ namespace eeCCompiler.Visitors
             if (value is StringValue)
             {
                 var stringValue = value as StringValue;
-                value = new Identifier("_" + VariableName.ToString());
+                value = new Identifier("_" + VariableName);
                 StringDict.Add(value as Identifier, stringValue);
                 VariableName++;
             }
             return value;
         }
-
-        
     }
 }
