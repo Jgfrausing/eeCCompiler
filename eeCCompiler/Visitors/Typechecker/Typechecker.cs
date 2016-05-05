@@ -53,11 +53,8 @@ namespace eeCCompiler.Visitors
                 Errors.Add(structDefinition.Identifier.Id + " was declared twice");
 
             //RYD OP!!
-            var preBodyIdentifiers = new Dictionary<string, IValue>();
-            foreach (var val in Identifiers)
-            {
-                preBodyIdentifiers.Add(val.Key, val.Value);
-            }
+
+            var preBodyIdentifiers = saveScope();
             var preStructDefFunctions = new Dictionary<string, Function>();
             foreach (var val in Funcs)
             {
@@ -248,11 +245,7 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(Body body)
         {
-            var preBodyIdentifiers = new Dictionary<string, IValue>();
-            foreach (var val in Identifiers)
-            {
-                preBodyIdentifiers.Add(val.Key, val.Value);
-            }
+            var preBodyIdentifiers = saveScope();
             base.Visit(body);
             Identifiers = preBodyIdentifiers;
         }
@@ -268,11 +261,7 @@ namespace eeCCompiler.Visitors
         {
             if (!(Funcs.ContainsKey(functionDeclaration.TypeId.Identifier.Id)))
             {
-                var preBodyIdentifiers = new Dictionary<string, IValue>();
-                foreach (var val in Identifiers)
-                {
-                    preBodyIdentifiers.Add(val.Key, val.Value);
-                }
+                var preBodyIdentifiers = saveScope();
                 foreach (var parameter in functionDeclaration.Parameters.TypeIds)
                 {
                     if (parameter.TypeId.ValueType.ToString() == "void")
@@ -280,6 +269,7 @@ namespace eeCCompiler.Visitors
                     Identifiers.Add(parameter.TypeId.Identifier.Id, _expressionChecker.TypeChecker(parameter.TypeId.ValueType.ToString()));
                 }
                 bool returnFound;
+
                 foreach (var bodyPart in functionDeclaration.Body.Bodyparts)
                 {
                     if (bodyPart is VarDecleration)
