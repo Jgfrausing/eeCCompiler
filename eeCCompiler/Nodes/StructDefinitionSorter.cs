@@ -61,25 +61,6 @@ namespace eeCCompiler.Nodes
             if (first.StructParts.StructPartList.Exists(structDcl => structDcl is StructDecleration && (structDcl as StructDecleration).StructIdentifier.Equals(second.Identifier)))
                 xHasY = true;
 
-            #region preCleanup
-            //foreach (var source in y.StructParts.StructPartList.Where(structdecl => structdecl is StructDecleration))
-            //{
-            //    if ((source as StructDecleration).StructIdentifier.Equals(x.Identifier))
-            //    {
-            //        yHasX = true;
-            //        break;
-            //    }
-            //}
-            //foreach (var source in x.StructParts.StructPartList.Where(structdecl => structdecl is StructDecleration))
-            //{
-            //    if ((source as StructDecleration).StructIdentifier.Equals(y.Identifier))
-            //    {
-            //        xHasY = true;
-            //        break;
-            //    }
-            //}
-            #endregion
-
             int returnValue;
 
             if (yHasX && !xHasY)
