@@ -255,55 +255,100 @@ namespace eeCCompiler.Visitors
         public void StringConverter(StringValue stringValue)
         {
             var input = stringValue.Value;
-            bool escaped = false, firstChar = false;
+            bool escaped = false, firstChar = false, firstNum = true;
+            int isListType = 0;
+            bool isNumber = false;
             bool isIdentifier = false;
-            var stringParts = new List<IStringPart>() { new StringValue("") };
+            bool requiresDot = false;
+            string tempString = "";
+            string number = "";
+            var stringParts = new List<IValue>();
+            var values = new Stack<IValue>();
+            var tempStringValue = new StringValue("");
             foreach (var charactor in input.ToCharArray(0, input.Length))
             {
                 if (!escaped)
                 {
-                    if (charactor == '\\')
+                    if (charactor == '\\' && !isIdentifier)
                     {
-                        (stringParts[stringParts.Count - 1] as StringValue).Value += charactor;
+                        tempStringValue.Value += charactor;
                         escaped = true;
                         continue;
                     }
-                    if (charactor == '{')
+                    if (charactor == '{' && !isIdentifier)
                     {
-                        stringParts.Add(new TypeId(new Identifier(""), new eeCCompiler.Nodes.Type(" ")));
+                        stringParts.Add(tempStringValue);
+                        tempStringValue = null;
+                        values.Push(new Identifier(""));
                         isIdentifier = true;
                         firstChar = true;
                     }
-                    else if (charactor == '}')
+                    else if (charactor == '}' && isIdentifier && !requiresDot)
                     {
                         isIdentifier = false;
-                        stringParts.Add(new StringValue(""));
+                        stringParts.Add(values.Pop());
+                        tempStringValue = new StringValue("");
+                    }
+                    else if (charactor == '.')
+                    {
+                        requiresDot = false;
+                        //var structRefrence = new Refrence((stringParts.Last() as TypeId).Identifier);
+                    }
+                    else if(charactor == '[' && !requiresDot)
+                    {
+                        isListType++;
+                        firstChar = true;
+                    }
+                    else if (charactor == ']' && !requiresDot)
+                    {
+                        if (isNumber)
+                        {
+                            firstNum = true;
+                            double num = double.Parse(number);
+                            values.Push(new NumValue(num));
+                        }
+                        var listIndex = new IdIndex(new ListIndex(new ExpressionVal(values.Pop() as NumValue)),values.Pop() as Identifier);
+                        requiresDot = true;
+                        isListType--;
                     }
                     else if (firstChar && ValidateFirstChar(charactor))
                     {
+                        isNumber = false;
                         firstChar = false;
-                        (stringParts[stringParts.Count - 1] as TypeId).Identifier.Id += charactor;
+                        values.Push(new Identifier(charactor.ToString()));
                     }
-                    else if ((isIdentifier && ValidateIdentifier(charactor)))
+                    else if (isIdentifier && ValidateIdentifier(charactor) && !isNumber && !requiresDot)
                     {
-                        (stringParts[stringParts.Count - 1] as TypeId).Identifier.Id += charactor;
+                        (values.Peek() as Identifier).Id += charactor;
                     }
                     else if (!isIdentifier)
                     {
                         if(charactor != '"')
-                            (stringParts[stringParts.Count - 1] as StringValue).Value += charactor;
+                            tempStringValue.Value += charactor;
+                    }
+                    else if (charactor >= '0' && charactor <= '9' && !requiresDot)
+                    {
+                        if (firstNum)
+                        {
+                            isNumber = true;
+                            firstNum = false;
+                            values.Push(new NumValue(0));
+                        }
+                        number += charactor;
+                        tempString += charactor;
                     }
                     else
                     {
-                        _typechecker.Errors.Add("Identifier in string " + input + ". Has " + charactor + " which is not allowed for identifiers"); 
+                        _typechecker.Errors.Add("Identifier in string " + input + ". Has a misplaced charactor:" + charactor + "."); 
                     }
                 }
                 else
                 {
-                    (stringParts[stringParts.Count - 1] as StringValue).Value += charactor;
+                    tempStringValue.Value += charactor;
                 }
                 escaped = false;
             }
+            #region Removing unnesary \
             for (int i = 0; i < stringParts.Count; i++)
             {
                 if (stringParts[i] is StringValue)
@@ -317,6 +362,8 @@ namespace eeCCompiler.Visitors
                     (stringParts[i] as TypeId).Identifier.Id = ((TypeId)stringParts[i]).Identifier.Id.Replace(@"\{", "{");
                 }
             }
+            #endregion
+            #region Setting types
             foreach (TypeId typeId in stringParts.Where(x => x is TypeId))
             {
                 if (_typechecker.Identifiers.ContainsKey(typeId.Identifier.Id))
@@ -332,7 +379,9 @@ namespace eeCCompiler.Visitors
                 }   
             }
             stringValue.Elements = stringParts;
+            #endregion
         }
+
         private bool ValidateIdentifier(char charactor)
         {
             return ValidateFirstChar(charactor) || (charactor >= '0' && charactor <= '9');
