@@ -311,6 +311,7 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(RepeatExpr repeatExpr)
         {
+
             if (!(_expressionChecker.CheckExpression(repeatExpr.Expression) is BoolValue))
                 Errors.Add("repeats expects a bool but got " + _expressionChecker.CheckExpression(repeatExpr.Expression).GetType().Name);
             Visit(repeatExpr.Body);
@@ -318,6 +319,7 @@ namespace eeCCompiler.Visitors
 
         public override void Visit(RepeatFor repeatFor)
         {
+            Dictionary<string, IValue> preRepeatIdentifiers = saveScope();
             Visit(repeatFor.VarDecleration);
 
             if (!(Identifiers[repeatFor.VarDecleration.Identifier.Id] is NumValue))
@@ -327,6 +329,7 @@ namespace eeCCompiler.Visitors
 
             Visit(repeatFor.Direction);
             Visit(repeatFor.Body);
+            Identifiers = preRepeatIdentifiers;
         }
 
         public override void Visit(Refrence refrence) //Bliver kun besøgt hvis refrence er en bodypart aka når vi har et funktionskald uden for en vardecl.
@@ -350,6 +353,15 @@ namespace eeCCompiler.Visitors
                 _expressionChecker.ParameterChecker(Funcs[funcCall.Identifier.Id].FuncDecl, funcCall);
        }
         #endregion
+        public Dictionary<string, IValue> saveScope()
+        {
+            var preBodyIdentifiers = new Dictionary<string, IValue>();
+            foreach (var val in Identifiers)
+            {
+                preBodyIdentifiers.Add(val.Key, val.Value);
+            }
+            return preBodyIdentifiers;
+        }
     }
 
     public class UnInitialisedVariable : IValue
