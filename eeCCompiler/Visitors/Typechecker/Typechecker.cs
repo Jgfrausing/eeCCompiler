@@ -80,9 +80,10 @@ namespace eeCCompiler.Visitors
                 Errors.Add("The " + structDecleration.AssignmentOperator.Symbol + " can not be used on a struct");
             if (!(Identifiers.ContainsKey(structDecleration.Identifier.Id)))
             {
+                structDecleration.Identifier.Accept(this);
                 if (Structs.ContainsKey(structDecleration.StructIdentifier.Id))
                 {
-                    Identifiers.Add(structDecleration.Identifier.Id, new StructValue(Structs[structDecleration.StructIdentifier.Id]));
+                    Identifiers[structDecleration.Identifier.Id] = new StructValue(Structs[structDecleration.StructIdentifier.Id]);
                     Dictionary<string, IValue> structVariables = new Dictionary<string, IValue>();
                     foreach (var structPart in Structs[structDecleration.StructIdentifier.Id].StructParts.StructPartList)
                     {
@@ -92,7 +93,10 @@ namespace eeCCompiler.Visitors
                         }
                         else if (structPart is StructDecleration)
                         {
-                            structVariables.Add((structPart as StructDecleration).Identifier.Id,new StructValue(Structs[(structPart as StructDecleration).StructIdentifier.Id]));
+                            if (Structs.ContainsKey((structPart as StructDecleration).StructIdentifier.Id))
+                                structVariables.Add((structPart as StructDecleration).Identifier.Id, new StructValue(Structs[(structPart as StructDecleration).StructIdentifier.Id]));
+                            else
+                                Errors.Add("struct " + (structPart as StructDecleration).StructIdentifier.Id + " was not declared but was used in program");
                         }
                     }
 
@@ -164,6 +168,8 @@ namespace eeCCompiler.Visitors
         {
             if (!Identifiers.ContainsKey(identifier.Id))
                 Identifiers.Add(identifier.Id, identifier);
+            if (Structs.ContainsKey(identifier.Id))
+                Errors.Add("Variables can not be of the same name as one of the structs(" + identifier.Id + ")");
         }
 
         public override void Visit(VarInStructDecleration varInStructDecleration)
@@ -278,7 +284,7 @@ namespace eeCCompiler.Visitors
                 {
                     if (bodyPart is VarDecleration)
                     {
-                        Identifiers.Add((bodyPart as VarDecleration).Identifier.Id, _expressionChecker.CheckExpression((bodyPart as VarDecleration).Expression));
+                        (bodyPart as VarDecleration).Accept(this);
                     }
                 }
                 IValue Value = _expressionChecker.TypeChecker(functionDeclaration.TypeId.ValueType.ToString());

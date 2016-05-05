@@ -26,6 +26,17 @@ namespace eeCCompiler
             var errors = new List<string>();
             if (result)
             {
+                try
+                {
+                    var derp = new CCodeGeneration();
+                    derp.SortStructDefinitions(parser.Root.StructDefinitions);
+                }
+                catch (ArgumentException e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.ReadKey();
+                    Environment.Exit(1);
+                }
                 parser.Root.Accept(new Precedence());
                 parser.Root.Accept(new Typechecker(errors));
                 errors.ForEach(x => Console.WriteLine(x));

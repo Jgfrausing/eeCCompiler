@@ -68,7 +68,7 @@ namespace eeCCompiler.Visitors
             root.Program.Accept(this);
         }
 
-        private void SortStructDefinitions(StructDefinitions structDefinitions)
+        public void SortStructDefinitions(StructDefinitions structDefinitions)
         {
             var sorter = new StructDefinitionSorter();
             sorter.Sort(structDefinitions.Definitions);
@@ -469,13 +469,18 @@ namespace eeCCompiler.Visitors
             else if (funcCall.Identifier.Id == "add")
             {
                 _code += $"{funcCall.Identifier.Type.ValueType}" +
-                    $"list_add(&{((funcCall.Expressions[1] as ExpressionVal). Value as Identifier).Id}, &{(funcCall.Expressions[0] as Identifier).Id})";
+                    $"list_add(&";
+                funcCall.Expressions[1].Accept(this);
+                
+                _code += $", &{(funcCall.Expressions[0] as Identifier).Id})";
             }
             else if (funcCall.Identifier.Id == "insert")
             { //void clist_insert(int index, clist_handle * head, c *inputElement);
                 _code += $"{funcCall.Identifier.Type.ValueType}list_insert(";
                 funcCall.Expressions[1].Accept(this);
-                _code += $", &{(funcCall.Expressions[0] as Identifier).Id}, &{((funcCall.Expressions[2] as ExpressionVal).Value as Identifier).Id})";
+                _code += $", &{(funcCall.Expressions[0] as Identifier).Id}, &";
+                funcCall.Expressions[2].Accept(this);
+                _code += ")";
             }
             else if (funcCall.Identifier.Id == "remove")
             {

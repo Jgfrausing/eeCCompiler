@@ -141,7 +141,9 @@ namespace eeCCompiler.Visitors
 
         public void Visit(ExpressionExprOpExpr expressionExprOpExpr)
         {
-            throw new NotImplementedException();
+            expressionExprOpExpr.ExpressionParen.Accept(this);
+            expressionExprOpExpr.Operator.Accept(this);
+            expressionExprOpExpr.Expression.Accept(this);
         }
 
         public virtual void Visit(ListIndex expressionParenOpExpr)

@@ -583,11 +583,13 @@ namespace eeCCompiler.Visitors
                                 if (listRefrence.Identifier is FuncCall)
                                 {
                                     var funcCall = listRefrence.Identifier as FuncCall;
+                                    funcCall.Identifier.Type.ValueType = varDecl.Identifier.Type.ValueType;
                                     if (funcCall.Identifier.Id == "count")
                                         value = new NumValue(2.0);
                                     else
                                         value = new UnInitialisedVariable();
                                     ListFuncChecker(funcCall, CheckExpression(varDecl.Expression) as ListValue);
+                                    valueFound = true;
                                 }
                                 else
                                 {
@@ -699,6 +701,8 @@ namespace eeCCompiler.Visitors
             {
                 if (funcCall.Expressions.Count > 0)
                     _typechecker.Errors.Add("sort() does not take any parameters");
+                else if (funcCall.Identifier.Type.ValueType != "num")
+                    _typechecker.Errors.Add("sort() can not be used on " + funcCall.Identifier.Type.ValueType + " list");
             }
             else
                 _typechecker.Errors.Add("Unknown list function: " + funcCall.Identifier.ToString());
