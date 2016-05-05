@@ -30,8 +30,8 @@ namespace eeCCompiler.Nodes
 
         public override string ToString()
         {
-            var s = Identifier.ToString() + ".";
-            return s + StructRefrence;
+            var s = "." + Identifier.ToString();
+            return StructRefrence + s;
         }
     }
 }

@@ -49,6 +49,21 @@ void string_set(int index, char value, string_handle * head);
 void string_sort(string_handle * head);
 string_handle string_copy(string_handle * source);
 int string_equals(string_handle * first, string_handle * second);
+//LIST OF STRINGS
+
+typedef struct stringlist_handle stringlist_handle;
+typedef struct stringlist_element stringlist_element;
+stringlist_handle stringlist_new();
+stringlist_element *stringlist_newElement(string_handle *inputElement);
+string_handle stringlist_get(int index, stringlist_handle * head);
+void stringlist_add(string_handle *inputElement, stringlist_handle * head);
+void stringlist_remove(int index, stringlist_handle * head);
+void stringlist_insert(int index, stringlist_handle * head, string_handle *inputElement);
+void stringlist_clear(stringlist_handle * head);
+void stringlist_reverse(stringlist_handle * head);
+void stringlist_swap(stringlist_handle * head, int first, int second);
+void stringlist_set(int index, string_handle *value, stringlist_handle * head);
+stringlist_handle stringlist_copy(stringlist_handle * source);
 
 //STANDARD FUNCTIONS
 int program_convertNumToString(double input, string_handle * output);

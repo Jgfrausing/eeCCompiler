@@ -17,6 +17,9 @@ namespace eeCCompiler
         public List<string> Errors { get; set; }
         public Root Root;
 
+        private int Line { get; set; }
+        private int Column { get; set; }
+
         public MyParser()
         {
             //Loads the tables created by GOLD parser
@@ -30,7 +33,6 @@ namespace eeCCompiler
             //The resulting tree is a pure representation of the language and will be ready to implement.
 
             var accepted = false; //Was the parse successful?
-
             _parser.Open(reader);
             _parser.TrimReductions = false; //Ommits reduntant reductions
 
@@ -59,6 +61,8 @@ namespace eeCCompiler
                     case ParseMessage.TokenRead:
                         var token = _parser.CurrentToken();
                         //Reads tokens
+                        Column = token.Position().Column;
+                        Line = token.Position().Line;
                         break;
 
                     #region Errors
@@ -744,7 +748,8 @@ namespace eeCCompiler
 
                     #endregion
             } //switch
-
+            result.Line = Line;
+            result.Column = Column;
             return result;
         }
 
