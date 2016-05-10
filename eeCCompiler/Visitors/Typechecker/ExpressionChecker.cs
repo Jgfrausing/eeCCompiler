@@ -62,9 +62,9 @@ namespace eeCCompiler.Visitors
                             }
                             else if (refrence.Identifier is IdIndex)
                             {
-                                var derpface = _typechecker.Identifiers[refrence.StructRefrence.ToString()];
+                                var structRef = _typechecker.Identifiers[refrence.StructRefrence.ToString()];
                                 IValue val;
-                                foreach (var varDecl in (derpface as StructValue).Struct.StructParts.StructPartList)
+                                foreach (var varDecl in (structRef as StructValue).Struct.StructParts.StructPartList)
                                 {
                                     if (varDecl is VarDecleration &&
                                         (varDecl as VarDecleration).Identifier.Id ==
@@ -75,14 +75,14 @@ namespace eeCCompiler.Visitors
                             }
                             else
                             {
-                                _typechecker.Errors.Add("Lists do not contain any fields");
+                                _typechecker.Errors.Add($"{_typechecker.LineColumnString(refrence)}Lists do not contain any variables");
                                 value = new UnInitialisedVariable();
                             }
                         }
                     }
                     else
                     {
-                        _typechecker.Errors.Add(refrence.StructRefrence + " struct refrence was not found");
+                        _typechecker.Errors.Add($"{_typechecker.LineColumnString(refrence)}\"{refrence.StructRefrence}\" struct was not found");
                         value = new UnInitialisedVariable();
                     }
                 }
@@ -93,8 +93,7 @@ namespace eeCCompiler.Visitors
                     else
                     {
                         value = new UnInitialisedVariable();
-                        _typechecker.Errors.Add((exp.Value as Identifier).Id +
-                                                " Identifier was not initialised before use");
+                        _typechecker.Errors.Add($"{_typechecker.LineColumnString(exp)}\"{(exp.Value as Identifier).Id}\" was not initialised before use");
                     }
                 }
                 else if (exp.Value is FuncCall) //Func i vardecl
@@ -110,7 +109,7 @@ namespace eeCCompiler.Visitors
                     }
                     else
                     {
-                        _typechecker.Errors.Add((exp.Value as FuncCall).Identifier.Id + " function call was not found");
+                        _typechecker.Errors.Add($"{_typechecker.LineColumnString(exp)}\"{(exp.Value as FuncCall).Identifier.Id}\" function call was not found");
                         value = new UnInitialisedVariable();
                     }
                 }
@@ -125,16 +124,15 @@ namespace eeCCompiler.Visitors
                         }
                         else
                         {
-                            _typechecker.Errors.Add("Expected a List but identifier " + idIndex.Identifier.Id +
-                                                    " is of type " +
-                                                    _typechecker.Identifiers[idIndex.Identifier.Id].GetType());
+                            _typechecker.Errors.Add($"{_typechecker.LineColumnString(exp)}Expected a List but identifier \"{idIndex.Identifier.Id}\" is of type " +
+                                                    $"\"{_typechecker.Identifiers[idIndex.Identifier.Id].GetType()}\"");
                             value = new UnInitialisedVariable();
                         }
                     }
                     else
                     {
                         value = new UnInitialisedVariable();
-                        _typechecker.Errors.Add(idIndex.Identifier.Id + " identifier was not found");
+                        _typechecker.Errors.Add($"{_typechecker.LineColumnString(exp)}\"{idIndex.Identifier.Id}\" was not found");
                     }
                     return value;
                 }
@@ -162,7 +160,7 @@ namespace eeCCompiler.Visitors
             {
                 var value = CheckExpression((expression as ExpressionNegate).Expression);
                 if (!(value is BoolValue) && !(value is UnInitialisedVariable))
-                    _typechecker.Errors.Add(expressionType.Name + " tried with " + value.GetType().Name);
+                    _typechecker.Errors.Add($"{_typechecker.LineColumnString(expression as ExpressionNegate)}\"{expressionType.Name}\" tried with \"{value.GetType().Name}\"");
                 return value;
             }
                 #endregion
