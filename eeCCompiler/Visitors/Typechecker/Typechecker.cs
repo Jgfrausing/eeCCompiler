@@ -330,7 +330,7 @@ namespace eeCCompiler.Visitors
         public override void Visit(RepeatExpr repeatExpr)
         {
             if (!(_expressionChecker.CheckExpression(repeatExpr.Expression) is BoolValue))
-                Errors.Add($"{LineColumnString(repeatExpr)}repeat expects a boolean but got \"{ _expressionChecker.CheckExpression(repeatExpr.Expression).GetType().Name}\"");
+                Errors.Add($"{LineColumnString(repeatExpr)}repeat expects a boolean but got \"{_expressionChecker.CheckExpression(repeatExpr.Expression).GetType().Name}\"");
             Visit(repeatExpr.Body);
         }
 
