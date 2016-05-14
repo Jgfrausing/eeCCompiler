@@ -38,8 +38,10 @@ namespace eeCCompiler.Visitors
             root.ConstantDefinitions.Accept(this);
 
             Header += Code;
-            Header += StandardFunctions;
+            Code += StandardFunctions;
             Code = "";
+
+            root.StructDefinitions.Accept(this);
 
             CreateListFunctions();
             CreateCopyFunctions();
@@ -383,7 +385,7 @@ namespace eeCCompiler.Visitors
             var stringCreater = new StringFinderVisitor(TempCVariable);
             PreExpressionStringCreater(stringCreater, funcCall);
 
-            #region Print
+                #region Print
 
             if (funcCall.Identifier.Id == "program_print")
             {
@@ -563,7 +565,7 @@ namespace eeCCompiler.Visitors
             foreach (var refTypeId in functionDeclaration.Parameters.TypeIds.Where(x => !x.Ref))
             {
                 Code +=
-                    $"{refTypeId.TypeId.ValueType}_handle ={refTypeId.TypeId.ValueType}_copy({refTypeId.TypeId.Identifier});\n";
+                    $"{refTypeId.TypeId.ValueType}_handle ={refTypeId.TypeId.ValueType}&_copy({refTypeId.TypeId.Identifier});\n";
             }
             foreach (var bodypart in functionDeclaration.Body.Bodyparts) //functionDeclaration.Body.Accept(this);
             {
@@ -878,13 +880,16 @@ namespace eeCCompiler.Visitors
 
         private void CreateListFunctions()
         {
+            string head = "";
+            string code = "";
             foreach (var structDefinition in _root.StructDefinitions.Definitions)
             {
-                Code += _defaultCCode.GenerateListTypeHeader(structDefinition.Identifier.Id + "list",
+                head += _defaultCCode.GenerateListTypeHeader(structDefinition.Identifier.Id + "list",
                     structDefinition.Identifier.Id, true);
-                Code += _defaultCCode.GenerateListTypeCode(structDefinition.Identifier.Id + "list",
+                code += _defaultCCode.GenerateListTypeCode(structDefinition.Identifier.Id + "list",
                     structDefinition.Identifier.Id, true);
             }
+            Code += head + code;
         }
 
         public void SortStructDefinitions(StructDefinitions structDefinitions) // MATHIAS

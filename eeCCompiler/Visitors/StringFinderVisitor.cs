@@ -64,7 +64,7 @@ namespace eeCCompiler.Visitors
             repeatExpr.Expression.Accept(this);
         }
 
-        public IValue StringReplacer(IValue value)
+        private IValue StringReplacer(IValue value)
         {
             if (value is StringValue)
             {
