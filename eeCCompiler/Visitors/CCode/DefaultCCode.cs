@@ -45,5 +45,23 @@ namespace eeCCompiler.Visitors.CCode
             var sr = new StreamReader(main);
             return sr.ReadToEnd();
         }
+
+        public void CreateListPrototypes(CCodeGeneration cCodeGeneration)
+        {
+            foreach (var structDefinition in cCodeGeneration._root.StructDefinitions.Definitions)
+            {
+                cCodeGeneration.Code += GenerateListTypeHeader(structDefinition.Identifier.Id + "list",
+                    structDefinition.Identifier.Id, true);
+            }
+        }
+
+        public void CreateCopyFunctions(CCodeGeneration cCodeGeneration)
+        {
+            var copy = new Copy();
+            foreach (var structDefinition in cCodeGeneration._root.StructDefinitions.Definitions)
+            {
+                cCodeGeneration.Code += copy.MakeCopyFunc(structDefinition);
+            }
+        }
     }
 }

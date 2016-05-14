@@ -12,7 +12,7 @@ namespace eeCCompiler.Visitors
     {
         private readonly DefaultCCode _defaultCCode = new DefaultCCode();
 
-        private Root _root;
+        public Root _root;
 
         public CCodeGeneration()
         {
@@ -24,7 +24,7 @@ namespace eeCCompiler.Visitors
         }
 
         private string Header { get; set; }
-        private string Code { get; set; }
+        public string Code { get; set; }
         private string StandardFunctions { get; }
         public int TempCVariable { get; set; }
 
@@ -38,13 +38,13 @@ namespace eeCCompiler.Visitors
             root.ConstantDefinitions.Accept(this);
 
             Header += Code;
-            Code += StandardFunctions;
+            
             Code = "";
+            Code += StandardFunctions;
 
+            _defaultCCode.CreateListPrototypes(this);
             root.StructDefinitions.Accept(this);
-
-            CreateListFunctions();
-            CreateCopyFunctions();
+            _defaultCCode.CreateCopyFunctions(this);
 
             root.FunctionDeclarations.Accept(this);
 
@@ -565,7 +565,7 @@ namespace eeCCompiler.Visitors
             foreach (var refTypeId in functionDeclaration.Parameters.TypeIds.Where(x => !x.Ref))
             {
                 Code +=
-                    $"{refTypeId.TypeId.ValueType}_handle ={refTypeId.TypeId.ValueType}&_copy({refTypeId.TypeId.Identifier});\n";
+                    $"{refTypeId.TypeId.ValueType}_handle ={refTypeId.TypeId.ValueType}_copy({refTypeId.TypeId.Identifier});\n";
             }
             foreach (var bodypart in functionDeclaration.Body.Bodyparts) //functionDeclaration.Body.Accept(this);
             {
@@ -652,7 +652,7 @@ namespace eeCCompiler.Visitors
                 Code += " ";
                 if (!varDecl.Identifier.Type.IsBasicType)
                 {
-                    Code += $"{varDecl.Identifier.Type.ValueType}_copy(&";
+                    Code += $"{varDecl.Identifier.Type.ValueType}_copy(";
                     varDecl.Expression.Accept(this);
                     Code += ")";
                 }
@@ -683,6 +683,10 @@ namespace eeCCompiler.Visitors
                         $"{GetValueType((structPart as StructDecleration).StructIdentifier)} {(structPart as StructDecleration).Identifier};";
             }
             Code += "\n};\n";
+
+            Code += _defaultCCode.GenerateListTypeCode(structDef.Identifier.Id + "list",
+                structDef.Identifier.Id, true);
+
         }
 
         public void Visit(StructParts structParts)
@@ -816,7 +820,7 @@ namespace eeCCompiler.Visitors
             {
                 varInStructDecleration.Refrence.Accept(this);
                 Code += "= " + ((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.ValueType +
-                        "_copy(&";
+                        "_copy(";
                 Code += ((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Id + ");";
             }
             else if (varInStructDecleration.Expression is ExpressionVal &&
@@ -867,29 +871,6 @@ namespace eeCCompiler.Visitors
                 if (expressionExprOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Mod)
                     Code += ")";
             }
-        }
-
-        private void CreateCopyFunctions()
-        {
-            var copy = new Copy();
-            foreach (var structDefinition in _root.StructDefinitions.Definitions)
-            {
-                Code += copy.MakeCopyFunc(structDefinition);
-            }
-        }
-
-        private void CreateListFunctions()
-        {
-            string head = "";
-            string code = "";
-            foreach (var structDefinition in _root.StructDefinitions.Definitions)
-            {
-                head += _defaultCCode.GenerateListTypeHeader(structDefinition.Identifier.Id + "list",
-                    structDefinition.Identifier.Id, true);
-                code += _defaultCCode.GenerateListTypeCode(structDefinition.Identifier.Id + "list",
-                    structDefinition.Identifier.Id, true);
-            }
-            Code += head + code;
         }
 
         public void SortStructDefinitions(StructDefinitions structDefinitions) // MATHIAS

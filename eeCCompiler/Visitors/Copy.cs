@@ -18,7 +18,7 @@ namespace eeCCompiler.Visitors
                                 (item as VarDecleration).Identifier + ";\n";
                     else if ((item as VarDecleration).Identifier.Type.IsListValue)
                         code += "returnValue->" + (item as VarDecleration).Identifier + " = " +
-                                (item as VarDecleration).Identifier.Type.ValueType + "list_copy(input->" +
+                                (item as VarDecleration).Identifier.Type.ValueType + "list_copy(&input->" +
                                 (item as VarDecleration).Identifier + ");\n";
                     else
                         code += "returnValue->" + (item as VarDecleration).Identifier + " = " +
