@@ -487,7 +487,7 @@ namespace eeCCompiler.Visitors
                 _typechecker.Errors.Add($"{_typechecker.LineColumnString(opr)}Wrong operator tried in \"{expressionType.Name}\": ({value1.GetType().Name} {opr.Symbol} {value2.GetType().Name})." +
                                         $"Operator is not legal in string expression");
 
-            if (!(NumChecker(value1, opr) || BoolNumChecker(value1, opr)))
+            else if (!(NumChecker(value1, opr) || BoolNumChecker(value1, opr)))
                 _typechecker.Errors.Add($"{_typechecker.LineColumnString(opr)}Wrong operator tried in \"{expressionType.Name}\": ({value1.GetType().Name} {opr.Symbol} {value2.GetType().Name})." +
                                         $"Operator is not legal in expression");
 
