@@ -90,26 +90,28 @@ namespace eeCCompiler.Visitors
                     var leftside = new ExpressionVal(expressionValOpExpr.Value);
                     var rightside = expressionValOpExpr.Expression;
                     expression = new ExpressionExprOpExpr(rightside, new Operator(Symbol), leftside);
-                    //GlobalExpr = expression;
+                    PrecedenceFixer(ref expression, ExprNumber);
                 }
-
-                while (expressionValOpExpr.Expression is ExpressionValOpExpr)
-                {
-                    if (LevelFinder((expressionValOpExpr.Expression as ExpressionValOpExpr).Operator.Symbol) ==
-                        level)
+                else
+                { 
+                    while (expressionValOpExpr.Expression is ExpressionValOpExpr)
                     {
-                        var Symbol = (expressionValOpExpr.Expression as ExpressionValOpExpr).Operator.Symbol;
-                        var rightside = (expressionValOpExpr.Expression as ExpressionValOpExpr).Expression;
-                        var leftside = ExprWalker(ExprNumber);
-                        leftside = GlobalExpr;
-                        expression = new ExpressionExprOpExpr(rightside, new Operator(Symbol), leftside);
-                        GlobalExpr = expression;
-                        ExprNumber++;
-                    }
-                    else
-                    {
-                        ExprNumber++;
-                        expressionValOpExpr = expressionValOpExpr.Expression as ExpressionValOpExpr;
+                        if (LevelFinder((expressionValOpExpr.Expression as ExpressionValOpExpr).Operator.Symbol) ==
+                            level)
+                        {
+                            var Symbol = (expressionValOpExpr.Expression as ExpressionValOpExpr).Operator.Symbol;
+                            var rightside = (expressionValOpExpr.Expression as ExpressionValOpExpr).Expression;
+                            var leftside = ExprWalker(ExprNumber);
+                            leftside = GlobalExpr;
+                            expression = new ExpressionExprOpExpr(rightside, new Operator(Symbol), leftside);
+                            GlobalExpr = expression;
+                            ExprNumber++;
+                        }
+                        else
+                        {
+                            ExprNumber++;
+                            expressionValOpExpr = expressionValOpExpr.Expression as ExpressionValOpExpr;
+                        }
                     }
                 }
             }
