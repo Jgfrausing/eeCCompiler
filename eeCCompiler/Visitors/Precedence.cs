@@ -235,6 +235,12 @@ namespace eeCCompiler.Visitors
                             new ExpressionParenOpExpr((expr as ExpressionValOpExpr).Expression, Opr, exprParen);
                     }
                 }
+                else
+                {
+                    var exprtemp = (expr as ExpressionValOpExpr).Expression;
+                    ReplaceValue((expr as ExpressionValOpExpr).Expression, val, ref exprtemp, exprParen);
+                    (expr as ExpressionValOpExpr).Expression = exprtemp;
+                }
             }
             else if (expr is ExpressionExprOpExpr)
             {
