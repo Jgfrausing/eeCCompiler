@@ -137,7 +137,7 @@ namespace eeCCompiler.Visitors
             }
         }
 
-        public void Visit(ExpressionExprOpExpr expressionExprOpExpr)
+        public virtual void Visit(ExpressionExprOpExpr expressionExprOpExpr)
         {
             expressionExprOpExpr.ExpressionParen.Accept(this);
             expressionExprOpExpr.Operator.Accept(this);
