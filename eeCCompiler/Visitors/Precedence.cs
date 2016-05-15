@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
 
@@ -15,11 +16,12 @@ namespace eeCCompiler.Visitors
             _expressionChecker = new ExpressionChecker(new Typechecker(new List<string>()));
             level = 0;
             ExprParens = new Dictionary<IExpression, IValue>();
+            please = 0;
         }
 
         public IExpression GlobalExpr { get; set; }
         public int level { get; set; }
-
+        public int please { get; set; }
         public override void Visit(VarDecleration vardecl)
         {
             vardecl.Expression = FullPrecedenceFix(vardecl.Expression);
@@ -157,7 +159,7 @@ namespace eeCCompiler.Visitors
             if (expression is ExpressionParenOpExpr)
             {
                 var expressionParenOpExpr = expression as ExpressionParenOpExpr;
-                var val = _expressionChecker.CheckExpression(expressionParenOpExpr.ExpressionParen);
+                var val = new PrecedenceValue(please++);
                 ExprParens.Add(expressionParenOpExpr.ExpressionParen, val);
                 expression = new ExpressionValOpExpr(expressionParenOpExpr.Expression, expressionParenOpExpr.Operator,
                     val);
@@ -177,7 +179,7 @@ namespace eeCCompiler.Visitors
 
                 (expression as ExpressionParen).Expression = FullPrecedenceFix(exprExpr);
 
-                var val = _expressionChecker.CheckExpression(expressionParen.Expression);
+                var val = new PrecedenceValue(please++);
                 ExprParens.Add(expressionParen, val);
 
                 expression = new ExpressionVal(val);
@@ -194,7 +196,7 @@ namespace eeCCompiler.Visitors
                 var exprExpr = (expression as ExpressionNegate).Expression;
                 (expression as ExpressionNegate).Expression = FullPrecedenceFix(exprExpr);
 
-                var val = _expressionChecker.CheckExpression(expressionNegate.Expression);
+                var val = new PrecedenceValue(please++);
                 ExprParens.Add(expressionNegate, val);
 
                 expression = new ExpressionVal(val);
@@ -236,9 +238,18 @@ namespace eeCCompiler.Visitors
                     }
                     else if (Parent is ExpressionExprOpExpr)
                     {
-                        var Opr = ((Parent as ExpressionExprOpExpr).ExpressionParen as ExpressionValOpExpr).Operator;
-                        (Parent as ExpressionExprOpExpr).ExpressionParen =
-                            new ExpressionParenOpExpr((expr as ExpressionValOpExpr).Expression, Opr, exprParen);
+                        if ((Parent as ExpressionExprOpExpr).ExpressionParen is ExpressionValOpExpr) 
+                        {
+                            var Opr = ((Parent as ExpressionExprOpExpr).ExpressionParen as ExpressionValOpExpr).Operator;
+                            (Parent as ExpressionExprOpExpr).ExpressionParen =
+                                new ExpressionParenOpExpr((expr as ExpressionValOpExpr).Expression, Opr, exprParen);
+                        }
+                        else if ((Parent as ExpressionExprOpExpr).Expression is ExpressionValOpExpr)
+                        {
+                            var Opr = ((Parent as ExpressionExprOpExpr).Expression as ExpressionValOpExpr).Operator;
+                            (Parent as ExpressionExprOpExpr).Expression =
+                                new ExpressionParenOpExpr((expr as ExpressionValOpExpr).Expression, Opr, exprParen);
+                        }
                     }
                 }
                 else
@@ -265,7 +276,10 @@ namespace eeCCompiler.Visitors
                     }
                     else if (Parent is ExpressionExprOpExpr)
                     {
-                        (Parent as ExpressionExprOpExpr).Expression = exprParen;
+                        if ((Parent as ExpressionExprOpExpr).Expression is ExpressionVal && ((Parent as ExpressionExprOpExpr).Expression as ExpressionVal).Value == val)
+                            (Parent as ExpressionExprOpExpr).Expression = exprParen;
+                        else if ((Parent as ExpressionExprOpExpr).ExpressionParen is ExpressionVal && ((Parent as ExpressionExprOpExpr).ExpressionParen as ExpressionVal).Value == val)
+                            (Parent as ExpressionExprOpExpr).ExpressionParen = exprParen;
                     }
                     else if (Parent is ExpressionParenOpExpr)
                     {
@@ -306,6 +320,22 @@ namespace eeCCompiler.Visitors
                         new ExpressionVal(((Walk as ExpressionValOpExpr).Expression as ExpressionValOpExpr).Value);
             }
             return Walk;
+        }
+    }
+    class PrecedenceValue : IValue
+    {
+        public PrecedenceValue(int value)
+        {
+            Value = value;
+        }
+        public int Value { get; set; }
+        public void Accept(IEecVisitor visitor)
+        {
+            throw new NotImplementedException();
+        }
+        public override string ToString()
+        {
+            return Value.ToString();
         }
     }
 }
