@@ -80,25 +80,12 @@ namespace eeCCompiler
                         break;
 
                     case ParseMessage.SyntaxError:
-                        var pos = _parser.CurrentPosition();
-                        var pm = _parser.CurrentToken();
                         //Expecting a different token
                         Errors.Add("Syntax Error:\n" +
                                    "Position: " + _parser.CurrentPosition().Line + ", " +
                                    _parser.CurrentPosition().Column + "\n" +
                                    "Token Read: " + _parser.CurrentToken().Data + "\n" +
                                    "Expecting: " + _parser.ExpectedSymbols().Text());
-
-
-                        //var i = _parser.SymbolTable();
-
-                        //Token token = new Token(i[17], i[17].ToString());
-                        //_parser.PushInput(ref token);
-
-                        //var u = _parser.ExpectedSymbols();
-                        ////Token b = new Token(u[0], u[0].Text() as object);
-                        ////_parser.PushInput(ref b);
-                        //errorOccur = true;
                         done = true;
                         break;
 
