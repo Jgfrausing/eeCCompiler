@@ -31,20 +31,30 @@ namespace eeCCompiler.Visitors
         public override void Visit(VarDecleration varDecleration) //Skal lige fixes lidt med stacken
         {
             varDecleration.Identifier.Accept(this);
-            int reg1 = NextReg(); 
             varDecleration.Expression.Accept(this);
             if (varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
             {
+                int reg1 = NextReg();
                 Text += $"lw  $t{reg1}, 0($sp)\n"; //Pop i reg1
                 Text += "addi $sp, $sp, 4\n";
                 Text += $"sw $t{reg1}, {varDecleration.Identifier.Id}\n";
+                FreeReg(reg1);
             }
             else if (varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Pluseq) //Ikke stack implementeret.
             {
-                reg1 = GetReg();
+                int reg1 = GetReg();
                 int reg2 = GetReg();
                 Text += $"lw $t{reg2}, {varDecleration.Identifier.Id}\n";
                 Text += $"add $t{reg2}, $t{reg1}, $t{reg2}\n";
+                Text += $"sw $t{reg2}, {varDecleration.Identifier.Id}\n";
+                FreeReg(reg2); FreeReg(reg1);
+            }
+            else if (varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Minuseq) //Ikke stack implementeret.
+            {
+                int reg1 = GetReg();
+                int reg2 = GetReg();
+                Text += $"lw $t{reg2}, {varDecleration.Identifier.Id}\n";
+                Text += $"sub $t{reg2}, $t{reg2}, $t{reg1}\n";
                 Text += $"sw $t{reg2}, {varDecleration.Identifier.Id}\n";
                 FreeReg(reg2); FreeReg(reg1);
             }
@@ -184,15 +194,16 @@ namespace eeCCompiler.Visitors
         {
             int label1 = LabelCount++;
             int label2 = LabelCount++;
-            int reg1 = NextReg();
             ifStatement.Expression.Accept(this);
+            int reg1 = GetReg();
+            Pop(reg1);
             Text += $"beq $t{reg1}, $zero, end{label1}\n";
+            FreeReg(reg1);
             ifStatement.Body.Accept(this);
             Text += $"j end{label2}\n";
             Text += $"end{label1}:\n";
             ifStatement.ElseStatement.Accept(this);
             Text += $"end{label2}:\n";
-
         }
         public override void Visit(ElseStatement elseStatement)
         {

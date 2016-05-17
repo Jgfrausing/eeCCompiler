@@ -41,9 +41,7 @@ namespace eeCCompiler.Visitors
                         }
                         else if (_typechecker.Identifiers[refrence.StructRefrence.ToString()] is StructValue)
                         {
-                            var structType =
-                                (_typechecker.Identifiers[refrence.StructRefrence.ToString()] as StructValue).Struct
-                                    .Identifier.Id;
+                            var structType = (_typechecker.Identifiers[refrence.StructRefrence.ToString()] as StructValue).Identifier;
                             value = StructRefrenceChecker(refrence, structType, refrence);
                             exp.Value = refrence;
                         }
@@ -64,13 +62,10 @@ namespace eeCCompiler.Visitors
                             {
                                 var structRef = _typechecker.Identifiers[refrence.StructRefrence.ToString()];
                                 IValue val;
-                                foreach (var varDecl in (structRef as StructValue).Struct.StructParts.StructPartList)
-                                {
-                                    if (varDecl is VarDecleration &&
-                                        (varDecl as VarDecleration).Identifier.Id ==
-                                        (refrence.Identifier as IdIndex).Identifier.Id)
-                                        val = CheckExpression((varDecl as VarDecleration).Expression);
-                                }
+
+                                if ((structRef as StructValue).StructIdentifiers.ContainsKey((refrence.Identifier as IdIndex).Identifier.Id))
+                                    val = (structRef as StructValue).StructIdentifiers[(refrence.Identifier as IdIndex).Identifier.Id];
+
                                 var listIden = refrence.Identifier as IdIndex; // identifier på liste
                             }
                             else
@@ -402,7 +397,7 @@ namespace eeCCompiler.Visitors
             if (value is BoolValue)
                 return "bool";
             if (value is StructValue)
-                return (value as StructValue).Struct.Identifier.Id;
+                return (value as StructValue).Identifier;
             if (value is ListValue)
                 //return (value as ListValue).Type.Type.ToString()+"[]";
             {
@@ -439,7 +434,7 @@ namespace eeCCompiler.Visitors
                 default:
                     if (_typechecker.Structs.ContainsKey(Type))
                     {
-                        value = new StructValue(_typechecker.Structs[Type]);
+                        value = (_typechecker.Structs[Type]);
                     }
                     else
                     {
@@ -511,114 +506,76 @@ namespace eeCCompiler.Visitors
 
             if (refrence.Identifier is Identifier)
             {
-                foreach (var structpart in _typechecker.Structs[structType].StructParts.StructPartList)
+                if (_typechecker.Structs[structType].StructIdentifiers.ContainsKey((refrence.Identifier as Identifier).Id))
                 {
-                    if (structpart is VarDecleration)
-                    {
-                        var vardecl = structpart as VarDecleration;
-                        if (vardecl.Identifier.Id == (refrence.Identifier as Identifier).Id)
-                        {
-                            value = CheckExpression(vardecl.Expression);
-                            valueFound = true;
-                            break;
-                        }
-                    }
+                    value = _typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Identifier).Id];
+                    valueFound = true;
                 }
             }
             else if (refrence.Identifier is FuncCall)
             {
-                (refrence.Identifier as FuncCall).Identifier.Id = structType + "_" +
-                                                                  (refrence.Identifier as FuncCall).Identifier.Id;
+                (refrence.Identifier as FuncCall).Identifier.Id = structType + "_" + (refrence.Identifier as FuncCall).Identifier.Id;
                 exp.IsFuncCall = true;
                 exp.FuncsStruct = structType;
-                foreach (var structpart in _typechecker.Structs[structType].StructParts.StructPartList)
+                if (_typechecker.Structs[structType].StructFunctions.ContainsKey((refrence.Identifier as FuncCall).Identifier.Id))
                 {
-                    if (structpart is FunctionDeclaration)
-                    {
-                        var funcdecl = structpart as FunctionDeclaration;
-                        if (funcdecl.TypeId.Identifier.Id == (refrence.Identifier as FuncCall).Identifier.Id)
-                        {
-                            value = TypeChecker(funcdecl.TypeId.ValueType.ToString());
-                            ParameterChecker(funcdecl, refrence.Identifier as FuncCall);
-                            valueFound = true;
-                            break;
-                        }
-                    }
+                    value = _typechecker.Structs[structType].StructFunctions[(refrence.Identifier as FuncCall).Identifier.Id].Value;
+                    ParameterChecker(_typechecker.Structs[structType].StructFunctions[(refrence.Identifier as FuncCall).Identifier.Id].FuncDecl, 
+                        refrence.Identifier as FuncCall);
+                    valueFound = true;
                 }
             }
             else if (refrence.Identifier is IdIndex)
             {
-                foreach (var structpart in _typechecker.Structs[structType].StructParts.StructPartList)
+                if (_typechecker.Structs[structType].StructIdentifiers.ContainsKey((refrence.Identifier as IdIndex).Identifier.Id))
                 {
-                    if (structpart is VarDecleration)
+                    value = _typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as IdIndex).Identifier.Id];
+                    if (value is ListValue)
                     {
-                        if ((structpart as VarDecleration).Identifier.Id ==
-                            (refrence.Identifier as IdIndex).Identifier.Id)
-                        {
-                            value = CheckExpression((structpart as VarDecleration).Expression);
-                            if (value is ListValue)
-                            {
-                                value = (value as ListValue).Value;
-                            }
-                            else
-                            {
-                                _typechecker.Errors.Add($"{_typechecker.LineColumnString(structpart as VarDecleration)}Expected a list but got a \"{value.GetType()}\"");
-                            }
-                            valueFound = true;
-                            break;
-                        }
+                        value = (value as ListValue).Value;
                     }
+                    else
+                    {
+                        _typechecker.Errors.Add($"{_typechecker.LineColumnString(refrence)}Expected a list but got a \"{value.GetType()}\"");
+                    }
+                    valueFound = true;
                 }
             }
-            else
+            else if (refrence.Identifier is Refrence)
             {
-                foreach (var structpart  in _typechecker.Structs[structType].StructParts.StructPartList)
+                if (_typechecker.Structs[structType].StructIdentifiers.ContainsKey((refrence.Identifier as Refrence).StructRefrence.ToString()))
                 {
-                    if (structpart is StructDecleration)
+                    if (_typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] is StructValue)
                     {
-                        var structDecleration = structpart as StructDecleration;
-                        if (refrence.Identifier is Refrence)
+                        var StVal = (_typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] as StructValue);
+                        value = StructRefrenceChecker(refrence.Identifier as Refrence, StVal.Identifier, exp);
+                        valueFound = true;
+                    }
+                    else if (_typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] is ListValue)
+                    {
+                        var listRefrence = refrence.Identifier as Refrence;
+
+                        if (listRefrence.Identifier is FuncCall)
                         {
-                            if (structDecleration.Identifier.Id ==
-                                (refrence.Identifier as Refrence).StructRefrence.ToString())
-                            {
-                                value = StructRefrenceChecker(refrence.Identifier as Refrence,
-                                    structDecleration.StructIdentifier.Id, exp);
-                                valueFound = true;
-                                break;
-                            }
+                            var funcCall = listRefrence.Identifier as FuncCall;
+                            funcCall.Identifier.Type.ValueType = (_typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] as ListValue).Type.Type.ToString();
+                            if (funcCall.Identifier.Id == "count")
+                                value = new NumValue(2.0);
+                            else
+                                value = new UnInitialisedVariable();
+                            ListFuncChecker(funcCall, (_typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] as ListValue));
+                            valueFound = true;
+                        }
+                        else
+                        {
+                            value = StructRefrenceChecker(listRefrence,
+                                ((_typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).
+                                StructRefrence.ToString()] as ListValue).Type.Type as Identifier).Id,
+                                exp);
+                            valueFound = true;
                         }
                     }
-                    else if (structpart is VarDecleration)
-                    {
-                        var varDecl = structpart as VarDecleration;
-                        if (varDecl.Identifier.Id == (refrence.Identifier as Refrence).StructRefrence.ToString())
-                        {
-                            if (CheckExpression(varDecl.Expression) is ListValue)
-                            {
-                                var listRefrence = refrence.Identifier as Refrence;
-                                if (listRefrence.Identifier is FuncCall)
-                                {
-                                    var funcCall = listRefrence.Identifier as FuncCall;
-                                    funcCall.Identifier.Type.ValueType = varDecl.Identifier.Type.ValueType;
-                                    if (funcCall.Identifier.Id == "count")
-                                        value = new NumValue(2.0);
-                                    else
-                                        value = new UnInitialisedVariable();
-                                    ListFuncChecker(funcCall, CheckExpression(varDecl.Expression) as ListValue);
-                                    valueFound = true;
-                                }
-                                else
-                                {
-                                    value = StructRefrenceChecker(listRefrence,
-                                        ((CheckExpression(varDecl.Expression) as ListValue).Type.Type as Identifier).Id,
-                                        exp);
-                                    valueFound = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+
                 }
             }
             if (value is UnInitialisedVariable && !valueFound)
@@ -641,8 +598,7 @@ namespace eeCCompiler.Visitors
                     (refid as FuncCall).IsBodyPart = true;
 
                     var value = StructRefrenceChecker(refrence,
-                        (_typechecker.Identifiers[refrence.StructRefrence.ToString()] as StructValue).Struct.Identifier
-                            .Id, refrence);
+                        (_typechecker.Identifiers[refrence.StructRefrence.ToString()] as StructValue).Identifier, refrence);
                 }
 
                 else if (_typechecker.Identifiers[refrence.StructRefrence.ToString()] is ListValue)
