@@ -8,6 +8,7 @@ namespace eeCCompiler.Visitors
     {
         private readonly bool[] Regs = new bool[8];
         private readonly List<string> UsedVariables = new List<string>();
+        public string File => Data + Text;
 
         public MipsPrinter()
         {
