@@ -38,7 +38,7 @@ namespace eeCCompiler.Visitors
             root.ConstantDefinitions.Accept(this);
 
             Header += Code;
-            
+
             Code = "";
             Code += StandardFunctions;
 
@@ -385,7 +385,7 @@ namespace eeCCompiler.Visitors
             var stringCreater = new StringFinderVisitor(TempCVariable);
             PreExpressionStringCreater(stringCreater, funcCall);
 
-                #region Print
+            #region Print
 
             if (funcCall.Identifier.Id == "program_print")
             {
@@ -686,7 +686,6 @@ namespace eeCCompiler.Visitors
 
             Code += _defaultCCode.GenerateListTypeCode(structDef.Identifier.Id + "list",
                 structDef.Identifier.Id, true);
-
         }
 
         public void Visit(StructParts structParts)
@@ -871,12 +870,6 @@ namespace eeCCompiler.Visitors
                 if (expressionExprOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Mod)
                     Code += ")";
             }
-        }
-
-        public void SortStructDefinitions(StructDefinitions structDefinitions) // MATHIAS
-        {
-            var sorter = new StructDefinitionSorter();
-            sorter.Sort(structDefinitions.Definitions);
         }
 
         private void PreExpressionStringCreater(StringFinderVisitor stringCreater, INodeElement node)

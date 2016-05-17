@@ -1,75 +1,60 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+using System.Linq;
 using eeCCompiler.Visitors;
 
 namespace eeCCompiler
 {
     internal class Program
     {
+        private static readonly List<string> Errors = new List<string>();
+
         private static void Main(string[] args)
         {
-            var parser = new MyParser();
-            var result = parser.Parse(new StreamReader("HelloWorld.eec"));
-            var syntax = result ? "The syntax is correct!" : "There are errors in the syntax";
-            Console.WriteLine(syntax);
-            var errors = new List<string>();
-            if (result)
-            {
-                try
-                {
-                    var derp = new CCodeGeneration();
-                    derp.SortStructDefinitions(parser.Root.StructDefinitions);
-                }
-                catch (ArgumentException e)
-                {
-                    Console.WriteLine(e.Message);
-                    Console.ReadKey();
-                    Environment.Exit(1);
-                }
-                parser.Root.Accept(new Precedence());
-                parser.Root.Accept(new Typechecker(errors));
-                errors.ForEach(x => Console.WriteLine(x));
-                //  if (errors.Count == 0)
-                {
-                    var cCodeVisitor = new CCodeGeneration();
-                    cCodeVisitor.Visit(parser.Root);
+            string path = "", filename;
 
-                    var sr = new StreamWriter("code.c");
-                    sr.Write(cCodeVisitor.CCode);
-                    sr.Close();
-                }
-            }
-            Console.WriteLine("Compile c code? (y/n)");
-            var answer = 0;
-            while (true)
+            // Checking argument
+            var fileChecker = new FileChecker();
+            fileChecker.GetArguments(args, ref path, out filename);
+
+            // Parsing input
+            var parser = new Parser(Errors);
+            var parsed = parser.Parse(path + filename + ".eec");
+
+            if (parsed)
             {
-                var input = Console.ReadKey();
-                if (input.Key == ConsoleKey.Y)
+                // Sorting structs declarations
+                var structSorter = new StructSorter();
+                structSorter.SortStructs(parser, Errors);
+
+                // Fixing precedence
+                parser.Root.Accept(new Precedence());
+
+                // Type checking
+                parser.Root.Accept(new Typechecker(Errors));
+
+                if (Errors.Any())
                 {
-                    answer = 1;
-                    break;
+                    // Printing errors
+                    Errors.ForEach(Console.WriteLine);
+                    Console.ReadKey();
                 }
-                if (input.Key == ConsoleKey.N)
-                    break;
-                Console.Write("\b \b");
+                else
+                {
+                    // Compiling to C
+                    var cCompiler = new CCompiler();
+                    cCompiler.CompileToC(parser, filename);
+                    cCompiler.CompileC(path + filename);
+                    cCompiler.Run(path + filename);
+                }
             }
-            if (answer == 1)
+            else
             {
-                var codeName = "code";
-                var codePath = @"..\..\bin\Debug\";
-                var compilerPath = @"..\..\C_code\C compiler\bin\gcc";
-                string compileArguments = $" {codePath}{codeName}.c -o {codePath}{codeName}.exe";
-                    // Example of arguments
-                string runArguments = $"/C start cmd /k {codePath}{codeName}.exe";
-                var p = new Process {StartInfo = new ProcessStartInfo(compilerPath, compileArguments)};
-                p.Start();
-                while (!p.HasExited)
-                {
-                }
-                Process.Start("CMD.exe", runArguments);
+                // Parse unsuccesfully - Printing errors
+                Errors.ForEach(Console.WriteLine);
+                Console.ReadKey();
             }
+            Console.Clear();
         }
     }
 }

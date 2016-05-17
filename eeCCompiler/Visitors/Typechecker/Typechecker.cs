@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using eeCCompiler.Interfaces;
 using eeCCompiler.Nodes;
 
@@ -61,7 +60,8 @@ namespace eeCCompiler.Visitors
             if (!Structs.ContainsKey(structDefinition.Identifier.Id))
                 Structs.Add(structDefinition.Identifier.Id, FullStruct);
             else
-                Errors.Add($"{LineColumnString(structDefinition)}\"{structDefinition.Identifier.Id}\" was declared twice" );
+                Errors.Add(
+                    $"{LineColumnString(structDefinition)}\"{structDefinition.Identifier.Id}\" was declared twice");
 
             //RYD OP!!
 
@@ -71,13 +71,15 @@ namespace eeCCompiler.Visitors
                 if (sp is FunctionDeclaration)
                 {
                     var FuncDecl = sp as FunctionDeclaration;
-                    FullStruct.StructFunctions.Add(FuncDecl.TypeId.Identifier.Id,new Function(FuncDecl, _expressionChecker.TypeChecker(FuncDecl.TypeId.ValueType.ToString())));
+                    FullStruct.StructFunctions.Add(FuncDecl.TypeId.Identifier.Id,
+                        new Function(FuncDecl, _expressionChecker.TypeChecker(FuncDecl.TypeId.ValueType.ToString())));
                 }
                 else if (sp is VarDecleration)
                 {
                     var VarDecl = sp as VarDecleration;
                     VarDecl.Accept(this);
-                    FullStruct.StructIdentifiers.Add(VarDecl.Identifier.Id, _expressionChecker.CheckExpression(VarDecl.Expression));
+                    FullStruct.StructIdentifiers.Add(VarDecl.Identifier.Id,
+                        _expressionChecker.CheckExpression(VarDecl.Expression));
                 }
                 else if (sp is StructDecleration)
                 {
@@ -92,16 +94,19 @@ namespace eeCCompiler.Visitors
         public override void Visit(StructDecleration structDecleration)
         {
             if (!(structDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq))
-                Errors.Add($"{LineColumnString(structDecleration)}The \"{structDecleration.AssignmentOperator.Symbol}\" operator can not be used on a struct");
+                Errors.Add(
+                    $"{LineColumnString(structDecleration)}The \"{structDecleration.AssignmentOperator.Symbol}\" operator can not be used on a struct");
             if (!Identifiers.ContainsKey(structDecleration.Identifier.Id))
             {
                 structDecleration.Identifier.Accept(this);
                 if (Structs.ContainsKey(structDecleration.StructIdentifier.Id))
                 {
-                    Identifiers[structDecleration.Identifier.Id] = (Structs[structDecleration.StructIdentifier.Id]);
+                    Identifiers[structDecleration.Identifier.Id] = Structs[structDecleration.StructIdentifier.Id];
                     foreach (var varDecl in structDecleration.VarDeclerations.VarDeclerationList)
                     {
-                        if (Structs[structDecleration.StructIdentifier.Id].StructIdentifiers.ContainsKey(varDecl.Identifier.Id))
+                        if (
+                            Structs[structDecleration.StructIdentifier.Id].StructIdentifiers.ContainsKey(
+                                varDecl.Identifier.Id))
                         {
                             var expressionVariable = _expressionChecker.CheckExpression(varDecl.Expression);
 
@@ -109,28 +114,36 @@ namespace eeCCompiler.Visitors
                             {
                                 var exprStructIden = (expressionVariable as StructValue).Identifier;
                                 var declStructIden =
-                                    ((expressionVariable as StructValue).StructIdentifiers[varDecl.Identifier.Id] as StructValue).Identifier;
+                                    ((expressionVariable as StructValue).StructIdentifiers[varDecl.Identifier.Id] as
+                                        StructValue).Identifier;
                                 if (exprStructIden != declStructIden)
-                                    Errors.Add($"{LineColumnString(varDecl)}Value of struct variable \"{varDecl.Identifier.Id}\" is not of same type as the expression");
+                                    Errors.Add(
+                                        $"{LineColumnString(varDecl)}Value of struct variable \"{varDecl.Identifier.Id}\" is not of same type as the expression");
                             }
                             else if (
-                                !(Structs[structDecleration.StructIdentifier.Id].StructIdentifiers[varDecl.Identifier.Id].GetType().ToString() ==
+                                !(Structs[structDecleration.StructIdentifier.Id].StructIdentifiers[varDecl.Identifier.Id
+                                    ].GetType().ToString() ==
                                   _expressionChecker.CheckExpression(varDecl.Expression).GetType().ToString()))
-                                Errors.Add($"{LineColumnString(varDecl)}Value of struct variable \"{varDecl.Identifier.Id}\" is not of same type as the expression");
+                                Errors.Add(
+                                    $"{LineColumnString(varDecl)}Value of struct variable \"{varDecl.Identifier.Id}\" is not of same type as the expression");
                         }
                         else
-                            Errors.Add($"{LineColumnString(varDecl)}Struct \"{structDecleration.StructIdentifier.Id}\" does not contain a variable called \"{varDecl.Identifier.Id}\"");
+                            Errors.Add(
+                                $"{LineColumnString(varDecl)}Struct \"{structDecleration.StructIdentifier.Id}\" does not contain a variable called \"{varDecl.Identifier.Id}\"");
                     }
                 }
                 else
-                    Errors.Add($"{LineColumnString(structDecleration)}Struct \"{structDecleration.StructIdentifier.Id}\" was not declared but was used in program");
+                    Errors.Add(
+                        $"{LineColumnString(structDecleration)}Struct \"{structDecleration.StructIdentifier.Id}\" was not declared but was used in program");
             }
             else if (!(Identifiers[structDecleration.Identifier.Id] is StructValue))
-                Errors.Add($"{LineColumnString(structDecleration)}\"{structDecleration.Identifier.Id}\" is not of type \"{structDecleration.StructIdentifier.Id}\"");
+                Errors.Add(
+                    $"{LineColumnString(structDecleration)}\"{structDecleration.Identifier.Id}\" is not of type \"{structDecleration.StructIdentifier.Id}\"");
             else if (
                 !((Identifiers[structDecleration.Identifier.Id] as StructValue).Identifier ==
                   Structs[structDecleration.StructIdentifier.Id].Identifier))
-                Errors.Add($"{structDecleration.Identifier.Id}\" is not of type \"{structDecleration.StructIdentifier.Id}\"");
+                Errors.Add(
+                    $"{structDecleration.Identifier.Id}\" is not of type \"{structDecleration.StructIdentifier.Id}\"");
         }
 
         public override void Visit(ExpressionNegate expressionNegate)
@@ -170,7 +183,8 @@ namespace eeCCompiler.Visitors
             if (!Identifiers.ContainsKey(identifier.Id))
                 Identifiers.Add(identifier.Id, identifier);
             if (Structs.ContainsKey(identifier.Id))
-                Errors.Add($"{LineColumnString(identifier)}Variables can not be of the same name as one of the structs \"{identifier.Id}\"");
+                Errors.Add(
+                    $"{LineColumnString(identifier)}Variables can not be of the same name as one of the structs \"{identifier.Id}\"");
         }
 
         public override void Visit(VarInStructDecleration varInStructDecleration)
@@ -186,17 +200,21 @@ namespace eeCCompiler.Visitors
                     if (value1.GetType().ToString() !=
                         _expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType().ToString())
                     {
-                        Errors.Add($"{LineColumnString(varInStructDecleration)}Struct variable is of type \"{value1.GetType()}\" and expression is of type" +
-                       $"\"{_expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType()}\"");
+                        Errors.Add(
+                            $"{LineColumnString(varInStructDecleration)}Struct variable is of type \"{value1.GetType()}\" and expression is of type" +
+                            $"\"{_expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType()}\"");
                     }
                     //Den skal ikke gøre noget hvis det er lykkes da vi er ligeglade med værdien.
                 }
                 else
-                    Errors.Add($"{LineColumnString(varInStructDecleration)}\"{(varInStructDecleration.Refrence.StructRefrence as Identifier).Id}\" is not a struct");
+                    Errors.Add(
+                        $"{LineColumnString(varInStructDecleration)}\"{(varInStructDecleration.Refrence.StructRefrence as Identifier).Id}\" is not a struct");
             }
             else
             {
-                Errors.Add($"{LineColumnString(varInStructDecleration)}\"{(varInStructDecleration.Refrence.StructRefrence as Identifier).Id}\" does not exist");//Måske dum fejlbesked
+                Errors.Add(
+                    $"{LineColumnString(varInStructDecleration)}\"{(varInStructDecleration.Refrence.StructRefrence as Identifier).Id}\" does not exist");
+                    //Måske dum fejlbesked
             }
         }
 
@@ -207,7 +225,8 @@ namespace eeCCompiler.Visitors
 
             if (!(varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq) &&
                 varDecleration.IsFirstUse)
-                Errors.Add($"{LineColumnString(varDecleration)}The \"{varDecleration.AssignmentOperator.Symbol}\" operator can not be used on an uninitialised variable");
+                Errors.Add(
+                    $"{LineColumnString(varDecleration)}The \"{varDecleration.AssignmentOperator.Symbol}\" operator can not be used on an uninitialised variable");
             varDecleration.Identifier.Accept(this);
 
             varDecleration.AssignmentOperator.Accept(this);
@@ -222,7 +241,8 @@ namespace eeCCompiler.Visitors
             }
             if (value is UnInitialisedVariable)
             {
-                Errors.Add($"{LineColumnString(varDecleration)}Identifier \"{varDecleration.Identifier.Id}\" was not assigned a value");
+                Errors.Add(
+                    $"{LineColumnString(varDecleration)}Identifier \"{varDecleration.Identifier.Id}\" was not assigned a value");
             }
             else if (Identifiers[varDecleration.Identifier.Id] is Identifier)
             {
@@ -241,15 +261,18 @@ namespace eeCCompiler.Visitors
             {
                 if (Identifiers[varDecleration.Identifier.Id] is BoolValue &&
                     !(varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq))
-                    Errors.Add($"{LineColumnString(varDecleration)}\"{varDecleration.AssignmentOperator.Symbol}\" operator can not be used with two boolean values");
+                    Errors.Add(
+                        $"{LineColumnString(varDecleration)}\"{varDecleration.AssignmentOperator.Symbol}\" operator can not be used with two boolean values");
                 else if (Identifiers[varDecleration.Identifier.Id] is StringValue &&
                          varDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Minuseq)
-                    Errors.Add($"{LineColumnString(varDecleration)}\"{varDecleration.AssignmentOperator.Symbol}\" operator can not be used with two string values");
+                    Errors.Add(
+                        $"{LineColumnString(varDecleration)}\"{varDecleration.AssignmentOperator.Symbol}\" operator can not be used with two string values");
                 Identifiers[varDecleration.Identifier.Id] = value;
             }
             else
-                Errors.Add($"{LineColumnString(varDecleration)}Identifier \"{varDecleration.Identifier.Id}\" is of type" +
-                $"\" {Identifiers[varDecleration.Identifier.Id].GetType().Name}\" but a \"{value.GetType().Name}\" was tried to be assigned to this identifier");
+                Errors.Add(
+                    $"{LineColumnString(varDecleration)}Identifier \"{varDecleration.Identifier.Id}\" is of type" +
+                    $"\" {Identifiers[varDecleration.Identifier.Id].GetType().Name}\" but a \"{value.GetType().Name}\" was tried to be assigned to this identifier");
         }
 
         public override void Visit(Body body)
@@ -276,8 +299,9 @@ namespace eeCCompiler.Visitors
                 foreach (var parameter in functionDeclaration.Parameters.TypeIds)
                 {
                     if (parameter.TypeId.ValueType.ToString() == "void")
-                        Errors.Add($"{LineColumnString(functionDeclaration)}Parameter \"{parameter.TypeId.Identifier.Id}\"" +
-                                    $"to function \"{functionDeclaration.TypeId.Identifier.Id}\" can not be of type void");
+                        Errors.Add(
+                            $"{LineColumnString(functionDeclaration)}Parameter \"{parameter.TypeId.Identifier.Id}\"" +
+                            $"to function \"{functionDeclaration.TypeId.Identifier.Id}\" can not be of type void");
                     Identifiers.Add(parameter.TypeId.Identifier.Id,
                         _expressionChecker.TypeChecker(parameter.TypeId.ValueType.ToString()));
                 }
@@ -296,20 +320,23 @@ namespace eeCCompiler.Visitors
                 else
                     returnFound = _expressionChecker.ReturnChecker(Value, functionDeclaration.Body.Bodyparts);
                 if (returnFound == false)
-                    Errors.Add($"{LineColumnString(functionDeclaration)}Not all paths in \"{functionDeclaration.TypeId.Identifier.Id}\" return a value");
+                    Errors.Add(
+                        $"{LineColumnString(functionDeclaration)}Not all paths in \"{functionDeclaration.TypeId.Identifier.Id}\" return a value");
                 Funcs.Add(functionDeclaration.TypeId.Identifier.Id,
                     new Function(functionDeclaration,
                         _expressionChecker.TypeChecker(functionDeclaration.TypeId.ValueType.ToString())));
                 Identifiers = preBodyIdentifiers;
             }
             else
-                Errors.Add($"{LineColumnString(functionDeclaration)}\"{functionDeclaration.TypeId.Identifier.Id}\" was declared twice");
+                Errors.Add(
+                    $"{LineColumnString(functionDeclaration)}\"{functionDeclaration.TypeId.Identifier.Id}\" was declared twice");
         }
 
         public override void Visit(IfStatement ifStatement)
         {
             if (!(_expressionChecker.CheckExpression(ifStatement.Expression) is BoolValue))
-                Errors.Add($"{LineColumnString(ifStatement)}if statement expects boolean but got \"{_expressionChecker.CheckExpression(ifStatement.Expression).GetType().Name}\"");
+                Errors.Add(
+                    $"{LineColumnString(ifStatement)}if statement expects boolean but got \"{_expressionChecker.CheckExpression(ifStatement.Expression).GetType().Name}\"");
             Visit(ifStatement.Body);
             Visit(ifStatement.ElseStatement);
         }
@@ -317,7 +344,8 @@ namespace eeCCompiler.Visitors
         public override void Visit(RepeatExpr repeatExpr)
         {
             if (!(_expressionChecker.CheckExpression(repeatExpr.Expression) is BoolValue))
-                Errors.Add($"{LineColumnString(repeatExpr)}repeat expects a boolean but got \"{_expressionChecker.CheckExpression(repeatExpr.Expression).GetType().Name}\"");
+                Errors.Add(
+                    $"{LineColumnString(repeatExpr)}repeat expects a boolean but got \"{_expressionChecker.CheckExpression(repeatExpr.Expression).GetType().Name}\"");
             Visit(repeatExpr.Body);
         }
 
@@ -327,8 +355,9 @@ namespace eeCCompiler.Visitors
             Visit(repeatFor.VarDecleration);
 
             if (!(Identifiers[repeatFor.VarDecleration.Identifier.Id] is NumValue))
-                Errors.Add($"{LineColumnString(repeatFor)}\"{Identifiers[repeatFor.VarDecleration.Identifier.Id]}\" was expected to be a numeric value, but was instead " +
-                           $"\"{Identifiers[repeatFor.VarDecleration.Identifier.Id].GetType().Name}\"");
+                Errors.Add(
+                    $"{LineColumnString(repeatFor)}\"{Identifiers[repeatFor.VarDecleration.Identifier.Id]}\" was expected to be a numeric value, but was instead " +
+                    $"\"{Identifiers[repeatFor.VarDecleration.Identifier.Id].GetType().Name}\"");
             if (!(_expressionChecker.CheckExpression(repeatFor.Expression) is NumValue))
                 Errors.Add($"{LineColumnString(repeatFor)}Expected a numeric value in repeat expression but got " +
                            $"\"{_expressionChecker.CheckExpression(repeatFor.Expression).GetType().Name}\"");
@@ -350,15 +379,17 @@ namespace eeCCompiler.Visitors
             funcCall.Identifier.Id = "program_" + funcCall.Identifier.Id;
             if (!Funcs.ContainsKey(funcCall.Identifier.Id))
             {
-                Errors.Add($"{LineColumnString(funcCall)}\"{funcCall.Identifier.Id}\" was not declared but was used in the code");
+                Errors.Add(
+                    $"{LineColumnString(funcCall)}\"{funcCall.Identifier.Id}\" was not declared but was used in the code");
             }
             else
                 _expressionChecker.ParameterChecker(Funcs[funcCall.Identifier.Id].FuncDecl, funcCall);
         }
+
         public string LineColumnString(AbstractSyntaxTree nodeElement)
         {
             return $"L:{nodeElement.Line}, C:{nodeElement.Column}:: ";
-        } 
+        }
 
         #endregion
     }
@@ -370,6 +401,7 @@ namespace eeCCompiler.Visitors
             //Skal aldrig accepteres så bliver aldrig kaldt (y)
         }
     }
+
     public class StructValue : IValue
     {
         public StructValue(string identifier)
@@ -377,6 +409,7 @@ namespace eeCCompiler.Visitors
             Identifier = identifier;
             StructIdentifiers = new Dictionary<string, IValue>();
         }
+
         public Dictionary<string, IValue> StructIdentifiers { get; set; }
         public Dictionary<string, Function> StructFunctions { get; set; }
         public string Identifier { get; set; }
