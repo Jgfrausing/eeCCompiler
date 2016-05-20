@@ -325,7 +325,7 @@ namespace eeCCompiler
                 case Indexes.Indexes.ProductionIndex.Var_decl:
                     // <var_decl> ::= <refrence> <assign_opr> <expr>
                     result = new VarInStructDecleration(_reductionStack.Pop() as IExpression,
-                        _reductionStack.Pop() as AssignmentOperator, _reductionStack.Pop() as Refrence);
+                        _reductionStack.Pop() as AssignmentOperator, _reductionStack.Pop() as IStructRefrence);
                     break;
                 case Indexes.Indexes.ProductionIndex.List:
                     // <list> ::= <type> <brackets>

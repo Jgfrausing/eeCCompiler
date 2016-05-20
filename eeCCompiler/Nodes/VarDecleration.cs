@@ -32,14 +32,14 @@ namespace eeCCompiler.Nodes
 
     public class VarInStructDecleration : AbstractSyntaxTree, IBodypart, IStructPart
     {
-        public VarInStructDecleration(IExpression expression, AssignmentOperator assignmentOperator, Refrence refrence)
+        public VarInStructDecleration(IExpression expression, AssignmentOperator assignmentOperator, IStructRefrence refrence)
         {
             Refrence = refrence;
             AssignmentOperator = assignmentOperator;
             Expression = expression;
         }
 
-        public Refrence Refrence { get; set; }
+        public IStructRefrence Refrence { get; set; }
         public AssignmentOperator AssignmentOperator { get; set; }
         public IExpression Expression { get; set; }
 

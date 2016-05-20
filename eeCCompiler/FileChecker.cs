@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 
 namespace eeCCompiler
@@ -7,6 +8,7 @@ namespace eeCCompiler
     {
         public void GetArguments(string[] args, ref string path, out string filename)
         {
+            //FileStream f = new;
             string argument;
             if (args.Length != 0)
             {
@@ -17,12 +19,9 @@ namespace eeCCompiler
                 Console.WriteLine("Path to .eeC file");
                 argument = Console.ReadLine();
             }
-            filename = argument.Split('\\').Last().Split('.').First();
-            var length = argument.Split('\\').Length;
-            for (var i = 0; i < length - 1; i++)
-            {
-                path += path.Split('\\')[i];
-            }
+
+            path = Path.GetDirectoryName(argument) + "\\";
+            filename = Path.GetFileName(argument).Split('.')[0];
         }
     }
 }

@@ -43,7 +43,7 @@ namespace eeCCompiler
                 }
                 else
                 {
-                    if (args[1] == "-mips")
+                    if (args.Length > 1 && args[1] == "-mips")
                     {
                         // Compiling to MIPS
                         var mips = new MipsPrinter();

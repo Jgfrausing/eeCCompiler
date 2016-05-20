@@ -190,32 +190,65 @@ namespace eeCCompiler.Visitors
         public override void Visit(VarInStructDecleration varInStructDecleration)
         {
             IValue value1 = null;
-            if (Identifiers.ContainsKey((varInStructDecleration.Refrence.StructRefrence as Identifier).Id))
+            if (varInStructDecleration.Refrence is Refrence)
             {
-                if (Identifiers[(varInStructDecleration.Refrence.StructRefrence as Identifier).Id] is StructValue)
+                var reference = varInStructDecleration.Refrence as Refrence;
+                if (Identifiers.ContainsKey((reference.StructRefrence as Identifier).Id))
                 {
-                    value1 = _expressionChecker.StructRefrenceChecker(varInStructDecleration.Refrence,
-                        (Identifiers[(varInStructDecleration.Refrence.StructRefrence as Identifier).Id] as StructValue)
-                            .Identifier, varInStructDecleration.Refrence);
-                    if (value1.GetType().ToString() !=
-                        _expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType().ToString())
+                    if (Identifiers[(reference.StructRefrence as Identifier).Id] is StructValue)
                     {
-                        Errors.Add(
-                            $"{LineColumnString(varInStructDecleration)}Struct variable is of type \"{value1.GetType()}\" and expression is of type" +
-                            $"\"{_expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType()}\"");
+                        value1 = _expressionChecker.StructRefrenceChecker(reference,
+                            (Identifiers[(reference.StructRefrence as Identifier).Id] as StructValue)
+                                .Identifier, reference);
+                        if (value1.GetType().ToString() !=
+                            _expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType().ToString())
+                        {
+                            Errors.Add(
+                                $"{LineColumnString(varInStructDecleration)}Struct variable is of type \"{value1.GetType()}\" and expression is of type" +
+                                $"\"{_expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType()}\"");
+                        }
+                        //Den skal ikke gøre noget hvis det er lykkes da vi er ligeglade med værdien.
                     }
-                    //Den skal ikke gøre noget hvis det er lykkes da vi er ligeglade med værdien.
+                    else
+                        Errors.Add(
+                            $"{LineColumnString(varInStructDecleration)}\"{(reference.StructRefrence as Identifier).Id}\" is not a struct");
                 }
                 else
+                {
                     Errors.Add(
-                        $"{LineColumnString(varInStructDecleration)}\"{(varInStructDecleration.Refrence.StructRefrence as Identifier).Id}\" is not a struct");
+                        $"{LineColumnString(varInStructDecleration)}\"{(reference.StructRefrence as Identifier).Id}\" does not exist");
+                    //Måske dum fejlbesked
+                }
+            }
+            else if (varInStructDecleration.Refrence is IdIndex)
+            {
+                var idIndex = varInStructDecleration.Refrence as IdIndex;
+                if (Identifiers.ContainsKey(idIndex.Identifier.Id))
+                {
+                    if (Identifiers[idIndex.Identifier.Id] is ListValue)
+                    {
+                        var listVal = Identifiers[idIndex.Identifier.Id] as ListValue;
+                        idIndex.Identifier.Type.ValueType = _expressionChecker.CheckValueType(listVal.Value);
+                        if (listVal.Value.GetType().Name !=
+                            _expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType().Name)
+                        {
+                            Errors.Add(
+                                $"{LineColumnString(varInStructDecleration)}Type of expression did not match type of list");
+                        }
+                    }
+                    else
+                    {
+                        Errors.Add($"{LineColumnString(varInStructDecleration)}can not index on something not a list");
+                    }
+                    
+                }
+                else
+                {
+                    Errors.Add($"{LineColumnString(varInStructDecleration)} identifier \"{idIndex.Identifier.Id}\" was used but never declared");
+                }
             }
             else
-            {
-                Errors.Add(
-                    $"{LineColumnString(varInStructDecleration)}\"{(varInStructDecleration.Refrence.StructRefrence as Identifier).Id}\" does not exist");
-                    //Måske dum fejlbesked
-            }
+                Errors.Add(LineColumnString(varInStructDecleration) + "Fatal error in typechecker");
         }
 
         public override void Visit(VarDecleration varDecleration)

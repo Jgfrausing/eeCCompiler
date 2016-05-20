@@ -212,7 +212,7 @@ void numlist_sort(numlist_handle * head){
 }
 
 numlist_handle numlist_copy(numlist_handle * source){
-    numlist_handle destination;
+    numlist_handle destination = numlist_new();
     numlist_element * current = source->first;
     for (int i = 0; i < source->size; ++i)
     {
@@ -381,7 +381,7 @@ void boollist_set(int index, int value, boollist_handle * head){
 }
 
 boollist_handle boollist_copy(boollist_handle * source){
-    boollist_handle destination;
+    boollist_handle destination = boollist_new();
     boollist_element * current = source->first;
     for (int i = 0; i < source->size; ++i)
     {
@@ -550,7 +550,7 @@ void string_set(int index, char value, string_handle * head){
 }
 
 string_handle string_copy(string_handle * source){
-    string_handle destination;
+    string_handle destination = string_new();
     string_element * current = source->first;
     for (int i = 0; i < source->size; ++i)
     {

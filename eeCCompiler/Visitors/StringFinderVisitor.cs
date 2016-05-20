@@ -64,6 +64,17 @@ namespace eeCCompiler.Visitors
             repeatExpr.Expression.Accept(this);
         }
 
+        public override void Visit(IdIndex idIndex)
+        {
+            idIndex.ListIndex.Indexes[0].Accept(this);
+        }
+
+        public override void Visit(VarInStructDecleration varInStructDecleration)
+        {
+            varInStructDecleration.Refrence.Accept(this);
+            varInStructDecleration.Expression.Accept(this);
+        }
+
         private IValue StringReplacer(IValue value)
         {
             if (value is StringValue)

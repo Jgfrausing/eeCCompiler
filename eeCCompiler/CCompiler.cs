@@ -20,10 +20,14 @@ namespace eeCCompiler
         public void CompileC(string pathFile)
         {
             var compilerPath = @"..\..\C_code\C compiler\bin\gcc";
-            string compileArguments = $" {pathFile}.c -o {pathFile}.exe";
+            string compileArguments = $" \"{pathFile}.c -o {pathFile}.exe\"";
             // Example of arguments
             var p = new Process {StartInfo = new ProcessStartInfo(compilerPath, compileArguments)};
             p.Start();
+            while (!p.HasExited)
+            {
+                
+            }
         }
 
         public void Run(string pathFile)
@@ -45,7 +49,7 @@ namespace eeCCompiler
 
             if (answer == 1)
             {
-                string runArguments = $"/C start cmd /k {pathFile}.exe";
+                string runArguments = $"/C start cmd /k \"{pathFile}.exe\"";
                 Process.Start("CMD.exe", runArguments);
             }
         }

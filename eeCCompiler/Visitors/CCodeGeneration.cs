@@ -635,7 +635,18 @@ namespace eeCCompiler.Visitors
             else if (varDecl.Identifier.Type.ValueType == "string" && !(varDecl.Expression is FuncCall))
             {
                 if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
-                    CreateNewString(varDecl);
+                {
+                    if (varDecl.Expression is ExpressionVal && (varDecl.Expression as ExpressionVal).Value is Identifier)
+                    {
+                        Code += $"{varDecl.Identifier.Type.ValueType}_handle {varDecl.Identifier} = {varDecl.Identifier.Type.ValueType}_copy(&{(varDecl.Expression as ExpressionVal).Value});\n";
+                    }
+                    else
+                    {
+                        CreateNewString(varDecl);
+                    }
+                    
+                    
+                }
 
                 else if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Pluseq)
                     AppendToString(((varDecl.Expression as ExpressionVal).Value as StringValue).Elements,
@@ -645,8 +656,7 @@ namespace eeCCompiler.Visitors
             {
                 if (varDecl.IsFirstUse)
                     Code += GetValueType(varDecl.Identifier.Type) + " ";
-                //if (!varDecl.Identifier.Type.IsBasicType)
-                //    _code += "*";
+
                 Code += $"{varDecl.Identifier.Id} ";
                 varDecl.AssignmentOperator.Accept(this);
                 Code += " ";
@@ -801,8 +811,9 @@ namespace eeCCompiler.Visitors
 
         public void Visit(IdIndex idIndex)
         {
-            idIndex.Identifier.Accept(this);
-            idIndex.ListIndex.Accept(this);
+            Code += $"{idIndex.Identifier.Type.ValueType}list_get(";
+            idIndex.ListIndex.Indexes[0].Accept(this);
+            Code += $", &{idIndex.Identifier.Id})";
         }
 
         public void Visit(VarInStructDecleration varInStructDecleration)
@@ -810,36 +821,51 @@ namespace eeCCompiler.Visitors
             var stringCreater = new StringFinderVisitor(TempCVariable);
             PreExpressionStringCreater(stringCreater, varInStructDecleration);
 
+            if (varInStructDecleration.Refrence is Refrence)
+            {
+                if (varInStructDecleration.Expression is ExpressionVal &&
+                    (varInStructDecleration.Expression as ExpressionVal).Value is Identifier &&
+                    !((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.IsBasicType &&
+                    !((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.IsListValue &&
+                    !(((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.ValueType == "string"))
+                {
+                    varInStructDecleration.Refrence.Accept(this);
+                    Code += "= " + ((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.ValueType +
+                            "_copy(";
+                    Code += ((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Id + ");";
+                }
+                else if (varInStructDecleration.Expression is ExpressionVal &&
+                         (varInStructDecleration.Expression as ExpressionVal).Value is StringValue)
+                {
+                    if (varInStructDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
+                        CreateNewString(varInStructDecleration);
 
-            if (varInStructDecleration.Expression is ExpressionVal &&
-                (varInStructDecleration.Expression as ExpressionVal).Value is Identifier &&
-                !((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.IsBasicType &&
-                !((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.IsListValue &&
-                !(((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.ValueType == "string"))
-            {
-                varInStructDecleration.Refrence.Accept(this);
-                Code += "= " + ((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.ValueType +
-                        "_copy(";
-                Code += ((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Id + ");";
+                    else if (varInStructDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Pluseq)
+                        AppendToString(
+                            ((varInStructDecleration.Expression as ExpressionVal).Value as StringValue).Elements,
+                            new Identifier(varInStructDecleration.Refrence.ToString()));
+                }
+                else
+                {
+                    varInStructDecleration.Refrence.Accept(this);
+                    varInStructDecleration.AssignmentOperator.Accept(this);
+                    varInStructDecleration.Expression.Accept(this);
+                    Code += ";";
+                }
             }
-            else if (varInStructDecleration.Expression is ExpressionVal &&
-                     (varInStructDecleration.Expression as ExpressionVal).Value is StringValue)
+            else if (varInStructDecleration.Refrence is IdIndex)
             {
-                if (varInStructDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
-                    CreateNewString(varInStructDecleration);
-
-                else if (varInStructDecleration.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Pluseq)
-                    AppendToString(
-                        ((varInStructDecleration.Expression as ExpressionVal).Value as StringValue).Elements,
-                        new Identifier(varInStructDecleration.Refrence.ToString()));
-            }
-            else
-            {
-                varInStructDecleration.Refrence.Accept(this);
-                varInStructDecleration.AssignmentOperator.Accept(this);
+                var idIndex = varInStructDecleration.Refrence as IdIndex;
+                Code += $"{idIndex.Identifier.Type.ValueType}list_set(";
+                idIndex.ListIndex.Indexes[0].Accept(this);
+                Code += ", ";
+                if (idIndex.Identifier.Type.ValueType.ToString() == "string")
+                    Code += "&";
                 varInStructDecleration.Expression.Accept(this);
-                Code += ";";
+                Code += $", &{idIndex.Identifier.Id});";
+
             }
+
             PostExpressionStringCreater(stringCreater);
         }
 
@@ -1123,9 +1149,9 @@ namespace eeCCompiler.Visitors
         {
             if (!isEqual)
                 Code += "!";
-            Code += "string_equals(";
+            Code += "string_equals(&";
             first.Accept(this);
-            Code += ", ";
+            Code += ", &";
             second.Accept(this);
             Code += ")";
         }
