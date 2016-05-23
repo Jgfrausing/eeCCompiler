@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 
@@ -6,7 +7,7 @@ namespace eeCCompiler
 {
     public class FileChecker
     {
-        public void GetArguments(string[] args, ref string path, out string filename)
+        public void GetArguments(string[] args, out string path, out string filename, out string extension)
         {
             //FileStream f = new;
             string argument;
@@ -21,7 +22,9 @@ namespace eeCCompiler
             }
 
             path = Path.GetDirectoryName(argument) + "\\";
+            path = path.Trim(' ') == "\\" ? "" : path;
             filename = Path.GetFileName(argument).Split('.')[0];
+            extension = Path.GetExtension(argument);
         }
     }
 }

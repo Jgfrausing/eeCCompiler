@@ -12,16 +12,16 @@ namespace eeCCompiler
 
         private static void Main(string[] args)
         {
-            string path = "", filename;
+            string path, filename, extension;
             var errors = new List<string>();
 
             // Checking argument
             var fileChecker = new FileChecker();
-            fileChecker.GetArguments(args, ref path, out filename);
+            fileChecker.GetArguments(args, out path, out filename, out extension);
 
             // Parsing input
             var parser = new Parser(errors);
-            var parsed = parser.Parse(path + filename + ".eec");
+            var parsed = parser.Parse(path + filename + extension);
 
             if (parsed)
             {
@@ -55,8 +55,11 @@ namespace eeCCompiler
                         // Compiling to C
                         var cCompiler = new CCompiler();
                         cCompiler.CompileToC(parser, filename);
-                        //cCompiler.CompileC(path + filename);
-                        //cCompiler.Run(path + filename);
+                        if (!args.Any())
+                        {
+                            cCompiler.CompileC(path + filename);
+                            cCompiler.Run(path + filename);
+                        }
                     }
                 }
             }
