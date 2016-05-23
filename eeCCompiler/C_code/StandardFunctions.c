@@ -155,59 +155,37 @@ void numlist_set(int index, double value, numlist_handle * head){
     current->element = value;
 }
 
-void numlist_sort(numlist_handle * head){
-    int m = 0, t = 0, q = 1;
-
-    for (int heapsize = 0; heapsize<head->size; heapsize++){
-        int n = heapsize;
-        while (n > 0){
-            int p = (n+1)/2;
-            if(numlist_get(n, head) > numlist_get(p, head)){
-                numlist_swap(head, n, p); //ChildWithParent
-                n = p;
-            }
-            else{
-                break;
-            }
-        }
+int max (numlist_handle * head, int n, int i, int j, int k) {
+    int m = i;
+    if (j < n && numlist_get(j, head) > numlist_get(m, head)) {
+        m = j;
     }
-
-    for(int heapsize = head->size; heapsize>0;){
-        numlist_swap(head, 0, --heapsize); //root with last heap element. decreasing heapsize
-        int n = 0;
-        while(1){
-            int left = (n*2)+1;
-            if (left >= heapsize)
-                break;
-            int right = left+1;
-            if (right >= heapsize){
-                if (numlist_get(left, head) > numlist_get(n, head))
-                    numlist_swap(head, left, n);
-                break;
-            }
-            if (numlist_get(left, head) > numlist_get(n, head)){
-                if (numlist_get(left, head) > numlist_get(right, head)){
-                    numlist_swap(head, left, n);
-                    n = left;
-                    continue;
-                }
-                else{
-                    numlist_swap(head, right, n);
-                    n = right;
-                    continue;
-                }
-            }
-            else {
-                if (numlist_get(right, head) > numlist_get(n, head))
-                {
-                    numlist_swap(head, right,n);
-                    n = right;
-                    continue;
-                }
-                else
-                    break;
-            }
+    if (k < n && numlist_get(k, head) > numlist_get(m, head)) {
+        m = k;
+    }
+    return m;
+}
+ 
+void downheap (numlist_handle * head, int n, int i) {
+    while (1) {
+        int j = max(head, n, i, 2 * i + 1, 2 * i + 2);
+        if (j == i) {
+            break;
         }
+        numlist_swap(head, j, i);
+        i = j;
+    }
+}
+ 
+void numlist_sort(numlist_handle * head){
+    //https://rosettacode.org/wiki/Sorting_algorithms/Heapsort#C
+    int n = head->size;
+    for (int i = (n - 2) / 2; i >= 0; i--) {
+        downheap(head, n, i);
+    }
+    for (int i = 0; i < n; i++) {
+        numlist_swap(head, n - i - 1, 0);
+        downheap(head, n - i - 1, 0);
     }
 }
 
@@ -789,6 +767,17 @@ int program_convertStringToBool(string_handle * input, int *output){
 	int result = sscanf(str, "%d", output);	
 	free(str);
 	return result;
+}
+string_handle standard_read(){
+    char str[100];
+    scanf ("%[^\n]%*c", str);
+
+    string_handle head = string_new();
+    for (int i = 0; str[i] != '\0' && i<100; ++i)
+    {
+        string_add(str[i], &head);
+    }
+    return head;
 }
 
 void standard_printNum(double input){

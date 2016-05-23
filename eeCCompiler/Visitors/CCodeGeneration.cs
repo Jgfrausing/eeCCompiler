@@ -385,7 +385,7 @@ namespace eeCCompiler.Visitors
             var stringCreater = new StringFinderVisitor(TempCVariable);
             PreExpressionStringCreater(stringCreater, funcCall);
 
-            #region Print
+            #region Print & Read
 
             if (funcCall.Identifier.Id == "program_print")
             {
@@ -395,8 +395,12 @@ namespace eeCCompiler.Visitors
                 CreateRefrence(parameter);
                 Code += $")";
             }
-                #endregion
-                #region Convert
+            else if (funcCall.Identifier.Id == "program_read")
+            {
+                Code += $"standard_read()";
+            }
+            #endregion
+            #region Convert
 
             else if (funcCall.Identifier.Id == "program_convertStringToBool"
                      || funcCall.Identifier.Id == "program_convertStringToNum")
@@ -632,7 +636,9 @@ namespace eeCCompiler.Visitors
                 else
                     Code += $"_new();";
             }
-            else if (varDecl.Identifier.Type.ValueType == "string" && !(varDecl.Expression is FuncCall))
+ 
+            //Ret
+            else if (varDecl.Identifier.Type.ValueType == "string" && !(varDecl.Expression is ExpressionVal) && (varDecl.Expression as ExpressionVal).Value is FuncCall)
             {
                 if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
                 {
@@ -660,7 +666,17 @@ namespace eeCCompiler.Visitors
                 Code += $"{varDecl.Identifier.Id} ";
                 varDecl.AssignmentOperator.Accept(this);
                 Code += " ";
-                if (!varDecl.Identifier.Type.IsBasicType)
+                if (varDecl.Identifier.Type.ValueType == "string"
+                && ((varDecl.Expression as ExpressionVal)?.Value as FuncCall)?.Identifier.Id == "program_read")
+                {
+                    if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
+                    {
+                        Code += $" standard_read()";
+                    }
+                    else
+                        throw new NotImplementedException();
+                }
+                else if (!varDecl.Identifier.Type.IsBasicType)
                 {
                     Code += $"{varDecl.Identifier.Type.ValueType}_copy(";
                     varDecl.Expression.Accept(this);
@@ -1093,21 +1109,6 @@ namespace eeCCompiler.Visitors
             }
             if ((expression as ExpressionVal).Value is StringValue)
                 AppendToString(((expression as ExpressionVal).Value as StringValue).Elements, identifier);
-        }
-
-        private void getString(IExpression expression)
-        {
-            foreach (var element in (expression as StringValue).Elements)
-            {
-                if (element is StringValue)
-                {
-                    var stringValue = element as StringValue;
-                }
-                else if (element is TypeId)
-                {
-                    var typeId = element as TypeId;
-                }
-            }
         }
 
         private void MoveStructFunctions(StructDefinitions structDefinitions)

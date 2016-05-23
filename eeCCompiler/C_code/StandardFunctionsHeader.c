@@ -70,6 +70,7 @@ int program_convertNumToString(double input, string_handle * output);
 int program_convertBoolToString(int input, string_handle * output);
 int program_convertStringToNum(string_handle * input, double *output);
 int program_convertStringToBool(string_handle * input, int *output);
+string_handle standard_read();
 void standard_printNum(double input);
 void standard_printBool(int input);
 void standard_printString(string_handle * input);
