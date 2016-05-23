@@ -19,6 +19,7 @@ namespace eeCCompiler.Nodes
 
         public bool IsBodyPart { get; set; }
         public Type ListType { get; set; }
+        public bool IsStructFunction => !Identifier.Id.StartsWith("program_") && !Identifier.Id.StartsWith("standard_");
 
         public override void Accept(IEecVisitor visitor)
         {

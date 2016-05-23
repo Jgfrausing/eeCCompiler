@@ -37,10 +37,11 @@ namespace eeCCompiler.Visitors
             root.Includes.Accept(this);
             root.ConstantDefinitions.Accept(this);
 
+            Code += StandardFunctions;
             Header += Code;
 
             Code = "";
-            Code += StandardFunctions;
+            
 
             _defaultCCode.CreateListPrototypes(this);
             root.StructDefinitions.Accept(this);
@@ -429,8 +430,10 @@ namespace eeCCompiler.Visitors
                     Code += "&";
                 }
                 funcCall.Expressions[1].Accept(this);
-
-                Code += $", &{(funcCall.Expressions[0] as Identifier).Id})";
+                
+                Code += $",";
+                funcCall.Expressions[0].Accept(this);
+                Code += $")";
             }
             else if (funcCall.Identifier.Id == "insert")
             {
@@ -485,6 +488,8 @@ namespace eeCCompiler.Visitors
                 {
                     if (i > 0)
                         Code += ",";
+                    else if (funcCall.IsStructFunction)
+                        Code += "&";
                     funcCall.Expressions[i].Accept(this);
                 }
                 Code += ")";
@@ -569,7 +574,7 @@ namespace eeCCompiler.Visitors
             foreach (var refTypeId in functionDeclaration.Parameters.TypeIds.Where(x => !x.Ref))
             {
                 Code +=
-                    $"{refTypeId.TypeId.ValueType}_handle ={refTypeId.TypeId.ValueType}_copy({refTypeId.TypeId.Identifier});\n";
+                    $"{refTypeId.TypeId.ValueType}_handle ={refTypeId.TypeId.ValueType}_copy(&{refTypeId.TypeId.Identifier});\n";
             }
             foreach (var bodypart in functionDeclaration.Body.Bodyparts) //functionDeclaration.Body.Accept(this);
             {
@@ -605,7 +610,7 @@ namespace eeCCompiler.Visitors
                 {
                     funcCall.Identifier.Id = funcCall.ListType.ValueType + "_" + funcCall.Identifier.Id;
                 }
-                funcCall.Expressions.Insert(0, new Identifier(referece.StructRefrence.ToString()));
+                funcCall.Expressions.Insert(0, new RefId(new Identifier(referece.StructRefrence.ToString())));
             }
             referece.Identifier.Accept(this);
         }
@@ -631,7 +636,7 @@ namespace eeCCompiler.Visitors
                 Code += varDecl.Identifier + " = " + varDecl.Identifier.Type.ValueType + "list";
                 if (varDecl.Expression is ExpressionVal && (varDecl.Expression as ExpressionVal).Value is Identifier)
                 {
-                    Code += $"_copy({(varDecl.Expression as ExpressionVal).Value as Identifier});";
+                    Code += $"_copy(&{(varDecl.Expression as ExpressionVal).Value as Identifier});";
                 }
                 else
                     Code += $"_new();";
@@ -678,9 +683,10 @@ namespace eeCCompiler.Visitors
                 }
                 else if (!varDecl.Identifier.Type.IsBasicType)
                 {
-                    Code += $"{varDecl.Identifier.Type.ValueType}_copy(";
                     varDecl.Expression.Accept(this);
-                    Code += ")";
+                    Code += ";";
+
+                    Code += $"{varDecl.Identifier.Id} = {varDecl.Identifier.Type.ValueType}_copy(&{varDecl.Identifier.Id})";
                 }
                 else
                 {
@@ -789,7 +795,7 @@ namespace eeCCompiler.Visitors
 
         public void Visit(RefId refId)
         {
-            if (refId.Type.IsBasicType)
+            //if (refId.Type.IsBasicType)
                 Code += " &";
             Code += $" {refId.Identifier} ";
         }
@@ -847,7 +853,7 @@ namespace eeCCompiler.Visitors
                 {
                     varInStructDecleration.Refrence.Accept(this);
                     Code += "= " + ((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.ValueType +
-                            "_copy(";
+                            "_copy(&";
                     Code += ((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Id + ");";
                 }
                 else if (varInStructDecleration.Expression is ExpressionVal &&

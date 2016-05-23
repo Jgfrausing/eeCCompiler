@@ -55,8 +55,8 @@ namespace eeCCompiler
                         // Compiling to C
                         var cCompiler = new CCompiler();
                         cCompiler.CompileToC(parser, filename);
-                        cCompiler.CompileC(path + filename);
-                        cCompiler.Run(path + filename);
+                        //cCompiler.CompileC(path + filename);
+                        //cCompiler.Run(path + filename);
                     }
                 }
             }
@@ -66,7 +66,6 @@ namespace eeCCompiler
                 errors.ForEach(Console.WriteLine);
                 Console.ReadKey();
             }
-            Console.Clear();
         }
     }
 }
