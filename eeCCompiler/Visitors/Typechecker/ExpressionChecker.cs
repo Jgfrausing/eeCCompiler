@@ -64,12 +64,12 @@ namespace eeCCompiler.Visitors
                                 var structRef = _typechecker.Identifiers[refrence.StructRefrence.ToString()];
                                 IValue val;
 
-                                if (
-                                    (structRef as StructValue).StructIdentifiers.ContainsKey(
-                                        (refrence.Identifier as IdIndex).Identifier.Id))
+                                if ((structRef as StructValue).StructIdentifiers.ContainsKey((refrence.Identifier as IdIndex).Identifier.Id)) { 
                                     val =
                                         (structRef as StructValue).StructIdentifiers[
                                             (refrence.Identifier as IdIndex).Identifier.Id];
+                                    (refrence.Identifier as IdIndex).Identifier.Type.ValueType = CheckValueType(val);
+                                }
 
                                 var listIden = refrence.Identifier as IdIndex; // identifier på liste
                             }
@@ -125,6 +125,7 @@ namespace eeCCompiler.Visitors
                         if (_typechecker.Identifiers[idIndex.Identifier.Id] is ListValue)
                         {
                             value = (_typechecker.Identifiers[idIndex.Identifier.Id] as ListValue).Value;
+                            idIndex.Identifier.Type.ValueType = CheckValueType(value);
                         }
                         else
                         {
@@ -551,10 +552,6 @@ namespace eeCCompiler.Visitors
             }
             else if (refrence.Identifier is FuncCall)
             {
-                (refrence.Identifier as FuncCall).Identifier.Id = structType + "_" +
-                                                                  (refrence.Identifier as FuncCall).Identifier.Id;
-                exp.IsFuncCall = true;
-                exp.FuncsStruct = structType;
                 if (
                     _typechecker.Structs[structType].StructFunctions.ContainsKey(
                         (refrence.Identifier as FuncCall).Identifier.Id))
@@ -568,6 +565,11 @@ namespace eeCCompiler.Visitors
                         refrence.Identifier as FuncCall);
                     valueFound = true;
                 }
+                (refrence.Identifier as FuncCall).Identifier.Id = structType + "_" +
+                                                                  (refrence.Identifier as FuncCall).Identifier.Id;
+                exp.IsFuncCall = true;
+                exp.FuncsStruct = structType;
+                
             }
             else if (refrence.Identifier is IdIndex)
             {
@@ -587,9 +589,11 @@ namespace eeCCompiler.Visitors
                         _typechecker.Errors.Add(
                             $"{_typechecker.LineColumnString(refrence)}Expected a list but got a \"{value.GetType()}\"");
                     }
+                    (refrence.Identifier as IdIndex).Identifier.Type.ValueType = CheckValueType(value);
                     valueFound = true;
                 }
             }
+
             else if (refrence.Identifier is Refrence)
             {
                 if (

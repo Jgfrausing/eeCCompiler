@@ -87,6 +87,9 @@ namespace eeCCompiler.Visitors
                 }
             }
             Identifiers = preBodyIdentifiers;
+            preBodyIdentifiers = saveScope();
+            structDefinition.StructParts.Accept(this);
+            Identifiers = preBodyIdentifiers;
         }
 
         public override void Visit(StructDecleration structDecleration)
@@ -321,7 +324,10 @@ namespace eeCCompiler.Visitors
                 decl.Accept(this);
             }
         }
-
+        public override void Visit(Return ret)
+        {
+            base.Visit(ret);
+        }
         public override void Visit(FunctionDeclaration functionDeclaration)
         {
             if (!Funcs.ContainsKey(functionDeclaration.TypeId.Identifier.Id))
@@ -356,6 +362,10 @@ namespace eeCCompiler.Visitors
                 Funcs.Add(functionDeclaration.TypeId.Identifier.Id,
                     new Function(functionDeclaration,
                         _expressionChecker.TypeChecker(functionDeclaration.TypeId.ValueType.ToString())));
+                Identifiers = preBodyIdentifiers;
+
+                preBodyIdentifiers = saveScope();
+                functionDeclaration.Body.Accept(this);
                 Identifiers = preBodyIdentifiers;
             }
             else
@@ -439,6 +449,7 @@ namespace eeCCompiler.Visitors
         {
             Identifier = identifier;
             StructIdentifiers = new Dictionary<string, IValue>();
+            StructFunctions = new Dictionary<string, Function>();
         }
 
         public Dictionary<string, IValue> StructIdentifiers { get; set; }
