@@ -63,8 +63,6 @@ namespace eeCCompiler.Visitors
                 Errors.Add(
                     $"{LineColumnString(structDefinition)}\"{structDefinition.Identifier.Id}\" was declared twice");
 
-            //RYD OP!!
-
             var preBodyIdentifiers = saveScope();
             foreach (var sp in structDefinition.StructParts.StructPartList)
             {

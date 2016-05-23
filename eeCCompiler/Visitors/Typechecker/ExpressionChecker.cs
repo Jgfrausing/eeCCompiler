@@ -607,42 +607,52 @@ namespace eeCCompiler.Visitors
                         valueFound = true;
                     }
                     else if (
-                        _typechecker.Structs[structType].StructIdentifiers[
-                            (refrence.Identifier as Refrence).StructRefrence.ToString()] is ListValue)
+                        _typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] is ListValue ||
+                        _typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] is StringValue)
                     {
                         var listRefrence = refrence.Identifier as Refrence;
 
                         if (listRefrence.Identifier is FuncCall)
                         {
                             var funcCall = listRefrence.Identifier as FuncCall;
-                            funcCall.Identifier.Type.ValueType =
+
+                            if (_typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] is ListValue)
+                                funcCall.Identifier.Type.ValueType =
                                 (_typechecker.Structs[structType].StructIdentifiers[
-                                    (refrence.Identifier as Refrence).StructRefrence.ToString()] as ListValue).Type
-                                    .Type.ToString();
+                                    (refrence.Identifier as Refrence).StructRefrence.ToString()] as ListValue).Type.Type.ToString();
+                            else
+                                funcCall.Identifier.Type.ValueType = "string";
                             if (funcCall.Identifier.Id == "count")
                                 value = new NumValue(2.0);
                             else
                                 value = new UnInitialisedVariable();
-                            ListFuncChecker(funcCall,
+                            if (_typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] is ListValue)
+                                ListFuncChecker(funcCall,
                                 _typechecker.Structs[structType].StructIdentifiers[
                                     (refrence.Identifier as Refrence).StructRefrence.ToString()] as ListValue);
+                            else
+                                StringFuncChecker(funcCall,
+                                _typechecker.Structs[structType].StructIdentifiers[
+                                    (refrence.Identifier as Refrence).StructRefrence.ToString()] as StringValue);
+
                             valueFound = true;
                         }
                         else
                         {
-                            value = StructRefrenceChecker(listRefrence,
+                            if (_typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] is ListValue)
+                            {
+                                value = StructRefrenceChecker(listRefrence,
                                 ((_typechecker.Structs[structType].StructIdentifiers[
-                                    (refrence.Identifier as Refrence).
-                                        StructRefrence.ToString()] as ListValue).Type.Type as Identifier).Id,
-                                exp);
-                            valueFound = true;
+                                    (refrence.Identifier as Refrence).StructRefrence.ToString()] as ListValue).Type.Type as Identifier).Id, exp);
+                                valueFound = true;
+                            }
                         }
                     }
                 }
             }
             if (value is UnInitialisedVariable && !valueFound)
                 _typechecker.Errors.Add($"{_typechecker.LineColumnString(refrence)}A reference did not exist");
-                    // Linje nr??
+
             return value;
         }
 
@@ -665,15 +675,20 @@ namespace eeCCompiler.Visitors
                         refrence);
                 }
 
-                else if (_typechecker.Identifiers[refrence.StructRefrence.ToString()] is ListValue)
+                else if (_typechecker.Identifiers[refrence.StructRefrence.ToString()] is ListValue ||
+                        _typechecker.Identifiers[refrence.StructRefrence.ToString()] is StringValue)
                 {
                     if (refrence.Identifier is FuncCall)
                     {
                         (refrence.Identifier as FuncCall).IsBodyPart = true;
                         (refrence.Identifier as FuncCall).Identifier.Type.ValueType =
                             CheckValueType(_typechecker.Identifiers[refrence.StructRefrence.ToString()]);
-                        ListFuncChecker(refrence.Identifier as FuncCall,
-                            _typechecker.Identifiers[refrence.StructRefrence.ToString()] as ListValue);
+                        if (_typechecker.Identifiers[refrence.StructRefrence.ToString()] is ListValue)
+                            ListFuncChecker(refrence.Identifier as FuncCall,
+                                _typechecker.Identifiers[refrence.StructRefrence.ToString()] as ListValue);
+                        else
+                            StringFuncChecker(refrence.Identifier as FuncCall,
+                                _typechecker.Identifiers[refrence.StructRefrence.ToString()] as StringValue);
                     }
                     else
                     {
@@ -681,12 +696,93 @@ namespace eeCCompiler.Visitors
                             $"{_typechecker.LineColumnString(refrence)}Lists do not have any values associated, please use a function instead");
                     }
                 }
+                else
+                    _typechecker.Errors.Add($"{_typechecker.LineColumnString(refrence)}Base types can not be used with the \".\" operator");
             }
             else
                 _typechecker.Errors.Add(
                     $"{_typechecker.LineColumnString(refrence)}Struct reference \"{refrence.StructRefrence}\" was not found");
         }
 
+
+        public void StringFuncChecker(FuncCall funcCall, StringValue stringValue)
+        {
+            if (funcCall.Identifier.Id == "add")
+            {
+                if (funcCall.Expressions.Count == 1)
+                {
+                    if (
+                        !(CheckExpression(funcCall.Expressions[0] as IExpression) is StringValue))
+                            _typechecker.Errors.Add(
+                             $"{_typechecker.LineColumnString(funcCall)}List is of type \"{stringValue.GetType()}\", but a \"{(funcCall.Expressions[0] as IExpression).GetType()}\" was tried added");
+                }
+                else if (funcCall.Expressions.Count > 1)
+                    _typechecker.Errors.Add(
+                        $"{_typechecker.LineColumnString(funcCall)}Only one element can be added to a list at a time");
+                else
+                    _typechecker.Errors.Add($"{_typechecker.LineColumnString(funcCall)}\"Add()\" takes one parameter");
+            }
+            else if (funcCall.Identifier.Id == "insert")
+            {
+                if (funcCall.Expressions.Count == 2)
+                {
+                    if (!(CheckExpression(funcCall.Expressions[0] as IExpression) is NumValue))
+                    {
+                        _typechecker.Errors.Add(
+                            $"{_typechecker.LineColumnString(funcCall)}You can only insert at a num index");
+                    } //Kan jeg det !!JONATAN DA FUQ!!
+                    else if (
+                        !(CheckExpression(funcCall.Expressions[1] as IExpression) is StringValue))
+                        _typechecker.Errors.Add(
+                            $"{_typechecker.LineColumnString(funcCall)}List is of type \"{stringValue.GetType()}\", but a " +
+                            $"\"{(funcCall.Expressions[1] as IExpression).GetType()}\" was tried added");
+                }
+                else if (funcCall.Expressions.Count > 2)
+                    _typechecker.Errors.Add(
+                        $"{_typechecker.LineColumnString(funcCall)}Too many parameters for a list insert. \"Insert()\" takes two parameters: an index and an element");
+                else
+                    _typechecker.Errors.Add($"{_typechecker.LineColumnString(funcCall)}Insert takes two parameters");
+            }
+            else if (funcCall.Identifier.Id == "remove")
+            {
+                if (funcCall.Expressions.Count == 1)
+                {
+                    if (!(CheckExpression(funcCall.Expressions[0] as IExpression) is NumValue))
+                        //Kan jeg det !!JONATAN DA FUQ!!
+                        _typechecker.Errors.Add(
+                            $"{_typechecker.LineColumnString(funcCall)}You can only remove at a num index");
+                }
+                else
+                    _typechecker.Errors.Add(
+                        $"{_typechecker.LineColumnString(funcCall)}Only one element can be removed from a list at a time");
+            }
+            else if (funcCall.Identifier.Id == "clear")
+            {
+                if (funcCall.Expressions.Count > 0)
+                    _typechecker.Errors.Add(
+                        $"{_typechecker.LineColumnString(funcCall)}\"clear()\" does not take any parameters");
+            }
+            else if (funcCall.Identifier.Id == "count")
+            {
+                if (funcCall.Expressions.Count > 0)
+                    _typechecker.Errors.Add(
+                        $"{_typechecker.LineColumnString(funcCall)}\"count()\" does not take any parameters");
+            }
+            else if (funcCall.Identifier.Id == "reverse")
+            {
+                if (funcCall.Expressions.Count > 0)
+                    _typechecker.Errors.Add(
+                        $"{_typechecker.LineColumnString(funcCall)}\"reverse()\" does not take any parameters");
+            }
+            else if (funcCall.Identifier.Id == "sort")
+            {
+                    _typechecker.Errors.Add(
+                        $"{_typechecker.LineColumnString(funcCall)}\"sort()\" can not be used on \"{funcCall.Identifier.Type.ValueType}\" list");
+            }
+            else
+                _typechecker.Errors.Add(
+                    $"{_typechecker.LineColumnString(funcCall)}Unknown list function: \"{funcCall.Identifier}\"");
+        }
         public void ListFuncChecker(FuncCall funcCall, ListValue listValue)
         {
             if (funcCall.Identifier.Id == "add")
