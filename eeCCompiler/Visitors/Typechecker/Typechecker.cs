@@ -41,6 +41,15 @@ namespace eeCCompiler.Visitors
             root.StructDefinitions.Accept(this);
             root.FunctionDeclarations.Accept(this); //Flyttet over program for at checke kald giver menning
             root.Program.Accept(this);
+
+            foreach (var structDef in root.StructDefinitions.Definitions)
+            {
+                foreach (var st in structDef.StructParts.StructPartList)
+                {
+                    if (st is FunctionDeclaration)
+                        (st as FunctionDeclaration).TypeId.Identifier.Id = structDef.Identifier.Id + "_" +(st as FunctionDeclaration).TypeId.Identifier.Id;
+                }
+            }
         }
 
         public override void Visit(Constant constant)
