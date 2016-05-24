@@ -456,11 +456,15 @@ namespace eeCCompiler.Visitors
                 Code += $"{funcCall.Identifier.Type.ValueType}" +
                         $"list_remove(";
                 funcCall.Expressions[1].Accept(this);
-                Code += $", &{(funcCall.Expressions[0] as Identifier).Id})";
+                Code += $",";
+                funcCall.Expressions[0].Accept(this);
+                Code += ")";
             }
             else if (funcCall.Identifier.Id == "clear")
             {
-                Code += $"{funcCall.Identifier.Type.ValueType}list_clear(&{(funcCall.Expressions[0] as Identifier).Id})";
+                Code += $"{funcCall.Identifier.Type.ValueType}list_clear(";
+                funcCall.Expressions[0].Accept(this);
+                Code += ")";
             }
             else if (funcCall.Identifier.Id == "reverse")
             {
