@@ -777,6 +777,7 @@ string_handle standard_read(){
     {
         string_add(str[i], &head);
     }
+	fflush(stdin);
     return head;
 }
 

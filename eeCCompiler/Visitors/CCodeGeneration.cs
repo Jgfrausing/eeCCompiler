@@ -398,7 +398,14 @@ namespace eeCCompiler.Visitors
             }
             else if (funcCall.Identifier.Id == "program_read")
             {
-                Code += $"standard_read()";
+                if (funcCall.IsBodyPart)
+                {
+                    TempCVariable += 1;
+                    Code += $"string_handle _{TempCVariable} = standard_read();";
+                    Code += $"string_clear(&_{TempCVariable})";
+                }
+                else
+                    Code += $"standard_read()" ;
             }
             #endregion
             #region Convert
@@ -679,7 +686,7 @@ namespace eeCCompiler.Visitors
                 && ((varDecl.Expression as ExpressionVal)?.Value as FuncCall)?.Identifier.Id == "program_read")
                 {
                     if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
-                    {
+                    { 
                         Code += $" standard_read()";
                     }
                     else
