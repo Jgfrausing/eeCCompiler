@@ -98,6 +98,7 @@ namespace eeCCompiler.Visitors
             if (ifStatement.ElseStatement is IfStatement)
                 Code += "else ";
             ifStatement.ElseStatement.Accept(this);
+
             PostExpressionStringCreater(stringCreater);
         }
 
@@ -703,7 +704,7 @@ namespace eeCCompiler.Visitors
             }
  
             //Ret
-            else if (varDecl.Identifier.Type.ValueType == "string" && !(varDecl.Expression is ExpressionVal) && (varDecl.Expression as ExpressionVal).Value is FuncCall)
+            else if (varDecl.Identifier.Type.ValueType == "string" && !((varDecl.Expression as ExpressionVal)?.Value is FuncCall))
             {
                 if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
                 {
