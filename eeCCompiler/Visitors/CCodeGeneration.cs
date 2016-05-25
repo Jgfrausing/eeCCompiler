@@ -530,76 +530,92 @@ namespace eeCCompiler.Visitors
 
         public void Visit(FunctionDeclaration functionDeclaration)
         {
-            var refIdentifiers = new List<Identifier>();
-            var notRefIdentifiers = new List<Identifier>();
-
-            var refTypeIds = new List<RefTypeId>();
-
-            foreach (var refrence in functionDeclaration.Parameters.TypeIds)
-            {
-                refTypeIds.Add(refrence);
-                if (refrence.Ref)
-                    refIdentifiers.Add(refrence.TypeId.Identifier);
-                else if(!refrence.TypeId.Identifier.Type.IsBasicType)
-                {
-                    notRefIdentifiers.Add(refrence.TypeId.Identifier);
-                }
-            }
-            var refIdentifierVisitor = new RefrenceIdentifiers(refIdentifiers);
-            functionDeclaration.Body.Accept(refIdentifierVisitor);
-
-            var renamingIdentifiersVisitor = new RenamePassByValueStructIdentifiers(notRefIdentifiers);
-            functionDeclaration.Body.Accept(renamingIdentifiersVisitor);
-
-            foreach (var refTypeId in functionDeclaration.Parameters.TypeIds)
-            {
-                switch (refTypeId.TypeId.ValueType.ToString())
-                {
-                    case "num":
-                    case "bool":
-                        break;
-                    default:
-                        if (!refTypeId.Ref)
-                        {
-                            var identifier = new Identifier(refTypeId.TypeId.Identifier.Id);
-                            identifier.Type.ValueType = refTypeId.TypeId.Identifier.Type.ValueType;
-                            var funcCall =
-                                new FuncCall(new List<IExprListElement>
-                                {
-                                    identifier
-                                },
-                                    new Identifier("copy"));
-                            funcCall.ListType = new Type(refTypeId.TypeId.ValueType.ToString());
-                            var copy = new VarDecleration(funcCall,
-                                new AssignmentOperator(Indexes.Indexes.SymbolIndex.Eq),
-                                new Identifier("_" + refTypeId.TypeId.Identifier.Id)
-                                );
-                            copy.IsFirstUse = true;
-                            functionDeclaration.Body.Bodyparts.Insert(0, copy);
-                        }
-
-                        refTypeId.Ref = true;
-                        break;
-                }
-                //refTypeId.TypeId.Identifier.Id
-            }
-
-            CreatePrototype(functionDeclaration);
+            int position = Code.Length-1;
             functionDeclaration.TypeId.Accept(this);
             Code += "(";
-            functionDeclaration.Parameters.Accept(this);
-            Code += "){";
-            foreach (var refTypeId in functionDeclaration.Parameters.TypeIds.Where(x => !x.Ref && !x.TypeId.Identifier.Type.IsBasicType))
+
+            //Parameters
+            var parameters = functionDeclaration.Parameters.TypeIds;
+
+
+            for (int i = 0; i < parameters.Count; i++)
             {
-                Code +=
-                    $"{refTypeId.TypeId.ValueType}_handle ={refTypeId.TypeId.ValueType}_copy(&{refTypeId.TypeId.Identifier});\n";
-            }
-            foreach (var bodypart in functionDeclaration.Body.Bodyparts) //functionDeclaration.Body.Accept(this);
-            {
-                bodypart.Accept(this);
+                if (i != 0)
+                    Code += ", ";
+                parameters[i].Accept(this);
             }
 
-            Code += "}\n";
+            Code += ")";
+
+            /* Laver functions prototype */
+            Header += Code.Substring(position) + ";";
+
+
+            /* Body af functionen */
+            Code += "{";
+
+            var renameVariables = new List<RefTypeId>();
+            var returnVariables = new List<RefTypeId>();
+            var clearVariables = new List<RefTypeId>();
+            foreach (var parameter in parameters)
+            {
+                if (parameter.Ref)
+                {
+                    renameVariables.Add(parameter);
+                    returnVariables.Add(parameter);
+                    if (parameter.TypeId.Identifier.Type.IsBasicType && !parameter.TypeId.Identifier.Type.IsListValue)
+                    {
+                        Code += $"{GetValueType(parameter.TypeId.ValueType)} _{parameter.TypeId.Identifier} = *{parameter.TypeId.Identifier};\n";
+                    }
+                    else if (parameter.TypeId.Identifier.Type.ValueType == "string")
+                    {
+                        Code += $"string_handle _{parameter.TypeId.Identifier} = string_copy({parameter.TypeId.Identifier}); string_clear({parameter.TypeId.Identifier});\n";
+                    }
+                    else if (parameter.TypeId.Identifier.Type.IsListValue)
+                    {
+                        Code += $"{(parameter.TypeId.ValueType)}list_handle _{parameter.TypeId.Identifier} = {(parameter.TypeId.ValueType)}list_copy({parameter.TypeId.Identifier});"
+                                    + $"{(parameter.TypeId.ValueType)}list_clear({parameter.TypeId.Identifier});\n";
+                    }
+                    else // struct
+                    {
+                        Code += $"{GetValueType(parameter.TypeId.ValueType)} _{parameter.TypeId.Identifier} = {GetValueType(parameter.TypeId.ValueType)}_copy({parameter.TypeId.Identifier});\n";
+                    }
+                }
+                else if (!parameter.TypeId.Identifier.Type.IsBasicType || parameter.TypeId.Identifier.Type.IsListValue)
+                {
+                    renameVariables.Add(parameter);
+
+                    if (parameter.TypeId.Identifier.Type.IsListValue)
+                    {
+                        clearVariables.Add(parameter);
+                        Code += $"{(parameter.TypeId.ValueType)}list_handle _{parameter.TypeId.Identifier} = {(parameter.TypeId.ValueType)}list_copy({parameter.TypeId.Identifier});\n";
+                    }
+                    else if (parameter.TypeId.Identifier.Type.ValueType == "string")
+                    {
+                        Code += $"string_handle _{parameter.TypeId.Identifier} = string_copy({parameter.TypeId.Identifier});\n";
+                    }
+                    else // struct
+                    {
+                        Code += $"{GetValueType(parameter.TypeId.ValueType)} _{parameter.TypeId.Identifier} = {GetValueType(parameter.TypeId.ValueType)}_copy({parameter.TypeId.Identifier});\n";
+                    }
+                }
+            }
+
+            /* Rename alle variabler udfra renameVariables */
+
+
+
+
+            foreach (var variable in returnVariables)
+            {
+                Code += $"*{variable.TypeId.Identifier} = _{variable.TypeId.Identifier};";
+            }
+            foreach (var variable in clearVariables)
+            {
+                Code += variable.TypeId.Identifier.Type.ValueType == "string"
+                    ? $"string_clear(&_{variable.TypeId.Identifier});\n"
+                    : $"{(variable.TypeId.ValueType)}list_clear(&_{variable.TypeId.Identifier});\n";
+            }
         }
 
         public void Visit(Return returnNode)
@@ -820,9 +836,16 @@ namespace eeCCompiler.Visitors
 
         public void Visit(RefTypeId refTypeId)
         {
-            Code += refTypeId.Ref
-                ? GetValueType(refTypeId.TypeId.ValueType) + " *" + refTypeId.TypeId.Identifier
-                : GetValueType(refTypeId.TypeId.ValueType) + " " + refTypeId.TypeId.Identifier;
+            if (refTypeId.TypeId.Identifier.Type.IsBasicType && !refTypeId.TypeId.Identifier.Type.IsListValue)
+                Code += refTypeId.Ref
+                    ? GetValueType(refTypeId.TypeId.ValueType) + " *" + refTypeId.TypeId.Identifier
+                    : GetValueType(refTypeId.TypeId.ValueType) + " " + refTypeId.TypeId.Identifier;
+            else if (refTypeId.TypeId.Identifier.Type.IsListValue)
+                Code += $"{refTypeId.TypeId.ValueType}list_handle  *  {refTypeId.TypeId.Identifier}"; 
+            else
+            {
+                Code += GetValueType(refTypeId.TypeId.ValueType) + " *" + refTypeId.TypeId.Identifier;
+            }
         }
 
         public void Visit(ListDimentions listDimentions)
