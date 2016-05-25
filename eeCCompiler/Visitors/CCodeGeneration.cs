@@ -49,6 +49,9 @@ namespace eeCCompiler.Visitors
             root.StructDefinitions.Accept(this);
             _defaultCCode.CreateCopyFunctions(this);
 
+            Header += Code;
+            Code = "";
+
             root.FunctionDeclarations.Accept(this);
 
             Code += "void main()";
@@ -510,6 +513,13 @@ namespace eeCCompiler.Visitors
                         Code += ",";
                     else if (funcCall.IsStructFunction)
                         Code += "&";
+                    
+                    if ((funcCall.Expressions[i] is ExpressionVal))
+                    {
+                        if (((funcCall.Expressions[i] as ExpressionVal).Value is Identifier))
+                            if (!((funcCall.Expressions[i] as ExpressionVal).Value as Identifier).Type.IsBasicType)
+                                Code += "&";
+                    }
                     funcCall.Expressions[i].Accept(this);
                 }
                 Code += ")";
@@ -532,7 +542,7 @@ namespace eeCCompiler.Visitors
 
         public void Visit(FunctionDeclaration functionDeclaration)
         {
-            int position = Code.Length-1;
+            int position = Code.Length;
             functionDeclaration.TypeId.Accept(this);
             Code += "(";
 
@@ -556,14 +566,14 @@ namespace eeCCompiler.Visitors
             /* Body af functionen */
             Code += "{";
 
-            var renameVariables = new List<RefTypeId>();
+            var renameVariables = new List<Identifier>();
             _returnVariables = new List<RefTypeId>();
             _clearVariables = new List<RefTypeId>();
             foreach (var parameter in parameters)
             {
                 if (parameter.Ref)
                 {
-                    renameVariables.Add(parameter);
+                    renameVariables.Add(parameter.TypeId.Identifier);
                     _returnVariables.Add(parameter);
                     if (parameter.TypeId.Identifier.Type.IsBasicType && !parameter.TypeId.Identifier.Type.IsListValue)
                     {
@@ -585,7 +595,7 @@ namespace eeCCompiler.Visitors
                 }
                 else if (!parameter.TypeId.Identifier.Type.IsBasicType || parameter.TypeId.Identifier.Type.IsListValue)
                 {
-                    renameVariables.Add(parameter);
+                    renameVariables.Add(parameter.TypeId.Identifier);
 
                     if (parameter.TypeId.Identifier.Type.IsListValue)
                     {
@@ -604,11 +614,18 @@ namespace eeCCompiler.Visitors
             }
 
             /* Rename alle variabler udfra renameVariables */
+            functionDeclaration.Body.Accept(new RenameIdentifiers(renameVariables));
 
+            foreach (var bodyPart in functionDeclaration.Body.Bodyparts)
+            {
+                bodyPart.Accept(this);
+            }
 
+            if (functionDeclaration.TypeId.ValueType.ToString() == "void")
+                PreReturnFormailties();
 
+            Code += "}";
 
-            PreReturnFormailties();
         }
 
         private void PreReturnFormailties()
@@ -627,6 +644,8 @@ namespace eeCCompiler.Visitors
 
         public void Visit(Return returnNode)
         {
+            PreReturnFormailties();
+
             var stringCreater = new StringFinderVisitor(TempCVariable);
             PreExpressionStringCreater(stringCreater, returnNode);
 
