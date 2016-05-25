@@ -101,7 +101,8 @@ namespace eeCCompiler.Visitors
                 }
                 else if (exp.Value is FuncCall) //Func i vardecl
                 {
-                    (exp.Value as FuncCall).Identifier.Id = "program_" + (exp.Value as FuncCall).Identifier;
+                    if (!((exp.Value as FuncCall).Identifier.Id.Length>8) || (exp.Value as FuncCall).Identifier.Id.Substring(0,8) != "program_")
+                        (exp.Value as FuncCall).Identifier.Id = "program_" + (exp.Value as FuncCall).Identifier;
                     var id = (exp.Value as FuncCall).Identifier.Id;
 
                     if (_typechecker.Funcs.ContainsKey(id))
@@ -158,7 +159,7 @@ namespace eeCCompiler.Visitors
 
             #region ExpressionParen
 
-            if (expression is ExpressionParen)
+            else if (expression is ExpressionParen)
             {
                 return CheckExpression((expression as ExpressionParen).Expression);
             }
@@ -167,7 +168,7 @@ namespace eeCCompiler.Visitors
 
             #region ExpressionNegate
 
-            if (expression is ExpressionNegate)
+            else if (expression is ExpressionNegate)
             {
                 var value = CheckExpression((expression as ExpressionNegate).Expression);
                 if (!(value is BoolValue) && !(value is UnInitialisedVariable))
@@ -180,7 +181,7 @@ namespace eeCCompiler.Visitors
 
             #region ExpressionMinus
 
-            if (expression is ExpressionMinus)
+            else if (expression is ExpressionMinus)
             {
                 var value = CheckExpression((expression as ExpressionMinus).Expression);
                 if (!(value is NumValue) && !(value is UnInitialisedVariable))
@@ -193,7 +194,7 @@ namespace eeCCompiler.Visitors
 
             #region ExpressionValOpExpr
 
-            if (expression is ExpressionValOpExpr)
+            else if (expression is ExpressionValOpExpr)
             {
                 if ((expression as ExpressionValOpExpr).Value is StringValue)
                     StringConverter((expression as ExpressionValOpExpr).Value as StringValue);
@@ -234,7 +235,7 @@ namespace eeCCompiler.Visitors
 
             #region ExpressionParenOpExpr
 
-            if (expression is ExpressionParenOpExpr)
+            else if (expression is ExpressionParenOpExpr)
             {
                 var expressionParenOpExpr = expression as ExpressionParenOpExpr;
 
@@ -243,7 +244,7 @@ namespace eeCCompiler.Visitors
 
                 return OprChecker(value1, value2, expressionParenOpExpr.Operator, expressionType);
             }
-            if (expression is ExpressionExprOpExpr)
+            else if (expression is ExpressionExprOpExpr)
             {
                 var expressionParenOpExpr = expression as ExpressionExprOpExpr;
 
@@ -257,7 +258,7 @@ namespace eeCCompiler.Visitors
 
             #region FuncCall
 
-            if (expression is FuncCall) //Ikke sikker på vi nogensinde får... skal testes!
+            else if (expression is FuncCall) //Ikke sikker på vi nogensinde får... skal testes!
             {
                 //Check om input matcher det som er deklaræret
                 var funcCall = expression as FuncCall;
@@ -280,15 +281,17 @@ namespace eeCCompiler.Visitors
 
             #region ListType
 
-            if (expression is ListType)
+            else if (expression is ListType)
             {
                 return new ListValue(expression as ListType, TypeChecker((expression as ListType).Type.ToString()));
             }
 
             #endregion
-
+            else
+            { 
             _typechecker.Errors.Add($"FATAL ERROR IN COMPILER! EXPRESSION NOT CAUGHT IN TYPECHECKER"); // Linje nr??
             return new UnInitialisedVariable(); //Burde vi aldrig nå tror jeg
+            }
         }
 
         #region CheckerFunctions

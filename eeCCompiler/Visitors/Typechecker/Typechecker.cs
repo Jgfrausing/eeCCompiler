@@ -341,6 +341,19 @@ namespace eeCCompiler.Visitors
             foreach (var decl in functionsDeclarations.FunctionDeclarationList)
             {
                 decl.TypeId.Identifier.Id = "program_" + decl.TypeId.Identifier.Id;
+                if (!Funcs.ContainsKey(decl.TypeId.Identifier.Id))
+                {
+                    Funcs.Add(decl.TypeId.Identifier.Id,
+                   new Function(decl,
+                       _expressionChecker.TypeChecker(decl.TypeId.ValueType.ToString())));
+                }
+                else
+                    Errors.Add(
+                        $"{LineColumnString(decl)}\"{decl.TypeId.Identifier.Id}\" was declared twice");
+
+        }
+            foreach (var decl in functionsDeclarations.FunctionDeclarationList)
+            {
                 decl.Accept(this);
             }
         }
@@ -350,8 +363,7 @@ namespace eeCCompiler.Visitors
         }
         public override void Visit(FunctionDeclaration functionDeclaration)
         {
-            if (!Funcs.ContainsKey(functionDeclaration.TypeId.Identifier.Id))
-            {
+           
                 var preBodyIdentifiers = saveScope();
                 foreach (var parameter in functionDeclaration.Parameters.TypeIds)
                 {
@@ -378,16 +390,13 @@ namespace eeCCompiler.Visitors
                 }
                 bool returnFound;
 
-                functionDeclaration.Body.Accept(this);
+                //functionDeclaration.Body.Accept(this);
 
 
-                //foreach (var bodyPart in functionDeclaration.Body.Bodyparts)
-                //{
-                //    if (bodyPart is VarDecleration)
-                //    {
-                //        (bodyPart as VarDecleration).Accept(this);
-                //    }
-                //}
+                foreach (var bodyPart in functionDeclaration.Body.Bodyparts)
+                {
+                    bodyPart.Accept(this);
+                }
                 var Value = _expressionChecker.TypeChecker(functionDeclaration.TypeId.ValueType.ToString());
                 if (functionDeclaration.TypeId.ValueType.ToString() == "void")
                     returnFound = true;
@@ -396,15 +405,9 @@ namespace eeCCompiler.Visitors
                 if (returnFound == false)
                     Errors.Add(
                         $"{LineColumnString(functionDeclaration)}Not all paths in \"{functionDeclaration.TypeId.Identifier.Id}\" return a value");
-                Funcs.Add(functionDeclaration.TypeId.Identifier.Id,
-                    new Function(functionDeclaration,
-                        _expressionChecker.TypeChecker(functionDeclaration.TypeId.ValueType.ToString())));
+               
 
                 Identifiers = preBodyIdentifiers;
-            }
-            else
-                Errors.Add(
-                    $"{LineColumnString(functionDeclaration)}\"{functionDeclaration.TypeId.Identifier.Id}\" was declared twice");
         }
 
         public override void Visit(IfStatement ifStatement)
