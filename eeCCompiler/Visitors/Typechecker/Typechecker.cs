@@ -279,6 +279,7 @@ namespace eeCCompiler.Visitors
                 varDecleration.IsFirstUse)
                 Errors.Add(
                     $"{LineColumnString(varDecleration)}The \"{varDecleration.AssignmentOperator.Symbol}\" operator can not be used on an uninitialised variable");
+
             varDecleration.Identifier.Accept(this);
 
             varDecleration.AssignmentOperator.Accept(this);
@@ -287,6 +288,7 @@ namespace eeCCompiler.Visitors
             if (Identifiers[varDecleration.Identifier.Id] is Identifier)
                 (Identifiers[varDecleration.Identifier.Id] as Identifier).Type.ValueType =
                     _expressionChecker.CheckValueType(value);
+
             else
             {
                 varDecleration.Identifier.Type.ValueType = _expressionChecker.CheckValueType(value);
@@ -410,8 +412,10 @@ namespace eeCCompiler.Visitors
             if (!(_expressionChecker.CheckExpression(ifStatement.Expression) is BoolValue))
                 Errors.Add(
                     $"{LineColumnString(ifStatement)}if statement expects boolean but got \"{_expressionChecker.CheckExpression(ifStatement.Expression).GetType().Name}\"");
-            Visit(ifStatement.Body);
-            Visit(ifStatement.ElseStatement);
+
+            ifStatement.Body.Accept(this);
+
+            ifStatement.ElseStatement.Accept(this);
         }
 
         public override void Visit(RepeatExpr repeatExpr)
