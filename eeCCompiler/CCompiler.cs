@@ -26,7 +26,6 @@ namespace eeCCompiler
             p.Start();
             while (!p.HasExited)
             {
-                
             }
         }
 

@@ -11,10 +11,10 @@ namespace eeCCompiler.Visitors
     public class CCodeGeneration : IEecVisitor
     {
         private readonly DefaultCCode _defaultCCode = new DefaultCCode();
+        private List<RefTypeId> _clearVariables;
+        private List<RefTypeId> _returnVariables;
 
         public Root _root;
-        private List<RefTypeId> _returnVariables;
-        private List<RefTypeId> _clearVariables;
 
         public CCodeGeneration()
         {
@@ -43,7 +43,7 @@ namespace eeCCompiler.Visitors
             Header += Code;
 
             Code = "";
-            
+
 
             _defaultCCode.CreateListPrototypes(this);
             root.StructDefinitions.Accept(this);
@@ -418,10 +418,10 @@ namespace eeCCompiler.Visitors
                     Code += $"string_clear(&_{TempCVariable})";
                 }
                 else
-                    Code += $"standard_read()" ;
+                    Code += $"standard_read()";
             }
-            #endregion
-            #region Convert
+                #endregion
+                #region Convert
 
             else if (funcCall.Identifier.Id == "program_convertStringToBool"
                      || funcCall.Identifier.Id == "program_convertStringToNum")
@@ -450,7 +450,7 @@ namespace eeCCompiler.Visitors
                     Code += "&";
                 }
                 funcCall.Expressions[1].Accept(this);
-                
+
                 Code += $",";
                 funcCall.Expressions[0].Accept(this);
                 Code += $")";
@@ -514,10 +514,10 @@ namespace eeCCompiler.Visitors
                         Code += ",";
                     if (i == 0 && funcCall.IsStructFunction)
                         Code += "&";
-                    
-                    else if ((funcCall.Expressions[i] is ExpressionVal))
+
+                    else if (funcCall.Expressions[i] is ExpressionVal)
                     {
-                        if (((funcCall.Expressions[i] as ExpressionVal).Value is Identifier))
+                        if ((funcCall.Expressions[i] as ExpressionVal).Value is Identifier)
                             if (!((funcCall.Expressions[i] as ExpressionVal).Value as Identifier).Type.IsBasicType)
                                 Code += "&";
                     }
@@ -543,7 +543,7 @@ namespace eeCCompiler.Visitors
 
         public void Visit(FunctionDeclaration functionDeclaration)
         {
-            int position = Code.Length;
+            var position = Code.Length;
             functionDeclaration.TypeId.Accept(this);
             Code += "(";
 
@@ -551,7 +551,7 @@ namespace eeCCompiler.Visitors
             var parameters = functionDeclaration.Parameters.TypeIds;
 
 
-            for (int i = 0; i < parameters.Count; i++)
+            for (var i = 0; i < parameters.Count; i++)
             {
                 if (i != 0)
                     Code += ", ";
@@ -578,20 +578,23 @@ namespace eeCCompiler.Visitors
                     _returnVariables.Add(parameter);
                     if (parameter.TypeId.Identifier.Type.IsBasicType && !parameter.TypeId.Identifier.Type.IsListValue)
                     {
-                        Code += $"{GetValueType(parameter.TypeId.ValueType)} _{parameter.TypeId.Identifier} = *{parameter.TypeId.Identifier};\n";
+                        Code +=
+                            $"{GetValueType(parameter.TypeId.ValueType)} _{parameter.TypeId.Identifier} = *{parameter.TypeId.Identifier};\n";
                     }
                     else if (parameter.TypeId.Identifier.Type.ValueType == "string")
                     {
-                        Code += $"string_handle _{parameter.TypeId.Identifier} = string_copy({parameter.TypeId.Identifier}); string_clear({parameter.TypeId.Identifier});\n";
+                        Code +=
+                            $"string_handle _{parameter.TypeId.Identifier} = string_copy({parameter.TypeId.Identifier}); string_clear({parameter.TypeId.Identifier});\n";
                     }
                     else if (parameter.TypeId.Identifier.Type.IsListValue)
                     {
-                        Code += $"{(parameter.TypeId.ValueType)}list_handle _{parameter.TypeId.Identifier} = {(parameter.TypeId.ValueType)}list_copy({parameter.TypeId.Identifier});"
-                                    + $"{(parameter.TypeId.ValueType)}list_clear({parameter.TypeId.Identifier});\n";
+                        Code += $"{parameter.TypeId.ValueType}list_handle _{parameter.TypeId.Identifier} = {parameter.TypeId.ValueType}list_copy({parameter.TypeId.Identifier});"
+                                + $"{parameter.TypeId.ValueType}list_clear({parameter.TypeId.Identifier});\n";
                     }
                     else // struct
                     {
-                        Code += $"{GetValueType(parameter.TypeId.ValueType)} _{parameter.TypeId.Identifier} = {GetValueType(parameter.TypeId.ValueType)}_copy({parameter.TypeId.Identifier});\n";
+                        Code +=
+                            $"{GetValueType(parameter.TypeId.ValueType)} _{parameter.TypeId.Identifier} = {GetValueType(parameter.TypeId.ValueType)}_copy({parameter.TypeId.Identifier});\n";
                     }
                 }
                 else if (!parameter.TypeId.Identifier.Type.IsBasicType || parameter.TypeId.Identifier.Type.IsListValue)
@@ -601,15 +604,18 @@ namespace eeCCompiler.Visitors
                     if (parameter.TypeId.Identifier.Type.IsListValue)
                     {
                         _clearVariables.Add(parameter);
-                        Code += $"{(parameter.TypeId.ValueType)}list_handle _{parameter.TypeId.Identifier} = {(parameter.TypeId.ValueType)}list_copy({parameter.TypeId.Identifier});\n";
+                        Code +=
+                            $"{parameter.TypeId.ValueType}list_handle _{parameter.TypeId.Identifier} = {parameter.TypeId.ValueType}list_copy({parameter.TypeId.Identifier});\n";
                     }
                     else if (parameter.TypeId.Identifier.Type.ValueType == "string")
                     {
-                        Code += $"string_handle _{parameter.TypeId.Identifier} = string_copy({parameter.TypeId.Identifier});\n";
+                        Code +=
+                            $"string_handle _{parameter.TypeId.Identifier} = string_copy({parameter.TypeId.Identifier});\n";
                     }
                     else // struct
                     {
-                        Code += $"{GetValueType(parameter.TypeId.ValueType)} _{parameter.TypeId.Identifier} = {GetValueType(parameter.TypeId.ValueType)}_copy({parameter.TypeId.Identifier});\n";
+                        Code +=
+                            $"{GetValueType(parameter.TypeId.ValueType)} _{parameter.TypeId.Identifier} = {GetValueType(parameter.TypeId.ValueType)}_copy({parameter.TypeId.Identifier});\n";
                     }
                 }
             }
@@ -626,21 +632,6 @@ namespace eeCCompiler.Visitors
                 PreReturnFormailties();
 
             Code += "}";
-
-        }
-
-        private void PreReturnFormailties()
-        {
-            foreach (var variable in _returnVariables)
-            {
-                Code += $"*{variable.TypeId.Identifier} = _{variable.TypeId.Identifier};";
-            }
-            foreach (var variable in _clearVariables)
-            {
-                Code += variable.TypeId.Identifier.Type.ValueType == "string"
-                    ? $"string_clear(&_{variable.TypeId.Identifier});\n"
-                    : $"{(variable.TypeId.ValueType)}list_clear(&_{variable.TypeId.Identifier});\n";
-            }
         }
 
         public void Visit(Return returnNode)
@@ -702,22 +693,23 @@ namespace eeCCompiler.Visitors
                 else
                     Code += $"_new();";
             }
- 
+
             //Ret
-            else if (varDecl.Identifier.Type.ValueType == "string" && !((varDecl.Expression as ExpressionVal)?.Value is FuncCall))
+            else if (varDecl.Identifier.Type.ValueType == "string" &&
+                     !((varDecl.Expression as ExpressionVal)?.Value is FuncCall))
             {
                 if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
                 {
-                    if (varDecl.Expression is ExpressionVal && (varDecl.Expression as ExpressionVal).Value is Identifier)
+                    if (varDecl.Expression is ExpressionVal &&
+                        (varDecl.Expression as ExpressionVal).Value is Identifier)
                     {
-                        Code += $"{varDecl.Identifier.Type.ValueType}_handle {varDecl.Identifier} = {varDecl.Identifier.Type.ValueType}_copy(&{(varDecl.Expression as ExpressionVal).Value});\n";
+                        Code +=
+                            $"{varDecl.Identifier.Type.ValueType}_handle {varDecl.Identifier} = {varDecl.Identifier.Type.ValueType}_copy(&{(varDecl.Expression as ExpressionVal).Value});\n";
                     }
                     else
                     {
                         CreateNewString(varDecl);
                     }
-                    
-                    
                 }
 
                 else if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Pluseq)
@@ -733,10 +725,10 @@ namespace eeCCompiler.Visitors
                 varDecl.AssignmentOperator.Accept(this);
                 Code += " ";
                 if (varDecl.Identifier.Type.ValueType == "string"
-                && ((varDecl.Expression as ExpressionVal)?.Value as FuncCall)?.Identifier.Id == "program_read")
+                    && ((varDecl.Expression as ExpressionVal)?.Value as FuncCall)?.Identifier.Id == "program_read")
                 {
                     if (varDecl.AssignmentOperator.Symbol == Indexes.Indexes.SymbolIndex.Eq)
-                    { 
+                    {
                         Code += $" standard_read()";
                     }
                     else
@@ -747,7 +739,8 @@ namespace eeCCompiler.Visitors
                     varDecl.Expression.Accept(this);
                     Code += ";";
 
-                    Code += $"{varDecl.Identifier.Id} = {varDecl.Identifier.Type.ValueType}_copy(&{varDecl.Identifier.Id})";
+                    Code +=
+                        $"{varDecl.Identifier.Id} = {varDecl.Identifier.Type.ValueType}_copy(&{varDecl.Identifier.Id})";
                 }
                 else
                 {
@@ -857,7 +850,7 @@ namespace eeCCompiler.Visitors
         public void Visit(RefId refId)
         {
             //if (refId.Type.IsBasicType)
-                Code += " &";
+            Code += " &";
             Code += $" {refId.Identifier} ";
         }
 
@@ -868,7 +861,7 @@ namespace eeCCompiler.Visitors
                     ? GetValueType(refTypeId.TypeId.ValueType) + " *" + refTypeId.TypeId.Identifier
                     : GetValueType(refTypeId.TypeId.ValueType) + " " + refTypeId.TypeId.Identifier;
             else if (refTypeId.TypeId.Identifier.Type.IsListValue)
-                Code += $"{refTypeId.TypeId.ValueType}list_handle  *  {refTypeId.TypeId.Identifier}"; 
+                Code += $"{refTypeId.TypeId.ValueType}list_handle  *  {refTypeId.TypeId.Identifier}";
             else
             {
                 Code += GetValueType(refTypeId.TypeId.ValueType) + " *" + refTypeId.TypeId.Identifier;
@@ -917,10 +910,12 @@ namespace eeCCompiler.Visitors
                     (varInStructDecleration.Expression as ExpressionVal).Value is Identifier &&
                     !((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.IsBasicType &&
                     !((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.IsListValue &&
-                    !(((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.ValueType == "string"))
+                    !(((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.ValueType ==
+                      "string"))
                 {
                     varInStructDecleration.Refrence.Accept(this);
-                    Code += "= " + ((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.ValueType +
+                    Code += "= " +
+                            ((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.ValueType +
                             "_copy(&";
                     Code += ((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Id + ");";
                 }
@@ -949,11 +944,10 @@ namespace eeCCompiler.Visitors
                 Code += $"{idIndex.Identifier.Type.ValueType}list_set(";
                 idIndex.ListIndex.Indexes[0].Accept(this);
                 Code += ", ";
-                if (idIndex.Identifier.Type.ValueType.ToString() == "string")
+                if (idIndex.Identifier.Type.ValueType == "string")
                     Code += "&";
                 varInStructDecleration.Expression.Accept(this);
                 Code += $", &{idIndex.Identifier.Id});";
-
             }
 
             PostExpressionStringCreater(stringCreater);
@@ -985,6 +979,20 @@ namespace eeCCompiler.Visitors
                 expressionExprOpExpr.Expression.Accept(this);
                 if (expressionExprOpExpr.Operator.Symbol == Indexes.Indexes.SymbolIndex.Mod)
                     Code += ")";
+            }
+        }
+
+        private void PreReturnFormailties()
+        {
+            foreach (var variable in _returnVariables)
+            {
+                Code += $"*{variable.TypeId.Identifier} = _{variable.TypeId.Identifier};";
+            }
+            foreach (var variable in _clearVariables)
+            {
+                Code += variable.TypeId.Identifier.Type.ValueType == "string"
+                    ? $"string_clear(&_{variable.TypeId.Identifier});\n"
+                    : $"{variable.TypeId.ValueType}list_clear(&_{variable.TypeId.Identifier});\n";
             }
         }
 

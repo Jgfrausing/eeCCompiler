@@ -8,7 +8,6 @@ namespace eeCCompiler.Visitors
     {
         private readonly bool[] Regs = new bool[8];
         private readonly List<string> UsedVariables = new List<string>();
-        public string File => Data + Text;
 
         public MipsPrinter()
         {
@@ -16,6 +15,8 @@ namespace eeCCompiler.Visitors
             Data = ".data\n";
             Text = ".text\n.globl main\nmain:\n";
         }
+
+        public string File => Data + Text;
 
         private int LabelCount { get; set; }
         public string Data { get; set; }
@@ -79,7 +80,7 @@ namespace eeCCompiler.Visitors
             var Label = LabelCount++; //Sikre sig at vi får nye labels hvis vi nester repeats
             int reg1 = GetReg(), reg2 = GetReg();
             Text += $"lw $t{reg1}, {repeatFor.VarDecleration.Identifier.Id}\n";
-                //Temp løsning kun fordi vi ikke kan få værdi ud af expression endnu forventer altid ExpressionVal
+            //Temp løsning kun fordi vi ikke kan få værdi ud af expression endnu forventer altid ExpressionVal
             Text += $"li $t{reg2}, {(repeatFor.Expression as ExpressionVal).Value}\n";
             Text += $"loop{Label}:\n";
             if (repeatFor.Direction.Incrementing)

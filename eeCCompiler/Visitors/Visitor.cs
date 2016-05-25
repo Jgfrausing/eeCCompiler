@@ -173,7 +173,7 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(TypeId expressionParenOpExpr)
         {
-         expressionParenOpExpr.ValueType.Accept(this);
+            expressionParenOpExpr.ValueType.Accept(this);
             expressionParenOpExpr.Identifier.Accept(this);
         }
 
@@ -221,7 +221,6 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(Type type)
         {
-
         }
 
         public virtual void Visit(StructDecleration structDecleration)

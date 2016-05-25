@@ -2,14 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using eeCCompiler.Nodes;
 using eeCCompiler.Visitors;
 
 namespace eeCCompiler
 {
     internal class Program
     {
-
         private static void Main(string[] args)
         {
             string path, filename, extension;
@@ -55,11 +53,6 @@ namespace eeCCompiler
                         // Compiling to C
                         var cCompiler = new CCompiler();
                         cCompiler.CompileToC(parser, filename);
-                        if (!args.Any())
-                        {
-                            cCompiler.CompileC(path + filename);
-                            cCompiler.Run(path + filename);
-                        }
                     }
                 }
             }

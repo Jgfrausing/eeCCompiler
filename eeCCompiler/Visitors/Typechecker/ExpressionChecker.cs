@@ -64,7 +64,10 @@ namespace eeCCompiler.Visitors
                                 var structRef = _typechecker.Identifiers[refrence.StructRefrence.ToString()];
                                 IValue val;
 
-                                if ((structRef as StructValue).StructIdentifiers.ContainsKey((refrence.Identifier as IdIndex).Identifier.Id)) { 
+                                if (
+                                    (structRef as StructValue).StructIdentifiers.ContainsKey(
+                                        (refrence.Identifier as IdIndex).Identifier.Id))
+                                {
                                     val =
                                         (structRef as StructValue).StructIdentifiers[
                                             (refrence.Identifier as IdIndex).Identifier.Id];
@@ -101,7 +104,8 @@ namespace eeCCompiler.Visitors
                 }
                 else if (exp.Value is FuncCall) //Func i vardecl
                 {
-                    if (!((exp.Value as FuncCall).Identifier.Id.Length>8) || (exp.Value as FuncCall).Identifier.Id.Substring(0,8) != "program_")
+                    if (!((exp.Value as FuncCall).Identifier.Id.Length > 8) ||
+                        (exp.Value as FuncCall).Identifier.Id.Substring(0, 8) != "program_")
                         (exp.Value as FuncCall).Identifier.Id = "program_" + (exp.Value as FuncCall).Identifier;
                     var id = (exp.Value as FuncCall).Identifier.Id;
 
@@ -155,20 +159,20 @@ namespace eeCCompiler.Visitors
                 return value;
             }
 
-            #endregion
+                #endregion
 
-            #region ExpressionParen
+                #region ExpressionParen
 
-            else if (expression is ExpressionParen)
+            if (expression is ExpressionParen)
             {
                 return CheckExpression((expression as ExpressionParen).Expression);
             }
 
-            #endregion
+                #endregion
 
-            #region ExpressionNegate
+                #region ExpressionNegate
 
-            else if (expression is ExpressionNegate)
+            if (expression is ExpressionNegate)
             {
                 var value = CheckExpression((expression as ExpressionNegate).Expression);
                 if (!(value is BoolValue) && !(value is UnInitialisedVariable))
@@ -177,11 +181,11 @@ namespace eeCCompiler.Visitors
                 return value;
             }
 
-            #endregion
+                #endregion
 
-            #region ExpressionMinus
+                #region ExpressionMinus
 
-            else if (expression is ExpressionMinus)
+            if (expression is ExpressionMinus)
             {
                 var value = CheckExpression((expression as ExpressionMinus).Expression);
                 if (!(value is NumValue) && !(value is UnInitialisedVariable))
@@ -190,11 +194,11 @@ namespace eeCCompiler.Visitors
                 return value;
             }
 
-            #endregion
+                #endregion
 
-            #region ExpressionValOpExpr
+                #region ExpressionValOpExpr
 
-            else if (expression is ExpressionValOpExpr)
+            if (expression is ExpressionValOpExpr)
             {
                 if ((expression as ExpressionValOpExpr).Value is StringValue)
                     StringConverter((expression as ExpressionValOpExpr).Value as StringValue);
@@ -231,11 +235,11 @@ namespace eeCCompiler.Visitors
                     expressionType);
             }
 
-            #endregion
+                #endregion
 
-            #region ExpressionParenOpExpr
+                #region ExpressionParenOpExpr
 
-            else if (expression is ExpressionParenOpExpr)
+            if (expression is ExpressionParenOpExpr)
             {
                 var expressionParenOpExpr = expression as ExpressionParenOpExpr;
 
@@ -244,7 +248,7 @@ namespace eeCCompiler.Visitors
 
                 return OprChecker(value1, value2, expressionParenOpExpr.Operator, expressionType);
             }
-            else if (expression is ExpressionExprOpExpr)
+            if (expression is ExpressionExprOpExpr)
             {
                 var expressionParenOpExpr = expression as ExpressionExprOpExpr;
 
@@ -254,11 +258,11 @@ namespace eeCCompiler.Visitors
                 return OprChecker(value1, value2, expressionParenOpExpr.Operator, expressionType);
             }
 
-            #endregion
+                #endregion
 
-            #region FuncCall
+                #region FuncCall
 
-            else if (expression is FuncCall) //Ikke sikker på vi nogensinde får... skal testes!
+            if (expression is FuncCall) //Ikke sikker på vi nogensinde får... skal testes!
             {
                 //Check om input matcher det som er deklaræret
                 var funcCall = expression as FuncCall;
@@ -277,21 +281,18 @@ namespace eeCCompiler.Visitors
                 return value; // TODO ikke færdig not sure here.
             }
 
-            #endregion
+                #endregion
 
-            #region ListType
+                #region ListType
 
-            else if (expression is ListType)
+            if (expression is ListType)
             {
                 return new ListValue(expression as ListType, TypeChecker((expression as ListType).Type.ToString()));
             }
 
-            #endregion
-            else
-            { 
+                #endregion
             _typechecker.Errors.Add($"FATAL ERROR IN COMPILER! EXPRESSION NOT CAUGHT IN TYPECHECKER"); // Linje nr??
             return new UnInitialisedVariable(); //Burde vi aldrig nå tror jeg
-            }
         }
 
         #region CheckerFunctions
@@ -572,7 +573,6 @@ namespace eeCCompiler.Visitors
                                                                   (refrence.Identifier as FuncCall).Identifier.Id;
                 exp.IsFuncCall = true;
                 exp.FuncsStruct = structType;
-                
             }
             else if (refrence.Identifier is IdIndex)
             {
@@ -614,8 +614,10 @@ namespace eeCCompiler.Visitors
                         valueFound = true;
                     }
                     else if (
-                        _typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] is ListValue ||
-                        _typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] is StringValue)
+                        _typechecker.Structs[structType].StructIdentifiers[
+                            (refrence.Identifier as Refrence).StructRefrence.ToString()] is ListValue ||
+                        _typechecker.Structs[structType].StructIdentifiers[
+                            (refrence.Identifier as Refrence).StructRefrence.ToString()] is StringValue)
                     {
                         var listRefrence = refrence.Identifier as Refrence;
 
@@ -623,34 +625,42 @@ namespace eeCCompiler.Visitors
                         {
                             var funcCall = listRefrence.Identifier as FuncCall;
 
-                            if (_typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] is ListValue)
+                            if (
+                                _typechecker.Structs[structType].StructIdentifiers[
+                                    (refrence.Identifier as Refrence).StructRefrence.ToString()] is ListValue)
                                 funcCall.Identifier.Type.ValueType =
-                                (_typechecker.Structs[structType].StructIdentifiers[
-                                    (refrence.Identifier as Refrence).StructRefrence.ToString()] as ListValue).Type.Type.ToString();
+                                    (_typechecker.Structs[structType].StructIdentifiers[
+                                        (refrence.Identifier as Refrence).StructRefrence.ToString()] as ListValue).Type
+                                        .Type.ToString();
                             else
                                 funcCall.Identifier.Type.ValueType = "string";
                             if (funcCall.Identifier.Id == "count")
                                 value = new NumValue(2.0);
                             else
                                 value = new UnInitialisedVariable();
-                            if (_typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] is ListValue)
-                                ListFuncChecker(funcCall,
+                            if (
                                 _typechecker.Structs[structType].StructIdentifiers[
-                                    (refrence.Identifier as Refrence).StructRefrence.ToString()] as ListValue);
+                                    (refrence.Identifier as Refrence).StructRefrence.ToString()] is ListValue)
+                                ListFuncChecker(funcCall,
+                                    _typechecker.Structs[structType].StructIdentifiers[
+                                        (refrence.Identifier as Refrence).StructRefrence.ToString()] as ListValue);
                             else
                                 StringFuncChecker(funcCall,
-                                _typechecker.Structs[structType].StructIdentifiers[
-                                    (refrence.Identifier as Refrence).StructRefrence.ToString()] as StringValue);
+                                    _typechecker.Structs[structType].StructIdentifiers[
+                                        (refrence.Identifier as Refrence).StructRefrence.ToString()] as StringValue);
 
                             valueFound = true;
                         }
                         else
                         {
-                            if (_typechecker.Structs[structType].StructIdentifiers[(refrence.Identifier as Refrence).StructRefrence.ToString()] is ListValue)
+                            if (
+                                _typechecker.Structs[structType].StructIdentifiers[
+                                    (refrence.Identifier as Refrence).StructRefrence.ToString()] is ListValue)
                             {
                                 value = StructRefrenceChecker(listRefrence,
-                                ((_typechecker.Structs[structType].StructIdentifiers[
-                                    (refrence.Identifier as Refrence).StructRefrence.ToString()] as ListValue).Type.Type as Identifier).Id, exp);
+                                    ((_typechecker.Structs[structType].StructIdentifiers[
+                                        (refrence.Identifier as Refrence).StructRefrence.ToString()] as ListValue).Type
+                                        .Type as Identifier).Id, exp);
                                 valueFound = true;
                             }
                         }
@@ -683,7 +693,7 @@ namespace eeCCompiler.Visitors
                 }
 
                 else if (_typechecker.Identifiers[refrence.StructRefrence.ToString()] is ListValue ||
-                        _typechecker.Identifiers[refrence.StructRefrence.ToString()] is StringValue)
+                         _typechecker.Identifiers[refrence.StructRefrence.ToString()] is StringValue)
                 {
                     if (refrence.Identifier is FuncCall)
                     {
@@ -704,7 +714,8 @@ namespace eeCCompiler.Visitors
                     }
                 }
                 else
-                    _typechecker.Errors.Add($"{_typechecker.LineColumnString(refrence)}Base types can not be used with the \".\" operator");
+                    _typechecker.Errors.Add(
+                        $"{_typechecker.LineColumnString(refrence)}Base types can not be used with the \".\" operator");
             }
             else
                 _typechecker.Errors.Add(
@@ -720,8 +731,8 @@ namespace eeCCompiler.Visitors
                 {
                     if (
                         !(CheckExpression(funcCall.Expressions[0] as IExpression) is StringValue))
-                            _typechecker.Errors.Add(
-                             $"{_typechecker.LineColumnString(funcCall)}List is of type \"{stringValue.GetType()}\", but a \"{(funcCall.Expressions[0] as IExpression).GetType()}\" was tried added");
+                        _typechecker.Errors.Add(
+                            $"{_typechecker.LineColumnString(funcCall)}List is of type \"{stringValue.GetType()}\", but a \"{(funcCall.Expressions[0] as IExpression).GetType()}\" was tried added");
                 }
                 else if (funcCall.Expressions.Count > 1)
                     _typechecker.Errors.Add(
@@ -783,13 +794,14 @@ namespace eeCCompiler.Visitors
             }
             else if (funcCall.Identifier.Id == "sort")
             {
-                    _typechecker.Errors.Add(
-                        $"{_typechecker.LineColumnString(funcCall)}\"sort()\" can not be used on \"{funcCall.Identifier.Type.ValueType}\" list");
+                _typechecker.Errors.Add(
+                    $"{_typechecker.LineColumnString(funcCall)}\"sort()\" can not be used on \"{funcCall.Identifier.Type.ValueType}\" list");
             }
             else
                 _typechecker.Errors.Add(
                     $"{_typechecker.LineColumnString(funcCall)}Unknown list function: \"{funcCall.Identifier}\"");
         }
+
         public void ListFuncChecker(FuncCall funcCall, ListValue listValue)
         {
             if (funcCall.Identifier.Id == "add")
@@ -911,7 +923,7 @@ namespace eeCCompiler.Visitors
                     returnFound = true;
                     if (type1 != type2)
                         _typechecker.Errors.Add($"Return value of " + "!!!FunktionsNavnHer!!!" + " is not valid");
-                            // Linje nr?? + !!!FunktionsNavnHer!!!
+                    // Linje nr?? + !!!FunktionsNavnHer!!!
                 }
             }
             _typechecker.Identifiers = preBodyIdentifiers;

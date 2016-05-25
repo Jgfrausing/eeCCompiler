@@ -16,18 +16,17 @@ namespace eeCCompiler.Visitors
             _expressionChecker = new ExpressionChecker(new Typechecker(new List<string>()));
             level = 0;
             ExprParens = new Dictionary<IExpression, IValue>();
-            please = 0;
+            precedenceValue = 0;
         }
 
         public IExpression GlobalExpr { get; set; }
         public int level { get; set; }
-        public int please { get; set; }
+        public int precedenceValue { get; set; }
 
         public override void Visit(VarDecleration vardecl)
         {
             vardecl.Expression = FullPrecedenceFix(vardecl.Expression);
             ExprParens.Clear();
-
         }
 
         public override void Visit(IfStatement ifstatement)
@@ -123,10 +122,12 @@ namespace eeCCompiler.Visitors
             else if (expression is ExpressionExprOpExpr)
             {
                 var ExpressionChecker = new Precedence();
-                (expression as ExpressionExprOpExpr).ExpressionParen = ExpressionChecker.FullPrecedenceFix((expression as ExpressionExprOpExpr).ExpressionParen);
+                (expression as ExpressionExprOpExpr).ExpressionParen =
+                    ExpressionChecker.FullPrecedenceFix((expression as ExpressionExprOpExpr).ExpressionParen);
 
                 var ExpressionParenChecker = new Precedence();
-                (expression as ExpressionExprOpExpr).Expression = ExpressionChecker.FullPrecedenceFix((expression as ExpressionExprOpExpr).Expression);
+                (expression as ExpressionExprOpExpr).Expression =
+                    ExpressionChecker.FullPrecedenceFix((expression as ExpressionExprOpExpr).Expression);
             }
         }
 
@@ -152,7 +153,7 @@ namespace eeCCompiler.Visitors
             if (expression is ExpressionParenOpExpr)
             {
                 var expressionParenOpExpr = expression as ExpressionParenOpExpr;
-                var val = new PrecedenceValue(please++);
+                var val = new PrecedenceValue(precedenceValue++);
                 ExprParens.Add(expressionParenOpExpr.ExpressionParen, val);
                 expression = new ExpressionValOpExpr(expressionParenOpExpr.Expression, expressionParenOpExpr.Operator,
                     val);
@@ -172,7 +173,7 @@ namespace eeCCompiler.Visitors
 
                 (expression as ExpressionParen).Expression = FullPrecedenceFix(exprExpr);
 
-                var val = new PrecedenceValue(please++);
+                var val = new PrecedenceValue(precedenceValue++);
                 ExprParens.Add(expressionParen, val);
 
                 expression = new ExpressionVal(val);
@@ -189,7 +190,7 @@ namespace eeCCompiler.Visitors
                 var exprExpr = (expression as ExpressionNegate).Expression;
                 (expression as ExpressionNegate).Expression = FullPrecedenceFix(exprExpr);
 
-                var val = new PrecedenceValue(please++);
+                var val = new PrecedenceValue(precedenceValue++);
                 ExprParens.Add(expressionNegate, val);
 
                 expression = new ExpressionVal(val);
