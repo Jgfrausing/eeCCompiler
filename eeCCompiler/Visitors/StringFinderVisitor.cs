@@ -81,7 +81,6 @@ namespace eeCCompiler.Visitors
             {
                 var stringValue = value as StringValue;
                 value = new Identifier("_" + VariableName) { Type = new Type("string") } ;
-                
                 StringDict.Add(value as Identifier, stringValue);
                 VariableName++;
             }

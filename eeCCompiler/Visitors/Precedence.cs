@@ -27,12 +27,15 @@ namespace eeCCompiler.Visitors
         {
             vardecl.Expression = FullPrecedenceFix(vardecl.Expression);
             ExprParens.Clear();
+
         }
 
         public override void Visit(IfStatement ifstatement)
         {
             ifstatement.Expression = FullPrecedenceFix(ifstatement.Expression);
             ExprParens.Clear();
+            ifstatement.Body.Accept(this);
+            ifstatement.ElseStatement.Accept(this);
         }
 
         public override void Visit(VarInStructDecleration varInStructDecleration)
@@ -45,14 +48,15 @@ namespace eeCCompiler.Visitors
         {
             repeatExpr.Expression = FullPrecedenceFix(repeatExpr.Expression);
             ExprParens.Clear();
+            repeatExpr.Body.Accept(this);
         }
 
         public override void Visit(RepeatFor repeatFor)
         {
             repeatFor.Expression = FullPrecedenceFix(repeatFor.Expression);
             ExprParens.Clear();
-
             repeatFor.VarDecleration.Accept(this);
+            repeatFor.Body.Accept(this);
         }
 
         public override void Visit(Return eecReturn)
@@ -118,25 +122,11 @@ namespace eeCCompiler.Visitors
             }
             else if (expression is ExpressionExprOpExpr)
             {
-                var ExpressionChecker = new PrecedenceVisitor();
-                ExpressionChecker.Org = (expression as ExpressionExprOpExpr).ExpressionParen;
-                var temp1 = (expression as ExpressionExprOpExpr).ExpressionParen;
-                while (ExpressionChecker.level < 6)
-                {
-                    ExpressionChecker.PrecedenceFix2(ref temp1, 0);
-                    ExpressionChecker.level++;
-                }
-                (expression as ExpressionExprOpExpr).ExpressionParen = ExpressionChecker.Org;
+                var ExpressionChecker = new Precedence();
+                (expression as ExpressionExprOpExpr).ExpressionParen = ExpressionChecker.FullPrecedenceFix((expression as ExpressionExprOpExpr).ExpressionParen);
 
-                var ExpressionParenChecker = new PrecedenceVisitor();
-                ExpressionParenChecker.Org = (expression as ExpressionExprOpExpr).Expression;
-                var temp2 = (expression as ExpressionExprOpExpr).Expression;
-                while (ExpressionParenChecker.level < 6)
-                {
-                    ExpressionParenChecker.PrecedenceFix2(ref temp2, 0);
-                    ExpressionParenChecker.level++;
-                }
-                (expression as ExpressionExprOpExpr).Expression = ExpressionParenChecker.Org;
+                var ExpressionParenChecker = new Precedence();
+                (expression as ExpressionExprOpExpr).Expression = ExpressionChecker.FullPrecedenceFix((expression as ExpressionExprOpExpr).Expression);
             }
         }
 
