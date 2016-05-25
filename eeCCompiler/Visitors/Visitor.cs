@@ -146,6 +146,7 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(ListIndex expressionParenOpExpr)
         {
+            expressionParenOpExpr.Indexes.ForEach(x => x.Accept(this));
         }
 
         public virtual void Visit(Ref expressionParenOpExpr)
@@ -154,6 +155,7 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(ListType expressionParenOpExpr)
         {
+            expressionParenOpExpr.Type.Accept(this);
         }
 
         public virtual void Visit(RefId expressionParenOpExpr)
@@ -171,12 +173,13 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(TypeId expressionParenOpExpr)
         {
-            //
+         expressionParenOpExpr.ValueType.Accept(this);
+            expressionParenOpExpr.Identifier.Accept(this);
         }
 
         public virtual void Visit(TypeIdList expressionParenOpExpr)
         {
-            //throw new System.NotImplementedException();
+            expressionParenOpExpr.TypeIds.ForEach(x => x.Accept(this));
         }
 
         public virtual void Visit(IdIndex expressionParenOpExpr)
@@ -187,7 +190,9 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(VarInStructDecleration varInStructDecleration)
         {
-            //throw new System.NotImplementedException();
+            varInStructDecleration.Refrence.Accept(this);
+            varInStructDecleration.AssignmentOperator.Accept(this);
+            varInStructDecleration.Expression.Accept(this);
         }
 
         public virtual void Visit(FunctionDeclaration functionDeclaration)
@@ -216,6 +221,7 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(Type type)
         {
+
         }
 
         public virtual void Visit(StructDecleration structDecleration)
