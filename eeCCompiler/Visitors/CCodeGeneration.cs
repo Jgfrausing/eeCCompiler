@@ -13,6 +13,8 @@ namespace eeCCompiler.Visitors
         private readonly DefaultCCode _defaultCCode = new DefaultCCode();
 
         public Root _root;
+        private List<RefTypeId> _returnVariables;
+        private List<RefTypeId> _clearVariables;
 
         public CCodeGeneration()
         {
@@ -555,14 +557,14 @@ namespace eeCCompiler.Visitors
             Code += "{";
 
             var renameVariables = new List<RefTypeId>();
-            var returnVariables = new List<RefTypeId>();
-            var clearVariables = new List<RefTypeId>();
+            _returnVariables = new List<RefTypeId>();
+            _clearVariables = new List<RefTypeId>();
             foreach (var parameter in parameters)
             {
                 if (parameter.Ref)
                 {
                     renameVariables.Add(parameter);
-                    returnVariables.Add(parameter);
+                    _returnVariables.Add(parameter);
                     if (parameter.TypeId.Identifier.Type.IsBasicType && !parameter.TypeId.Identifier.Type.IsListValue)
                     {
                         Code += $"{GetValueType(parameter.TypeId.ValueType)} _{parameter.TypeId.Identifier} = *{parameter.TypeId.Identifier};\n";
@@ -587,7 +589,7 @@ namespace eeCCompiler.Visitors
 
                     if (parameter.TypeId.Identifier.Type.IsListValue)
                     {
-                        clearVariables.Add(parameter);
+                        _clearVariables.Add(parameter);
                         Code += $"{(parameter.TypeId.ValueType)}list_handle _{parameter.TypeId.Identifier} = {(parameter.TypeId.ValueType)}list_copy({parameter.TypeId.Identifier});\n";
                     }
                     else if (parameter.TypeId.Identifier.Type.ValueType == "string")
@@ -606,11 +608,16 @@ namespace eeCCompiler.Visitors
 
 
 
-            foreach (var variable in returnVariables)
+            PreReturnFormailties();
+        }
+
+        private void PreReturnFormailties()
+        {
+            foreach (var variable in _returnVariables)
             {
                 Code += $"*{variable.TypeId.Identifier} = _{variable.TypeId.Identifier};";
             }
-            foreach (var variable in clearVariables)
+            foreach (var variable in _clearVariables)
             {
                 Code += variable.TypeId.Identifier.Type.ValueType == "string"
                     ? $"string_clear(&_{variable.TypeId.Identifier});\n"
