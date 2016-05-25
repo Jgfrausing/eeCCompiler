@@ -102,6 +102,7 @@
     <Compile Include="Visitors\ExprCheck.cs" />
     <Compile Include="Visitors\MipsPrinter.cs" />
     <Compile Include="Visitors\Precedence.cs" />
+    <Compile Include="Visitors\RenameIdentifiers.cs" />
     <Compile Include="Visitors\StringFinderVisitor.cs" />
     <Compile Include="Visitors\Typechecker\ExpressionChecker.cs" />
     <Compile Include="Visitors\IEecVisitor.cs" />
