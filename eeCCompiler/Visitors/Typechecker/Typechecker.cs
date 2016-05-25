@@ -210,7 +210,16 @@ namespace eeCCompiler.Visitors
                         value1 = _expressionChecker.StructRefrenceChecker(reference,
                             (Identifiers[(reference.StructRefrence as Identifier).Id] as StructValue)
                                 .Identifier, reference);
-                        if (value1.GetType().ToString() !=
+
+                        if (varInStructDecleration.Expression is ExpressionVal &&
+                            (varInStructDecleration.Expression as ExpressionVal).Value is Identifier)
+                        {
+                            ((varInStructDecleration.Expression as ExpressionVal).Value as Identifier).Type.ValueType =
+                                _expressionChecker.CheckValueType(value1);
+                        }
+                        
+                        
+                            if (value1.GetType().ToString() !=
                             _expressionChecker.CheckExpression(varInStructDecleration.Expression).GetType().ToString())
                         {
                             Errors.Add(
@@ -348,18 +357,35 @@ namespace eeCCompiler.Visitors
                         Errors.Add(
                             $"{LineColumnString(functionDeclaration)}Parameter \"{parameter.TypeId.Identifier.Id}\"" +
                             $"to function \"{functionDeclaration.TypeId.Identifier.Id}\" can not be of type void");
-                    Identifiers.Add(parameter.TypeId.Identifier.Id,
-                        _expressionChecker.TypeChecker(parameter.TypeId.ValueType.ToString()));
+
+                    if (parameter.TypeId.ValueType is ListType)
+                    {
+                        Identifiers.Add(parameter.TypeId.Identifier.Id,
+                            new ListValue(parameter.TypeId.ValueType as ListType, 
+                            _expressionChecker.TypeChecker(parameter.TypeId.ValueType.ToString())));
+                        parameter.TypeId.Identifier.Type.IsListValue = true;
+                        parameter.TypeId.Identifier.Type.ValueType = 
+                                    _expressionChecker.CheckValueType((Identifiers[parameter.TypeId.Identifier.Id] as ListValue).Value);
+                    }
+                    else
+                    {
+                        var val = _expressionChecker.TypeChecker(parameter.TypeId.ValueType.ToString());
+                        Identifiers.Add(parameter.TypeId.Identifier.Id, val);
+                        parameter.TypeId.Identifier.Type.ValueType = _expressionChecker.CheckValueType(val);
+                    }
                 }
                 bool returnFound;
 
-                foreach (var bodyPart in functionDeclaration.Body.Bodyparts)
-                {
-                    if (bodyPart is VarDecleration)
-                    {
-                        (bodyPart as VarDecleration).Accept(this);
-                    }
-                }
+                functionDeclaration.Body.Accept(this);
+
+
+                //foreach (var bodyPart in functionDeclaration.Body.Bodyparts)
+                //{
+                //    if (bodyPart is VarDecleration)
+                //    {
+                //        (bodyPart as VarDecleration).Accept(this);
+                //    }
+                //}
                 var Value = _expressionChecker.TypeChecker(functionDeclaration.TypeId.ValueType.ToString());
                 if (functionDeclaration.TypeId.ValueType.ToString() == "void")
                     returnFound = true;
@@ -371,10 +397,7 @@ namespace eeCCompiler.Visitors
                 Funcs.Add(functionDeclaration.TypeId.Identifier.Id,
                     new Function(functionDeclaration,
                         _expressionChecker.TypeChecker(functionDeclaration.TypeId.ValueType.ToString())));
-                Identifiers = preBodyIdentifiers;
 
-                preBodyIdentifiers = saveScope();
-                functionDeclaration.Body.Accept(this);
                 Identifiers = preBodyIdentifiers;
             }
             else
