@@ -182,6 +182,8 @@ namespace eeCCompiler.Visitors
 
         public virtual void Visit(IdIndex expressionParenOpExpr)
         {
+            expressionParenOpExpr.Identifier.Accept(this);
+            expressionParenOpExpr.ListIndex.Accept(this);
         }
 
         public virtual void Visit(VarInStructDecleration varInStructDecleration)
