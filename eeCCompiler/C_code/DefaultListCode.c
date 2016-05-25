@@ -221,6 +221,7 @@ void {name}_sort({name}_handle * head){
         {name}_element * element = {name}_newElement(current->element);
         current = current->next;
         {name}_add(element->element, &destination);
+        free(element);
     }
     return destination;
 }

@@ -197,6 +197,7 @@ numlist_handle numlist_copy(numlist_handle * source){
         numlist_element * element = numlist_newElement(current->element);
         current = current->next;
         numlist_add(element->element, &destination);
+        free(element);
     }
     return destination;
 }
@@ -366,6 +367,7 @@ boollist_handle boollist_copy(boollist_handle * source){
         boollist_element * element = boollist_newElement(current->element);
         current = current->next;
         boollist_add(element->element, &destination);
+        free(element);
     }
     return destination;
 }
@@ -535,6 +537,7 @@ string_handle string_copy(string_handle * source){
         string_element * element = string_newElement(current->element);
         current = current->next;
         string_add(element->element, &destination);
+        free(element);
     }
     return destination;
 }
@@ -718,6 +721,7 @@ stringlist_handle stringlist_copy(stringlist_handle * source){
         stringlist_element * element = stringlist_newElement(&current->element);
         current = current->next;
         stringlist_add(&element->element, &destination);
+        free(element);
     }
     return destination;
 }

@@ -266,6 +266,13 @@ namespace eeCCompiler.Visitors
                     Code += $"{structDecleration.Identifier}.{varDecl.Identifier.Id} ";
                     Code += "= " + varDecl.Identifier.Type.ValueType + "list_newHandle();";
                 }
+                else if (varDecl.Identifier.Type.ValueType == "string")
+                {
+                    Code += $"{structDecleration.Identifier}.{varDecl.Identifier.Id} ";
+                    Code += "= string_copy(&";
+                    varDecl.Expression.Accept(this);
+                    Code += ")";
+                }
                 else
                 {
                     Code += $"{structDecleration.Identifier}.{varDecl.Identifier.Id} ";
@@ -533,7 +540,7 @@ namespace eeCCompiler.Visitors
                 refTypeIds.Add(refrence);
                 if (refrence.Ref)
                     refIdentifiers.Add(refrence.TypeId.Identifier);
-                else
+                else if(!refrence.TypeId.Identifier.Type.IsBasicType)
                 {
                     notRefIdentifiers.Add(refrence.TypeId.Identifier);
                 }
@@ -582,7 +589,7 @@ namespace eeCCompiler.Visitors
             Code += "(";
             functionDeclaration.Parameters.Accept(this);
             Code += "){";
-            foreach (var refTypeId in functionDeclaration.Parameters.TypeIds.Where(x => !x.Ref))
+            foreach (var refTypeId in functionDeclaration.Parameters.TypeIds.Where(x => !x.Ref && !x.TypeId.Identifier.Type.IsBasicType))
             {
                 Code +=
                     $"{refTypeId.TypeId.ValueType}_handle ={refTypeId.TypeId.ValueType}_copy(&{refTypeId.TypeId.Identifier});\n";
