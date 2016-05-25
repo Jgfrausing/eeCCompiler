@@ -511,10 +511,10 @@ namespace eeCCompiler.Visitors
                 {
                     if (i > 0)
                         Code += ",";
-                    else if (funcCall.IsStructFunction)
+                    if (i == 0 && funcCall.IsStructFunction)
                         Code += "&";
                     
-                    if ((funcCall.Expressions[i] is ExpressionVal))
+                    else if ((funcCall.Expressions[i] is ExpressionVal))
                     {
                         if (((funcCall.Expressions[i] as ExpressionVal).Value is Identifier))
                             if (!((funcCall.Expressions[i] as ExpressionVal).Value as Identifier).Type.IsBasicType)
