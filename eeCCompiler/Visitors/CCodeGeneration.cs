@@ -291,14 +291,16 @@ namespace eeCCompiler.Visitors
         }
 
         public void Visit(RepeatExpr repeatExpr)
-        {
+        { 
+            // Erstatter chararrays med liste af chars
             var stringCreater = new StringFinderVisitor(TempCVariable);
             PreExpressionStringCreater(stringCreater, repeatExpr);
-
+            
             Code += "while (";
             repeatExpr.Expression.Accept(this);
             Code += ")";
             repeatExpr.Body.Accept(this);
+
             PostExpressionStringCreater(stringCreater);
         }
 
@@ -399,7 +401,7 @@ namespace eeCCompiler.Visitors
             var stringCreater = new StringFinderVisitor(TempCVariable);
             PreExpressionStringCreater(stringCreater, funcCall);
 
-            #region Print & Read
+                #region Print & Read
 
             if (funcCall.Identifier.Id == "program_print")
             {
@@ -495,7 +497,7 @@ namespace eeCCompiler.Visitors
             else if (funcCall.Identifier.Id == "sort")
             {
                 //void numlist_sort(numlist_handle * head);
-                Code += $"{funcCall.Identifier.Type.ValueType}list_sort(&{(funcCall.Expressions[0] as Identifier).Id})";
+                Code += $"{funcCall.Identifier.Type.ValueType}list_sort(&{(funcCall.Expressions[0] as RefId).Identifier.Id})";
             }
                 #endregion
                 #region User functions + copy
@@ -507,9 +509,12 @@ namespace eeCCompiler.Visitors
                     RenameFunction(funcCall);
                 }
 
+                // Printer funktions navnet
                 Code += $"{funcCall.Identifier}(";
+                // Printer parametre
                 for (var i = 0; i < funcCall.Expressions.Count; i++)
                 {
+                    #region Pointer og komma håndtering
                     if (i > 0)
                         Code += ",";
                     if (i == 0 && funcCall.IsStructFunction)
@@ -521,6 +526,8 @@ namespace eeCCompiler.Visitors
                             if (!((funcCall.Expressions[i] as ExpressionVal).Value as Identifier).Type.IsBasicType)
                                 Code += "&";
                     }
+                    #endregion 
+
                     funcCall.Expressions[i].Accept(this);
                 }
                 Code += ")";
@@ -998,16 +1005,21 @@ namespace eeCCompiler.Visitors
 
         private void PreExpressionStringCreater(StringFinderVisitor stringCreater, INodeElement node)
         {
+            // Erstatter udtrykket med en unik variable
             node.Accept(stringCreater);
+            // Opretter variablen og tilføjer chars til variablen
             foreach (var stringValue in stringCreater.StringDict)
             {
+                // Opret
                 Code += $"string_handle {stringValue.Key.Id} = string_new();\n";
+                // Tilføj
                 AppendToString(stringValue.Value.Elements, new Identifier(stringValue.Key.Id));
             }
         }
 
         private void PostExpressionStringCreater(StringFinderVisitor stringCreater)
         {
+            // Clear strengen da den ikke skal bruges mere
             foreach (var stringValue in stringCreater.StringDict)
             {
                 Code += $"string_clear(&{stringValue.Key.Id});";
